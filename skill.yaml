@@ -1,0 +1,78 @@
+name: narrative-quant-strategist
+version: "4.1"
+description: >
+  A dual-mode quantitative strategy skill providing macro analysis and narrative-specific 
+  signal generation. Integrates with the CMC AI Agent Hub, BNBAgent SDK, and Trust 
+  Wallet Agent Kit for end-to-end strategy formulation and execution routing.
+author: ASBESTOS19
+tags:
+  - quant
+  - macro
+  - narrative-rotation
+  - x402-enforced
+  - bnbagent-sdk
+  - trust-wallet-agent-kit
+
+actions:
+  - name: RUN_SKILL
+    description: Generates a structured quant strategy spec using narrative-specific alpha metrics.
+    inputs:
+      - name: narrative
+        type: string
+        enum: ["AI Tokens", "RWA", "DePIN", "Meme", "Privacy"]
+      - name: time_horizon
+        type: string
+        enum: ["1D", "7D", "30D"]
+    outputs:
+      - name: signal_verdict
+        type: string
+      - name: entry_exit_logic
+        type: string
+      - name: position_sizing
+        type: string
+      - name: invalidation_signals
+        type: array
+        items: string
+      - name: twak_execution_payload
+        type: object
+        description: "Pre-formatted BNBAgent SDK ToolCall ready for Trust Wallet Agent Kit signing"
+    mcp_tools_required:
+      - cmc_technicals (RSI, Volume Profile)
+      - cmc_sentiment (Social Delta, Fear & Greed)
+      - narrative_specific_metrics (e.g., GitHub commits, mixer volume, social velocity)
+
+  - name: GLOBAL_SCAN
+    description: Cross-narrative macro analysis outputting portfolio tilt weights and rotation signals.
+    inputs:
+      - name: risk_profile
+        type: string
+        enum: ["Conservative", "Balanced", "Aggressive"]
+    outputs:
+      - name: portfolio_weights
+        type: object
+      - name: rotation_signal
+        type: string
+      - name: macro_headwinds
+        type: array
+        items: string
+    mcp_tools_required:
+      - cmc_market_overview
+      - cmc_news_sentiment
+
+execution_routing:
+  framework: "bnbagent-sdk"
+  target_wallet: "trust-wallet-agent-kit"
+  description: "Outputs v1 ToolCall format for direct ingestion and signing by Trust Wallet Agent Kit."
+
+x402_integration:
+  enabled: true
+  pricing_model: "pay-per-call"
+  base_fee_usd: 0.05
+  enforcement: "strict"
+  description: "Requires valid X402-Payment-Proof header. Rejects with 402 status if missing."
+
+backtest_config:
+  initial_capital: 10000
+  rebalance_frequency: "weekly"
+  max_drawdown_limit: 0.15
+  metrics_tracked: ["total_return", "max_drawdown", "sharpe_ratio"]
