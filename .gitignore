@@ -4,3 +4,16 @@ demo.cast
 demo.gif
 demo.mp4
 demo.svg
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment
+.env
+.venv/
+
+# IDE
+.vscode/
+.idea/
