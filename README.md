@@ -1,88 +1,157 @@
-# Narrative Quant Strategist
+# Narrative Rotation Index (NRI)
 
-A multi-narrative quantitative strategy engine with regime-aware signal generation, cross-narrative rotation, and realistic backtest validation.
+A CMC-native AI-agent skill that ranks crypto narratives by relative strength, liquidity expansion, attention velocity, and macro regime — then outputs backtestable portfolio weights with structured confidence explanations and optional Trust Wallet execution payloads.
 
 Built for the **CMC AI Agent Hub** with native **BNBAgent SDK** and **Trust Wallet Agent Kit** integration.
+
+## One-Line Pitch
+
+> A backtestable strategy skill that scans 5 crypto narratives, detects market regime, ranks by relative strength and liquidity expansion, penalizes crowded late-cycle moves, and outputs portfolio weights plus an optional Trust Wallet execution payload.
 
 ## Architecture
 
 ```
-                     ┌─────────────────────────┐
-                     │   Market Data Sources    │
-                     │  CMC · On-chain · Social │
-                     └────────────┬────────────┘
-                                  │
-                     ┌────────────▼────────────┐
-                     │   Regime Detection       │
-                     │  RISK_ON · TRANSITION ·  │
-                     │  RISK_OFF                │
-                     └────────────┬────────────┘
-                                  │
-              ┌───────────────────┼───────────────────┐
-              │                   │                   │
-   ┌──────────▼──────┐ ┌─────────▼────────┐ ┌───────▼────────┐
-   │  AI Tokens       │ │  RWA             │ │  DePIN          │
-   │  Dev activity    │ │  TVL + Yield     │ │  Node growth    │
-   │  + Partnerships  │ │  + Regulatory    │ │  + Utilization  │
-   └──────────┬──────┘ └─────────┬────────┘ └───────┬────────┘
-              │                   │                   │
-   ┌──────────▼──────┐ ┌─────────▼────────┐         │
-   │  Meme            │ │  Privacy          │         │
-   │  Social velocity │ │  Mixer volume    │         │
-   │  + Whale accum   │ │  + Shielded pool │         │
-   └──────────┬──────┘ └─────────┬────────┘         │
-              │                   │                   │
-              └───────────────────┼───────────────────┘
-                                  │
-                     ┌────────────▼────────────┐
-                     │   Global Scan Engine     │
-                     │  Conviction scoring ·    │
-                     │  Portfolio weighting ·   │
-                     │  Rotation signals        │
-                     └────────────┬────────────┘
-                                  │
-                     ┌────────────▼────────────┐
-                     │  TWAK Payload Generator  │
-                     │  BNBAgent SDK v1 format  │
-                     │  → Trust Wallet signing  │
-                     └────────────┬────────────┘
-                                  │
-                     ┌────────────▼────────────┐
-                     │  x402 Payment Gate       │
-                     │  Pay-per-call ($0.05)    │
-                     └─────────────────────────┘
+  ┌─────────────────────────────────────────────────────────┐
+  │                  CMC Data Layer (Native)                │
+  │  Prices · Volumes · Market Cap · Trending · Watchlists  │
+  └────────────────────────┬────────────────────────────────┘
+                           │
+              ┌────────────▼────────────┐
+              │   Regime Detection       │
+              │  RISK_ON · TRANSITION ·  │  Markov chain (70% stay)
+              │  RISK_OFF               │  Conviction cap per regime
+              └────────────┬────────────┘
+                           │
+     ┌─────────────────────┼─────────────────────┐
+     │                     │                     │
+  ┌──▼───────────┐  ┌──────▼──────┐  ┌──────────▼──────┐
+  │ AI Tokens     │  │ RWA         │  │ DePIN            │
+  │ FET, RENDER   │  │ ONDO, CFG   │  │ FIL, HNT, RNDR  │
+  │ TAO, AKT      │  │ MPL, POLYX  │  │ IOTX             │
+  └──┬────────────┘  └──────┬──────┘  └──────────┬──────┘
+     │                     │                     │
+  ┌──▼────────────┐  ┌─────▼───────┐            │
+  │ Meme           │  │ Privacy      │            │
+  │ DOGE, PEPE     │  │ ZEC, SCRT   │            │
+  │ WIF, BONK      │  │ ROSE, TORN  │            │
+  └──┬────────────┘  └─────┬───────┘            │
+     │                     │                     │
+     └─────────────────────┼─────────────────────┘
+                           │
+              ┌────────────▼────────────┐
+              │  4-Bucket Scoring        │
+              │  30% Momentum            │
+              │  25% Liquidity           │  Quadratic weighting
+              │  20% Attention           │  w_i = conv²/Σ(conv²)
+              │  15% Fundamental         │  Min threshold = 20
+              │  10% Risk Adjustment     │  Max allocation = 35%
+              └────────────┬────────────┘
+                           │
+              ┌────────────▼────────────┐
+              │  Exhaustion Detector     │
+              │  0-30: Healthy           │
+              │  31-60: Caution          │  Penalizes late entries
+              │  61-100: Crowded         │
+              └────────────┬────────────┘
+                           │
+              ┌────────────▼────────────┐
+              │  Risk Controls           │
+              │  Circuit breaker (15%)   │
+              │  Conviction decay (10%/d)│
+              │  Execution guardrails    │
+              └────────────┬────────────┘
+                           │
+              ┌────────────▼────────────┐
+              │  Structured Output       │
+              │  Verdict · Conviction    │
+              │  Reasons · Risks         │
+              │  Bucket scores · Weights │
+              │  TWAK payload (optional) │
+              └─────────────────────────┘
 ```
 
-## Supported Narratives
+## Scoring Model
 
-| Narrative | Lead Alpha Metrics | Signal Logic |
-|-----------|-------------------|-------------|
-| **AI Tokens** | GitHub commits, developer growth, partnerships, token velocity | Dev ecosystem momentum + oversold RSI |
-| **RWA** | TVL change, institutional mentions, regulatory clarity, yield premium | Institutional inflow + regulatory tailwind |
-| **DePIN** | Node growth, revenue/node, network utilization | Infrastructure expansion + profitable operators |
-| **Meme** | Social velocity, holder growth, whale accumulation, dev sell pressure | Community momentum + smart money accumulation |
-| **Privacy** | Mixer volume, regulatory risk, shielded pool growth, bridge count | Demand signal + manageable regulatory exposure |
+Final Narrative Score =
+- **0.30 × Momentum**: basket return vs BTC, relative strength, RSI, drawdown from 30d high
+- **0.25 × Liquidity**: volume growth, market cap change, depth, spread
+- **0.20 × Attention**: CMC trending rank, social velocity, institutional mentions
+- **0.15 × Fundamental**: narrative-specific utility (dev activity, TVL, node growth, etc.)
+- **0.10 × Risk Adjustment**: volatility penalty + exhaustion detector
+
+## Metric Sourcing
+
+All core metrics are **CMC-native** (prices, volumes, market cap, trending, volatility). No external APIs required for the strategy to function.
+
+Optional external enrichments are clearly source-annotated:
+- GitHub commits → GitHub API
+- TVL changes → DeFiLlama
+- Regulatory sentiment → CMC news keyword filter
+- Whale tracking → on-chain wallet analysis
+- Social volume → LunarCrush / CMC community
+
+## Narrative Exhaustion Detector
+
+Prevents late-cycle entries by penalizing:
+- Parabolic returns (+40% 7d) with declining volume
+- Social hype without holder growth
+- Price near 30d high with falling relative volume
+- Extreme volatility (>100% annualized)
+- Crowd consensus crowding (trending rank < 5)
+
+Score ranges:
+- **0-30**: Healthy trend — full conviction
+- **31-60**: Caution — sizing reduced
+- **61-100**: Crowded/late-cycle — strong penalty
 
 ## Market Regime Detection
 
-The strategy adapts behavior based on three regimes:
+Three regimes with Markov chain persistence (70% stay probability):
 
-- **RISK_ON**: Full position sizing. Tech narratives (AI, DePIN) get a bonus. Memes get reduced regime penalty.
-- **TRANSITION**: 60% position sizing. Neutral weighting.
-- **RISK_OFF**: 30% position sizing. Memes penalized heavily. Defensive rotation to stablecoins.
+| Regime | Conviction Cap | Position Sizing | Behavior |
+|--------|---------------|-----------------|----------|
+| **RISK_ON** | 100 | 100% | Full conviction, tech narratives get bonus |
+| **TRANSITION** | 75 | 60% | Reduced sizing, STRONG_LONG still possible |
+| **RISK_OFF** | 50 | 30% | STRONG_LONG mathematically impossible (cap < 60 threshold) |
 
-## Risk Metrics
+## Execution Guardrails
 
-The backtest engine tracks institutional-grade metrics:
+| Guardrail | Limit |
+|-----------|-------|
+| Max slippage (large cap) | 1.0% |
+| Max slippage (meme) | 2.5% |
+| Max allocation per narrative | 35% |
+| Max allocation per token | 15% |
+| Minimum liquidity | $500,000 |
+| Maximum spread | 1.5% |
+| Minimum token age | 7 days |
+| User confirmation | Always required |
 
-| Metric | Description |
-|--------|-------------|
-| **Sharpe Ratio** | Risk-adjusted return (annualized, 2% risk-free) |
-| **Sortino Ratio** | Downside-only risk adjustment |
-| **Calmar Ratio** | Return / max drawdown |
-| **Win Rate** | % of profitable trades |
-| **Profit Factor** | Gross profit / gross loss |
-| **Max Drawdown** | Largest peak-to-trough decline |
+## Risk Controls
+
+- **Circuit Breaker**: 15% drawdown → all signals flip to NEUTRAL, sizing drops to 10% until recovery to 5%
+- **Conviction Decay**: 10%/day without signal refresh — requires recurring x402 calls to keep signals fresh
+- **Conviction Hard Cap**: Regime-specific ceiling prevents overconfidence in bear markets
+
+## Output Format
+
+Every signal includes structured confidence explanation:
+
+```json
+{
+  "skill": "narrative-rotation-index",
+  "regime": "TRANSITION",
+  "top_narrative": "Meme",
+  "verdict": "STRONG_LONG",
+  "conviction": 62,
+  "bucket_scores": {"momentum": 70, "liquidity": 85, "attention": 55, "fundamental": 60, "risk_adjustment": 70},
+  "exhaustion": "25/100",
+  "reasons": ["Strong relative strength vs BTC", "Volume expanding 85% WoW", ...],
+  "risks": ["Regime is TRANSITION — allocation reduced", ...],
+  "execution_guardrails": {"execution_allowed": true, "violations": []},
+  "twak_payload": {"bnbagent_sdk_format": "v1", ...}
+}
+```
 
 ## Usage
 
@@ -91,39 +160,12 @@ pip install -r requirements.txt
 python backtest.py
 ```
 
-## TWAK Integration
-
-When a narrative signals `STRONG_LONG` or `LONG`, the engine generates a pre-formatted BNBAgent SDK v1 ToolCall payload:
-
-```json
-{
-  "bnbagent_sdk_format": "v1",
-  "action": "trust_wallet_agent_kit.swap",
-  "parameters": {
-    "chain": "BNB Smart Chain",
-    "from_token": "USDT",
-    "to_token": "0x...",
-    "amount_usd": 500,
-    "slippage_tolerance": "0.5%",
-    "routing_preference": "optimal"
-  },
-  "metadata": {
-    "requires_user_confirmation": true,
-    "signal_verdict": "STRONG_LONG"
-  }
-}
-```
-
-## x402 Payment Gate
-
-All skill invocations require a valid `X402-Payment-Proof` header. Requests without valid proof receive a `402 Payment Required` response. Base fee: $0.05 per call.
-
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `skill.yaml` | CMC Agent Hub skill specification |
-| `backtest.py` | Executable strategy engine with backtest |
+| `backtest.py` | Executable NRI engine with basket backtest |
 | `requirements.txt` | Python dependencies |
 
 ## License

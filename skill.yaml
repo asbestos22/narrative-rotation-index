@@ -1,67 +1,113 @@
-name: narrative-quant-strategist
-version: "5.0"
+name: narrative-rotation-index
+version: "7.0"
 description: >
-  A multi-narrative quantitative strategy skill with regime-aware signal generation,
-  cross-narrative rotation engine, and realistic backtest validation. Integrates with 
-  the CMC AI Agent Hub, BNBAgent SDK, and Trust Wallet Agent Kit for end-to-end 
-  strategy formulation and execution routing.
+  A CMC-native Narrative Rotation Index (NRI) skill that ranks crypto narratives by 
+  relative strength, liquidity expansion, attention velocity, and macro regime. Outputs 
+  backtestable portfolio weights with structured confidence explanations, narrative 
+  exhaustion detection, and optional Trust Wallet execution payloads gated behind 
+  user confirmation.
 author: ASBESTOS19
 tags:
-  - quant
-  - macro
   - narrative-rotation
   - regime-detection
+  - exhaustion-detector
+  - quant-strategy
   - x402-enforced
   - bnbagent-sdk
   - trust-wallet-agent-kit
+  - cmc-agent-hub
 
 supported_narratives:
-  - AI Tokens
-  - RWA
-  - DePIN
-  - Meme
-  - Privacy
+  - AI Tokens    # FET, RENDER, TAO, AKT
+  - RWA          # ONDO, CFG, MPL, POLYX
+  - DePIN        # FIL, HNT, IOTX, RNDR
+  - Meme         # DOGE, PEPE, WIF, BONK
+  - Privacy      # ZEC, SCRT, ROSE, TORN
+
+scoring_model:
+  description: >
+    4-bucket weighted scoring with narrative-specific fundamental customization.
+  formula: "Final = 0.30×Momentum + 0.25×Liquidity + 0.20×Attention + 0.15×Fundamental + 0.10×Risk"
+  buckets:
+    Momentum (30%):
+      - basket_return_7d_pct          # CMC-native
+      - relative_strength_vs_btc_7d   # CMC-native
+      - drawdown_from_30d_high_pct    # CMC-native
+      - rsi_14                        # CMC-native
+    Liquidity (25%):
+      - volume_change_7d_pct          # CMC-native
+      - market_cap_change_7d_pct      # CMC-native
+      - liquidity_usd                 # CMC-native
+      - spread_pct                    # CMC-native
+    Attention (20%):
+      - trending_rank_avg             # CMC-native
+      - social_volume_24h             # CMC community / LunarCrush
+      - institutional_mentions_7d     # CMC news feed keyword filter
+    Fundamental (15%):
+      narrative-specific metrics — see alpha_metrics_by_narrative
+    Risk Adjustment (10%):
+      - volatility_30d                # CMC-native
+      - exhaustion_score              # computed by exhaustion detector
+
+alpha_metrics_by_narrative:
+  AI Tokens:
+    CMC-native: [basket_return_7d, volume_change_7d, market_cap_change_7d, trending_rank, volatility_30d, relative_strength_vs_btc, rsi_14]
+    External:
+      - metric: github_commits_7d
+        source: "GitHub API, organization repos"
+      - metric: developer_growth_30d_pct
+        source: "GitHub API, unique contributors"
+      - metric: partnership_announcements_7d
+        source: "CMC news feed keyword filter"
+  RWA:
+    CMC-native: [basket_return_7d, volume_change_7d, market_cap_change_7d, trending_rank, volatility_30d, rsi_14]
+    External:
+      - metric: tvl_change_7d_pct
+        source: "DeFiLlama API"
+      - metric: institutional_mentions_7d
+        source: "CMC news sentiment, 'institutional' keyword"
+      - metric: regulatory_clarity_score
+        source: "CMC news sentiment, 'regulation'+'SEC' keyword, normalized 1-10"
+      - metric: yield_premium_vs_treasuries_bps
+        source: "DeFiLlama yield API vs FRED 10y treasury"
+  DePIN:
+    CMC-native: [basket_return_7d, volume_change_7d, market_cap_change_7d, trending_rank, volatility_30d, rsi_14]
+    External:
+      - metric: active_nodes_7d_growth_pct
+        source: "Protocol dashboards"
+      - metric: revenue_per_node_usd
+        source: "Protocol dashboards"
+      - metric: network_utilization_pct
+        source: "Protocol dashboards"
+  Meme:
+    CMC-native: [basket_return_7d, volume_change_7d, market_cap_change_7d, trending_rank, volatility_30d, rsi_14]
+    External:
+      - metric: social_volume_24h
+        source: "LunarCrush / CMC community stats"
+      - metric: holder_growth_7d_pct
+        source: "On-chain (BSCScan holders endpoint)"
+      - metric: dev_sell_pressure
+        source: "On-chain team wallet → CEX transfers, < $50k/7d = Low"
+      - metric: whale_accumulation_7d_usd
+        source: "On-chain whale wallet tracking"
+  Privacy:
+    CMC-native: [basket_return_7d, volume_change_7d, market_cap_change_7d, trending_rank, volatility_30d, rsi_14]
+    External:
+      - metric: mixer_volume_7d_usd
+        source: "On-chain mixer contract analysis"
+      - metric: regulatory_risk_score
+        source: "Inverse CMC news sentiment, 'regulation'+'privacy', normalized 1-10"
+      - metric: shielded_pool_growth_7d_pct
+        source: "Protocol dashboards"
+      - metric: cross_chain_bridges_active
+        source: "DeFiLlama bridges"
 
 actions:
-  - name: RUN_SKILL
-    description: >
-      Generates a structured quant strategy spec for a single narrative using 
-      narrative-specific alpha metrics and regime-adjusted conviction scoring.
-    inputs:
-      - name: narrative
-        type: string
-        enum: ["AI Tokens", "RWA", "DePIN", "Meme", "Privacy"]
-      - name: time_horizon
-        type: string
-        enum: ["1D", "7D", "30D"]
-    outputs:
-      - name: signal_verdict
-        type: string
-        enum: ["STRONG_LONG", "LONG", "NEUTRAL", "AVOID"]
-      - name: conviction_score
-        type: integer
-        description: "0-100 score based on multi-factor narrative analysis"
-      - name: entry_exit_logic
-        type: string
-      - name: position_sizing
-        type: string
-        description: "Regime-adjusted position sizing recommendation"
-      - name: invalidation_signals
-        type: array
-        items: string
-      - name: twak_execution_payload
-        type: object
-        description: "Pre-formatted BNBAgent SDK ToolCall ready for Trust Wallet Agent Kit signing"
-    mcp_tools_required:
-      - cmc_technicals (RSI, Volume Profile)
-      - cmc_sentiment (Social Delta, Fear & Greed)
-      - narrative_specific_metrics (GitHub commits, mixer volume, node growth, TVL, etc.)
-
   - name: GLOBAL_SCAN
     description: >
-      Cross-narrative macro analysis. Evaluates all 5 narratives simultaneously,
-      ranks by conviction score, and outputs portfolio tilt weights + rotation signals.
-      Regime-aware: adapts allocations based on RISK_ON / TRANSITION / RISK_OFF regimes.
+      Cross-narrative rotation engine. Evaluates all 5 narratives using 4-bucket scoring,
+      ranks by conviction, applies quadratic portfolio weighting, and detects market regime.
+      Outputs rotation signal: CONCENTRATE / BALANCED / DEFENSIVE.
     inputs:
       - name: risk_profile
         type: string
@@ -72,22 +118,54 @@ actions:
         enum: ["RISK_ON", "RISK_OFF", "TRANSITION"]
       - name: narrative_rankings
         type: array
-        description: "All 5 narratives ranked by conviction score (desc)"
+        description: "All 5 narratives ranked by conviction with bucket scores and exhaustion"
       - name: portfolio_weights
         type: object
-        description: "Percentage allocation per narrative, summing to 100%"
+        description: "Quadratic-weighted allocation (w_i = conv_i^2 / sum), min threshold 20, max 35% per narrative"
       - name: rotation_signal
         type: string
-        description: "Actionable rotation instruction (CONCENTRATE / BALANCED / DEFENSIVE)"
-    mcp_tools_required:
-      - cmc_market_overview
-      - cmc_news_sentiment
-      - cmc_fear_greed_index
+
+  - name: RUN_SKILL
+    description: >
+      Single-narrative deep dive with structured confidence output. Returns verdict,
+      conviction score, bucket breakdown, top reasons, risk factors, execution guardrail
+      check, and optional TWAK payload.
+    inputs:
+      - name: narrative
+        type: string
+        enum: ["AI Tokens", "RWA", "DePIN", "Meme", "Privacy"]
+    outputs:
+      - name: verdict
+        type: string
+        enum: ["STRONG_LONG", "LONG", "NEUTRAL", "AVOID"]
+      - name: conviction
+        type: integer
+        description: "0-100, capped by regime (RISK_ON=100, TRANSITION=75, RISK_OFF=50)"
+      - name: bucket_scores
+        type: object
+        description: "Individual scores for momentum, liquidity, attention, fundamental, risk"
+      - name: exhaustion_score
+        type: integer
+        description: "0-100: 0-30 healthy, 31-60 caution, 61-100 crowded/late-cycle"
+      - name: reasons
+        type: array
+        items: string
+        description: "Top factors driving the conviction score"
+      - name: risks
+        type: array
+        items: string
+        description: "Factors that could invalidate the signal"
+      - name: execution_guardrails
+        type: object
+        description: "Slippage, allocation, liquidity, spread, and token age checks"
+      - name: twak_payload
+        type: object
+        description: "Optional BNBAgent SDK v1 ToolCall, gated behind user confirmation"
 
   - name: DETECT_REGIME
     description: >
-      Classifies current market regime using Fear & Greed Index, BTC dominance,
-      and total market cap momentum. Outputs regime label and position sizing multiplier.
+      Classifies market regime from Fear & Greed, BTC dominance, and mcap momentum.
+      Uses Markov chain (70% stay probability) for persistence.
     inputs:
       - name: fear_greed_index
         type: integer
@@ -98,71 +176,65 @@ actions:
     outputs:
       - name: regime
         type: string
-        enum: ["RISK_ON", "RISK_OFF", "TRANSITION"]
-      - name: reasoning
-        type: string
+      - name: conviction_cap
+        type: integer
       - name: position_multiplier
         type: number
 
-alpha_metrics_by_narrative:
-  AI Tokens:
-    - github_commits_7d
-    - developer_growth_30d_pct
-    - partnership_announcements_7d
-    - social_volume_24h
-    - token_velocity_7d
-    - rsi_14
-  RWA:
-    - tvl_change_7d_pct
-    - institutional_mentions_7d
-    - regulatory_clarity_score
-    - yield_premium_vs_treasuries_bps
-    - rsi_14
-  DePIN:
-    - active_nodes_7d_growth_pct
-    - revenue_per_node_usd
-    - network_utilization_pct
-    - social_volume_24h
-    - rsi_14
-  Meme:
-    - social_volume_24h
-    - holder_growth_7d_pct
-    - dev_sell_pressure
-    - whale_accumulation_7d_usd
-    - dex_liquidity_usd
-    - rsi_14
-  Privacy:
-    - mixer_volume_7d_usd
-    - regulatory_risk_score
-    - shielded_pool_growth_7d_pct
-    - cross_chain_bridges_active
-    - rsi_14
+exhaustion_detector:
+  description: >
+    Penalizes late-cycle, overcrowded narrative entries. Checks for parabolic returns
+    with declining volume, social hype without holder growth, near-high with falling
+    volume, extreme volatility, and crowd consensus crowding.
+  score_ranges:
+    - "0-30: Healthy trend — full conviction allowed"
+    - "31-60: Caution — sizing reduced"
+    - "61-100: Crowded/late-cycle — strong penalty, sizing heavily reduced"
 
-risk_metrics_tracked:
-  - sharpe_ratio
-  - sortino_ratio
-  - calmar_ratio
-  - max_drawdown_pct
-  - win_rate_pct
-  - profit_factor
+execution_guardrails:
+  max_slippage_large_cap_pct: 1.0
+  max_slippage_meme_pct: 2.5
+  max_allocation_per_narrative_pct: 35.0
+  max_allocation_per_token_pct: 15.0
+  min_liquidity_usd: 500000
+  max_spread_pct: 1.5
+  min_token_age_days: 7
+  requires_user_confirmation: true
+
+risk_controls:
+  circuit_breaker:
+    threshold_pct: 15
+    action: "All signals → NEUTRAL, sizing → 10% until recovery to 5% drawdown"
+  conviction_decay:
+    rate_pct_per_day: 10
+    description: "Conviction decays 10%/day without signal refresh. Requires recurring x402 calls."
 
 execution_routing:
   framework: "bnbagent-sdk"
   target_wallet: "trust-wallet-agent-kit"
-  description: "Outputs v1 ToolCall format for direct ingestion and signing by Trust Wallet Agent Kit."
+  description: >
+    Optional execution-ready output. Does not execute autonomously.
+    Outputs v1 ToolCall format gated behind user confirmation.
 
 x402_integration:
   enabled: true
-  pricing_model: "pay-per-call"
-  base_fee_usd: 0.05
+  pricing_model: "tiered"
+  tiers:
+    base: {fee_usd: 0.05, description: "Standard signal call"}
+    regime_update: {fee_usd: 0.20, description: "Real-time regime classification"}
+    full_scan: {fee_usd: 0.50, description: "5-narrative scan with execution payload"}
   enforcement: "strict"
-  description: "Requires valid X402-Payment-Proof header. Rejects with 402 status if missing."
 
 backtest_config:
+  engine: "historical-basket-simulation"
   initial_capital: 10000
   default_period_days: 90
+  distribution: "Student's t (df=3)"
+  regime_model: "Markov chain (70% persistence)"
+  trade_costs:
+    swap_fee_pct: 0.1
+    slippage_pct: 0.1
   rebalance_frequency: "event-driven"
-  max_drawdown_limit: 0.15
   position_size_base_pct: 5.0
   metrics_tracked:
     - total_return
@@ -172,3 +244,4 @@ backtest_config:
     - calmar_ratio
     - win_rate
     - profit_factor
+    - total_fees_paid
