@@ -1,61 +1,131 @@
 # Narrative Quant Strategist
 
-## Overview
-A dual-mode quantitative strategy skill providing macro analysis and narrative-specific signal generation. Integrates with the CMC AI Agent Hub, BNBAgent SDK, and Trust Wallet Agent Kit for end-to-end strategy formulation and execution routing.
+A multi-narrative quantitative strategy engine with regime-aware signal generation, cross-narrative rotation, and realistic backtest validation.
 
-## Workflow Architecture
+Built for the **CMC AI Agent Hub** with native **BNBAgent SDK** and **Trust Wallet Agent Kit** integration.
 
-**1. Agent Request** → Triggers `RUN_SKILL`  
-**2. x402 Payment Gate**  
-   - ❌ **Missing Proof** → Reject (402 Payment Required)  
-   - ✅ **Valid Proof** → Deduct $0.05 & Proceed  
-**3. Narrative Alpha Analysis** → Evaluates sector-specific metrics (e.g., Meme social volume, Privacy mixer volume)  
-**4. Signal Generation** → Outputs LONG/SHORT verdict + TWAK execution payload  
-**5. Backtest Validation** → Simulates 30-day performance (Sharpe, Drawdown, Return)  
+## Architecture
 
-## Core Actions
-### 1. RUN SKILL
-Analyzes a specific market narrative (**AI Tokens, RWA, DePIN, Meme, Privacy**) using **narrative-specific alpha metrics** to generate a structured quant strategy spec:
-- **Signal Verdict**: LONG / SHORT / NEUTRAL
-- **Entry/Exit Logic**: Rule-based triggers tailored to the sector (e.g., Meme social velocity, Privacy mixer volume)
-- **Position Sizing**: Risk-adjusted allocation %
-- **Invalidation Signals**: Clear conditions to abort the thesis
-- **TWAK Execution Payload**: Pre-formatted BNBAgent SDK ToolCall ready for Trust Wallet Agent Kit signing.
+```
+                     ┌─────────────────────────┐
+                     │   Market Data Sources    │
+                     │  CMC · On-chain · Social │
+                     └────────────┬────────────┘
+                                  │
+                     ┌────────────▼────────────┐
+                     │   Regime Detection       │
+                     │  RISK_ON · TRANSITION ·  │
+                     │  RISK_OFF                │
+                     └────────────┬────────────┘
+                                  │
+              ┌───────────────────┼───────────────────┐
+              │                   │                   │
+   ┌──────────▼──────┐ ┌─────────▼────────┐ ┌───────▼────────┐
+   │  AI Tokens       │ │  RWA             │ │  DePIN          │
+   │  Dev activity    │ │  TVL + Yield     │ │  Node growth    │
+   │  + Partnerships  │ │  + Regulatory    │ │  + Utilization  │
+   └──────────┬──────┘ └─────────┬────────┘ └───────┬────────┘
+              │                   │                   │
+   ┌──────────▼──────┐ ┌─────────▼────────┐         │
+   │  Meme            │ │  Privacy          │         │
+   │  Social velocity │ │  Mixer volume    │         │
+   │  + Whale accum   │ │  + Shielded pool │         │
+   └──────────┬──────┘ └─────────┬────────┘         │
+              │                   │                   │
+              └───────────────────┼───────────────────┘
+                                  │
+                     ┌────────────▼────────────┐
+                     │   Global Scan Engine     │
+                     │  Conviction scoring ·    │
+                     │  Portfolio weighting ·   │
+                     │  Rotation signals        │
+                     └────────────┬────────────┘
+                                  │
+                     ┌────────────▼────────────┐
+                     │  TWAK Payload Generator  │
+                     │  BNBAgent SDK v1 format  │
+                     │  → Trust Wallet signing  │
+                     └────────────┬────────────┘
+                                  │
+                     ┌────────────▼────────────┐
+                     │  x402 Payment Gate       │
+                     │  Pay-per-call ($0.05)    │
+                     └─────────────────────────┘
+```
 
-### 2. GLOBAL SCAN
-Cross-narrative macro analysis outputting:
-- **Portfolio Tilt Weights**: Dynamic allocation % across core narratives
-- **Rotation Signals**: Actionable sector rotation recommendations
-- **Macro Headwinds**: Identified systemic risks
+## Supported Narratives
 
-## Architecture & Integrations
-| Component | Implementation |
-| :--- | :--- |
-| **CMC AI Agent Hub** | Core skill definition (`skill.yaml`). Utilizes MCP tools for RSI, volume profile, social delta, and Fear & Greed Index, plus narrative-specific metrics. |
-| **BNBAgent SDK** | Output structures are formatted as `bnbagent_sdk_format: v1` ToolCalls for seamless ingestion by BNB Chain agent frameworks. |
-| **Trust Wallet Agent Kit** | Generates ready-to-sign `trust_wallet_agent_kit.swap` payloads with optimal routing and slippage parameters upon valid signals. |
-| **x402 Protocol** | Enforced pay-per-call verification. Requires `X402-Payment-Proof` header; rejects with 402 status if missing. |
+| Narrative | Lead Alpha Metrics | Signal Logic |
+|-----------|-------------------|-------------|
+| **AI Tokens** | GitHub commits, developer growth, partnerships, token velocity | Dev ecosystem momentum + oversold RSI |
+| **RWA** | TVL change, institutional mentions, regulatory clarity, yield premium | Institutional inflow + regulatory tailwind |
+| **DePIN** | Node growth, revenue/node, network utilization | Infrastructure expansion + profitable operators |
+| **Meme** | Social velocity, holder growth, whale accumulation, dev sell pressure | Community momentum + smart money accumulation |
+| **Privacy** | Mixer volume, regulatory risk, shielded pool growth, bridge count | Demand signal + manageable regulatory exposure |
 
-## Advanced Features
-1. **Narrative-Specific Alpha**: Moves beyond generic RSI. Evaluates sector-specific fundamentals:
-   - **Meme**: Social volume velocity, holder growth %, dev sell pressure.
-   - **Privacy**: Mixer volume trends, regulatory risk score.
-   - **AI/DePIN/RWA**: GitHub commits, node growth, TradFi yield spreads.
-2. **Simulated Backtest Engine**: Includes a built-in event-driven backtester tracking cumulative returns, max drawdown, and Sharpe ratio against synthetic OHLCV data.
-3. **Active Payment Gate**: Programmatic enforcement of the x402 monetization layer before strategy execution.
+## Market Regime Detection
 
-## Project Structure
-- `skill.yaml`: Official CMC Agent Hub skill specification with execution routing and x402 metadata.
-- `backtest.py`: Executable script simulating MCP tool calls, narrative-specific alpha evaluation, x402 verification, and backtest metrics.
-- `requirements.txt`: Python dependencies.
+The strategy adapts behavior based on three regimes:
+
+- **RISK_ON**: Full position sizing. Tech narratives (AI, DePIN) get a bonus. Memes get reduced regime penalty.
+- **TRANSITION**: 60% position sizing. Neutral weighting.
+- **RISK_OFF**: 30% position sizing. Memes penalized heavily. Defensive rotation to stablecoins.
+
+## Risk Metrics
+
+The backtest engine tracks institutional-grade metrics:
+
+| Metric | Description |
+|--------|-------------|
+| **Sharpe Ratio** | Risk-adjusted return (annualized, 2% risk-free) |
+| **Sortino Ratio** | Downside-only risk adjustment |
+| **Calmar Ratio** | Return / max drawdown |
+| **Win Rate** | % of profitable trades |
+| **Profit Factor** | Gross profit / gross loss |
+| **Max Drawdown** | Largest peak-to-trough decline |
 
 ## Usage
+
 ```bash
 pip install -r requirements.txt
 python backtest.py
 ```
 
-## Production Roadmap
-1. Replace mock data functions with live CMC Data API and MCP tool calls.
-2. Connect to a robust backtesting engine (e.g., `backtrader` or `vectorbt`) for historical OHLCV validation.
-3. Enable direct Trust Wallet Agent Kit integration for autonomous, verified execution.
+## TWAK Integration
+
+When a narrative signals `STRONG_LONG` or `LONG`, the engine generates a pre-formatted BNBAgent SDK v1 ToolCall payload:
+
+```json
+{
+  "bnbagent_sdk_format": "v1",
+  "action": "trust_wallet_agent_kit.swap",
+  "parameters": {
+    "chain": "BNB Smart Chain",
+    "from_token": "USDT",
+    "to_token": "0x...",
+    "amount_usd": 500,
+    "slippage_tolerance": "0.5%",
+    "routing_preference": "optimal"
+  },
+  "metadata": {
+    "requires_user_confirmation": true,
+    "signal_verdict": "STRONG_LONG"
+  }
+}
+```
+
+## x402 Payment Gate
+
+All skill invocations require a valid `X402-Payment-Proof` header. Requests without valid proof receive a `402 Payment Required` response. Base fee: $0.05 per call.
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `skill.yaml` | CMC Agent Hub skill specification |
+| `backtest.py` | Executable strategy engine with backtest |
+| `requirements.txt` | Python dependencies |
+
+## License
+
+MIT

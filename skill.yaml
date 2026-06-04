@@ -1,21 +1,32 @@
 name: narrative-quant-strategist
-version: "4.1"
+version: "5.0"
 description: >
-  A dual-mode quantitative strategy skill providing macro analysis and narrative-specific 
-  signal generation. Integrates with the CMC AI Agent Hub, BNBAgent SDK, and Trust 
-  Wallet Agent Kit for end-to-end strategy formulation and execution routing.
+  A multi-narrative quantitative strategy skill with regime-aware signal generation,
+  cross-narrative rotation engine, and realistic backtest validation. Integrates with 
+  the CMC AI Agent Hub, BNBAgent SDK, and Trust Wallet Agent Kit for end-to-end 
+  strategy formulation and execution routing.
 author: ASBESTOS19
 tags:
   - quant
   - macro
   - narrative-rotation
+  - regime-detection
   - x402-enforced
   - bnbagent-sdk
   - trust-wallet-agent-kit
 
+supported_narratives:
+  - AI Tokens
+  - RWA
+  - DePIN
+  - Meme
+  - Privacy
+
 actions:
   - name: RUN_SKILL
-    description: Generates a structured quant strategy spec using narrative-specific alpha metrics.
+    description: >
+      Generates a structured quant strategy spec for a single narrative using 
+      narrative-specific alpha metrics and regime-adjusted conviction scoring.
     inputs:
       - name: narrative
         type: string
@@ -26,10 +37,15 @@ actions:
     outputs:
       - name: signal_verdict
         type: string
+        enum: ["STRONG_LONG", "LONG", "NEUTRAL", "AVOID"]
+      - name: conviction_score
+        type: integer
+        description: "0-100 score based on multi-factor narrative analysis"
       - name: entry_exit_logic
         type: string
       - name: position_sizing
         type: string
+        description: "Regime-adjusted position sizing recommendation"
       - name: invalidation_signals
         type: array
         items: string
@@ -39,25 +55,96 @@ actions:
     mcp_tools_required:
       - cmc_technicals (RSI, Volume Profile)
       - cmc_sentiment (Social Delta, Fear & Greed)
-      - narrative_specific_metrics (e.g., GitHub commits, mixer volume, social velocity)
+      - narrative_specific_metrics (GitHub commits, mixer volume, node growth, TVL, etc.)
 
   - name: GLOBAL_SCAN
-    description: Cross-narrative macro analysis outputting portfolio tilt weights and rotation signals.
+    description: >
+      Cross-narrative macro analysis. Evaluates all 5 narratives simultaneously,
+      ranks by conviction score, and outputs portfolio tilt weights + rotation signals.
+      Regime-aware: adapts allocations based on RISK_ON / TRANSITION / RISK_OFF regimes.
     inputs:
       - name: risk_profile
         type: string
         enum: ["Conservative", "Balanced", "Aggressive"]
     outputs:
+      - name: regime
+        type: string
+        enum: ["RISK_ON", "RISK_OFF", "TRANSITION"]
+      - name: narrative_rankings
+        type: array
+        description: "All 5 narratives ranked by conviction score (desc)"
       - name: portfolio_weights
         type: object
+        description: "Percentage allocation per narrative, summing to 100%"
       - name: rotation_signal
         type: string
-      - name: macro_headwinds
-        type: array
-        items: string
+        description: "Actionable rotation instruction (CONCENTRATE / BALANCED / DEFENSIVE)"
     mcp_tools_required:
       - cmc_market_overview
       - cmc_news_sentiment
+      - cmc_fear_greed_index
+
+  - name: DETECT_REGIME
+    description: >
+      Classifies current market regime using Fear & Greed Index, BTC dominance,
+      and total market cap momentum. Outputs regime label and position sizing multiplier.
+    inputs:
+      - name: fear_greed_index
+        type: integer
+      - name: btc_dominance_pct
+        type: number
+      - name: total_mcap_change_7d
+        type: number
+    outputs:
+      - name: regime
+        type: string
+        enum: ["RISK_ON", "RISK_OFF", "TRANSITION"]
+      - name: reasoning
+        type: string
+      - name: position_multiplier
+        type: number
+
+alpha_metrics_by_narrative:
+  AI Tokens:
+    - github_commits_7d
+    - developer_growth_30d_pct
+    - partnership_announcements_7d
+    - social_volume_24h
+    - token_velocity_7d
+    - rsi_14
+  RWA:
+    - tvl_change_7d_pct
+    - institutional_mentions_7d
+    - regulatory_clarity_score
+    - yield_premium_vs_treasuries_bps
+    - rsi_14
+  DePIN:
+    - active_nodes_7d_growth_pct
+    - revenue_per_node_usd
+    - network_utilization_pct
+    - social_volume_24h
+    - rsi_14
+  Meme:
+    - social_volume_24h
+    - holder_growth_7d_pct
+    - dev_sell_pressure
+    - whale_accumulation_7d_usd
+    - dex_liquidity_usd
+    - rsi_14
+  Privacy:
+    - mixer_volume_7d_usd
+    - regulatory_risk_score
+    - shielded_pool_growth_7d_pct
+    - cross_chain_bridges_active
+    - rsi_14
+
+risk_metrics_tracked:
+  - sharpe_ratio
+  - sortino_ratio
+  - calmar_ratio
+  - max_drawdown_pct
+  - win_rate_pct
+  - profit_factor
 
 execution_routing:
   framework: "bnbagent-sdk"
@@ -73,6 +160,15 @@ x402_integration:
 
 backtest_config:
   initial_capital: 10000
-  rebalance_frequency: "weekly"
+  default_period_days: 90
+  rebalance_frequency: "event-driven"
   max_drawdown_limit: 0.15
-  metrics_tracked: ["total_return", "max_drawdown", "sharpe_ratio"]
+  position_size_base_pct: 5.0
+  metrics_tracked:
+    - total_return
+    - max_drawdown
+    - sharpe_ratio
+    - sortino_ratio
+    - calmar_ratio
+    - win_rate
+    - profit_factor
