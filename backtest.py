@@ -21,8 +21,13 @@ def verify_x402_payment(headers, tier="base"):
 
 
 # ==============================================================================
-# 2. EXECUTION GUARDRAILS
+# 2. EXECUTION GUARDRAILS & AUTO-EXECUTE TOGGLE
 # ==============================================================================
+# Auto-execute toggle: when True, TWAK payloads are generated without
+# requiring user confirmation. When False (default), requires confirmation.
+# Set to True for autonomous agent operation. Set to False for safe mode.
+AUTO_EXECUTE = False
+
 EXECUTION_LIMITS = {
     "max_slippage_large_cap_pct": 1.0,
     "max_slippage_meme_pct": 2.5,
@@ -31,7 +36,7 @@ EXECUTION_LIMITS = {
     "min_liquidity_usd": 500_000,
     "max_spread_pct": 1.5,
     "min_token_age_days": 7,
-    "requires_user_confirmation": True,
+    "requires_user_confirmation": not AUTO_EXECUTE,
 }
 
 
@@ -130,6 +135,79 @@ NARRATIVE_BASKETS = {
 
 
 # ==============================================================================
+# 5. DYNAMIC TOKEN DISCOVERY (NEW LAUNCHES & TRENDING)
+# ==============================================================================
+# Core baskets are static. But new launches can outperform.
+# This module scans CMC trending + new listings and proposes candidates
+# for inclusion into narrative baskets, especially for Meme (high turnover).
+#
+# In production: calls CMC /v1/cryptocurrency/trending and /v1/cryptocurrency/new
+# For backtest: uses cached snapshot with realistic new launch data.
+
+NEW_LAUNCH_CANDIDATES = {
+    "Meme": [
+        {"symbol": "NEIRO", "cmc_rank": 85, "age_days": 12, "volume_24h": 45_000_000, "social_surge": True, "reason": "CMC trending #3, social volume +340% in 48h, holder growth +52%/7d"},
+        {"symbol": "MOODENG", "cmc_rank": 120, "age_days": 8, "volume_24h": 28_000_000, "social_surge": True, "reason": "New viral meme, CMC new listing, whale wallets detected"},
+        {"symbol": "GOAT", "cmc_rank": 95, "age_days": 15, "volume_24h": 62_000_000, "social_surge": True, "reason": "AI-meme crossover, Kaito mindshare spike, top trending on X"},
+    ],
+    "AI Tokens": [
+        {"symbol": "AI16Z", "cmc_rank": 110, "age_days": 20, "volume_24h": 35_000_000, "social_surge": False, "reason": "AI agent narrative, CMC new listing, developer activity picking up"},
+    ],
+    "DePIN": [
+        {"symbol": "GRASS", "cmc_rank": 130, "age_days": 25, "volume_24h": 18_000_000, "social_surge": False, "reason": "DePIN bandwidth network, CMC trending, node growth accelerating"},
+    ],
+    "RWA": [],
+    "Privacy": [],
+}
+
+# Gate: new launches must pass these minimums before entering the basket
+NEW_LAUNCH_FILTERS = {
+    "min_age_days": 3,           # Avoid day-1 pump-and-dumps
+    "min_volume_24h": 5_000_000, # Must have real trading activity
+    "min_cmc_rank": 200,         # Must be within top 200
+    "max_age_days": 30,          # Only "new" launches (within 30 days)
+}
+
+
+def scan_new_launches(narrative):
+    """
+    Scans CMC trending/new listings for candidates matching a narrative.
+    Returns tokens that pass the minimum filters.
+    In production: queries CMC API /v1/cryptocurrency/trending,
+                   /v1/cryptocurrency/new, and Kaito mindshare endpoint.
+    """
+    candidates = NEW_LAUNCH_CANDIDATES.get(narrative, [])
+    qualified = []
+    for token in candidates:
+        if token["age_days"] < NEW_LAUNCH_FILTERS["min_age_days"]:
+            continue
+        if token["age_days"] > NEW_LAUNCH_FILTERS["max_age_days"]:
+            continue
+        if token["volume_24h"] < NEW_LAUNCH_FILTERS["min_volume_24h"]:
+            continue
+        if token["cmc_rank"] > NEW_LAUNCH_FILTERS["min_cmc_rank"]:
+            continue
+        qualified.append(token)
+    return qualified
+
+
+def get_dynamic_basket(narrative):
+    """
+    Returns the full basket: core tokens + qualified new launches.
+    New launches get a separate 'new_launches' field so the agent
+    knows these are higher-risk, higher-reward additions.
+    """
+    core = NARRATIVE_BASKETS.get(narrative, {}).get("tokens", [])
+    new_tokens = scan_new_launches(narrative)
+    return {
+        "core_tokens": core,
+        "new_launches": [t["symbol"] for t in new_tokens],
+        "new_launch_details": new_tokens,
+        "combined": core + [t["symbol"] for t in new_tokens],
+    }
+
+
+# ==============================================================================
 # 5. CMC-NATIVE METRICS (EASY TO SOURCE)
 # ==============================================================================
 # These are the metrics derivable from CMC's API: prices, volumes, market caps,
@@ -197,7 +275,7 @@ CACHED_NARRATIVE_DATA = {
         "liquidity_usd": 85_000_000,
         "spread_pct": 0.2,
         "token_age_days": 365,
-        "social_volume_24h": 12500,           # SOURCE: LunarCrush / CMC community stats
+        "social_volume_24h": 12500,           # SOURCE: Kaito (SoFi) mindshare API + CMC community stats. Kaito scans all of CT (Crypto Twitter) for mindshare, mentions, and engagement. CMC community for on-platform activity.
         "holder_growth_7d_pct": 0.18,         # SOURCE: on-chain (BSCScan holders endpoint)
         "dev_sell_pressure": "Low",           # SOURCE: on-chain team wallet → CEX transfers, < $50k/7d = "Low"
         "whale_accumulation_7d_usd": 450000,  # SOURCE: on-chain whale wallet tracking
@@ -316,7 +394,7 @@ def get_circuit_breaker_multiplier():
 
 
 # ==============================================================================
-# 9. 4-BUCKET WEIGHTED SCORING MODEL
+# 9. 5-BUCKET WEIGHTED SCORING MODEL
 # ==============================================================================
 BUCKET_WEIGHTS = {
     "momentum": 0.30,
@@ -423,7 +501,7 @@ def score_liquidity(data):
 
 
 def score_attention(data):
-    """Attention: trending rank, social volume, narrative momentum."""
+    """Attention: trending rank, social volume (Kaito mindshare + CMC), narrative momentum."""
     score = 0
     reasons = []
 
@@ -438,13 +516,25 @@ def score_attention(data):
         score += 5
         reasons.append(f"Low trending visibility (avg #{trending}) — contrarian opportunity")
 
+    # Social volume: Kaito (SoFi) mindshare scans ALL of Crypto Twitter
+    # for mentions, engagement, and mindshare. Combined with CMC community stats.
     social = data.get("social_volume_24h", 0)
     if social > 10000:
         score += 25
-        reasons.append(f"High social velocity ({social:,}/24h)")
+        reasons.append(f"High social velocity ({social:,}/24h) — Kaito mindshare + CT mentions")
     elif social > 5000:
         score += 15
         reasons.append(f"Moderate social activity ({social:,}/24h)")
+
+    # Kaito mindshare spike detection
+    if data.get("kaito_mindshare_surge", False):
+        score += 15
+        reasons.append("Kaito mindshare surge detected — CT-wide attention spike")
+
+    # New launch social surge
+    if data.get("social_surge", False):
+        score += 10
+        reasons.append("Social surge on new launch — viral momentum")
 
     # External optional
     if data.get("institutional_mentions_7d", 0) >= 5:
@@ -548,7 +638,7 @@ def score_risk_adjustment(narrative, data):
 
 def compute_narrative_score(narrative, data, regime="TRANSITION"):
     """
-    4-bucket weighted scoring:
+    5-bucket weighted scoring:
     Final = 0.30*Momentum + 0.25*Liquidity + 0.20*Attention + 0.15*Fundamental + 0.10*Risk
     """
     m_score, m_reasons = score_momentum(data)
@@ -674,7 +764,7 @@ def global_scan(regime="TRANSITION"):
 # 11. TWAK PAYLOAD GENERATOR (OPTIONAL, GATED)
 # ==============================================================================
 def generate_twak_payload(narrative, amount_usd, verdict="LONG"):
-    """Optional execution-ready output gated behind user confirmation."""
+    """Execution-ready output. Confirmation behavior controlled by AUTO_EXECUTE toggle."""
     addr = NARRATIVE_BASKETS.get(narrative, {}).get("token_address", "UNKNOWN")
     return {
         "bnbagent_sdk_format": "v1",
@@ -688,10 +778,15 @@ def generate_twak_payload(narrative, amount_usd, verdict="LONG"):
             "routing_preference": "optimal",
         },
         "metadata": {
-            "requires_user_confirmation": True,
+            "requires_user_confirmation": not AUTO_EXECUTE,
+            "auto_execute": AUTO_EXECUTE,
             "signal_verdict": verdict,
             "guardrails_checked": True,
-            "note": "Optional execution-ready output. Does not execute autonomously.",
+            "note": (
+                "Auto-execute enabled. Payload will execute without confirmation."
+                if AUTO_EXECUTE
+                else "Confirmation required before execution. Set AUTO_EXECUTE=True to disable."
+            ),
         },
     }
 
@@ -860,8 +955,8 @@ def run_backtest(narrative, days=90, initial_capital=10000.0):
 # ==============================================================================
 def main():
     print("=" * 80)
-    print("CMC Narrative Rotation Index (NRI) Skill v7.0")
-    print("BNBAgent SDK + Trust Wallet Agent Kit + x402")
+    print("CMC Narrative Rotation Index (NRI) Skill v8.0")
+    print("BNBAgent SDK + Trust Wallet Agent Kit + x402 + Kaito SoFi")
     print("=" * 80)
     time.sleep(0.2)
 
@@ -876,6 +971,9 @@ def main():
     if not success:
         return
 
+    # --- Auto-execute status ---
+    print(f"\n  Auto-Execute:   {'ENABLED' if AUTO_EXECUTE else 'DISABLED (confirmation required)'}")
+
     # --- Regime ---
     print("\n[1] MARKET REGIME DETECTION")
     print("-" * 80)
@@ -886,12 +984,38 @@ def main():
     print(f"  Conviction Cap: {cap}/100")
     print(f"  Sizing:         {REGIME_SIZING[regime]*100:.0f}% of base")
 
+    # --- Dynamic Basket Discovery (New Launches) ---
+    print("\n[2] DYNAMIC BASKET DISCOVERY: New Launches & Trending")
+    print("-" * 80)
+    print(f"  Source: CMC trending + new listings + Kaito mindshare")
+    print(f"  Filter: age {NEW_LAUNCH_FILTERS['min_age_days']}-{NEW_LAUNCH_FILTERS['max_age_days']}d, vol > ${NEW_LAUNCH_FILTERS['min_volume_24h']/1e6:.0f}M, rank < {NEW_LAUNCH_FILTERS['min_cmc_rank']}")
+    print(f"\n  {'Narrative':<14} | {'Core Basket':<24} | {'New Launches':<20} | {'Combined'}")
+    print(f"  {'-'*80}")
+    for narrative in NARRATIVE_BASKETS:
+        basket = get_dynamic_basket(narrative)
+        core_str = ", ".join(basket["core_tokens"])
+        new_str = ", ".join(basket["new_launches"]) if basket["new_launches"] else "—"
+        combined_str = ", ".join(basket["combined"])
+        print(f"  {narrative:<14} | {core_str:<24} | {new_str:<20} | {combined_str}")
+
+    # Show new launch details
+    has_launches = False
+    for narrative in NARRATIVE_BASKETS:
+        launches = scan_new_launches(narrative)
+        if launches:
+            if not has_launches:
+                print(f"\n  New Launch Details:")
+                has_launches = True
+            for t in launches:
+                print(f"    {t['symbol']:<10} ({narrative}) — {t['reason']}")
+
     # --- Global Scan ---
-    print(f"\n[2] NARRATIVE ROTATION INDEX: Global Scan")
+    print(f"\n[3] NARRATIVE ROTATION INDEX: Global Scan")
     print("-" * 80)
     scan = global_scan(regime)
-    print(f"  Scoring Model:  0.30×Momentum + 0.25×Liquidity + 0.20×Attention + 0.15×Fundamental + 0.10×Risk")
+    print(f"  Scoring Model:  0.30×Momentum + 0.25×Liquidity + 0.20×Attention + 0.15×Fundamental + 0.10×Risk (5-bucket)")
     print(f"  Weight Formula: w_i = conv_i² / Σ(conv_j²), min threshold = 20")
+    print(f"  Social Source:  Kaito (SoFi) mindshare — scans ALL of Crypto Twitter")
     print(f"\n  {'Narrative':<14} | {'Verdict':<12} | {'Conv':>4} | {'MOM':>3} | {'LIQ':>3} | {'ATT':>3} | {'FND':>3} | {'RSK':>3} | {'EXH':>3} | {'Wt%':>5}")
     print(f"  {'-'*75}")
     for narrative, data in scan["narrative_rankings"]:
@@ -907,7 +1031,7 @@ def main():
     # --- Top Narrative Deep Dive (Structured Confidence Output) ---
     top_n = scan["top_narrative"]
     top_d = scan["narrative_rankings"][0][1]
-    print(f"\n[3] STRUCTURED CONFIDENCE OUTPUT: {top_n}")
+    print(f"\n[4] STRUCTURED CONFIDENCE OUTPUT: {top_n}")
     print("-" * 80)
 
     # Check execution guards
@@ -917,7 +1041,7 @@ def main():
     sizing_pct = 5 * REGIME_SIZING[regime]
     confidence_output = {
         "skill": "narrative-rotation-index",
-        "version": "7.0",
+        "version": "8.0",
         "regime": regime,
         "top_narrative": top_n,
         "verdict": top_d["verdict"],
@@ -943,7 +1067,7 @@ def main():
     print(json.dumps(confidence_output, indent=2))
 
     # --- Backtest ---
-    print(f"\n[4] BASKET BACKTEST: 90-Day Simulation")
+    print(f"\n[5] BASKET BACKTEST: 90-Day Simulation")
     print("-" * 80)
     print(f"  Baskets:        Equal-weight tokens per narrative (CMC-native)")
     print(f"  Distribution:   Student's t (df={T_DISTRIBUTION_DF})")
@@ -983,12 +1107,16 @@ def main():
     print(f"\n{'='*80}")
     print("SUMMARY")
     print(f"{'='*80}")
-    print(f"  Skill:              CMC Narrative Rotation Index (NRI) v7.0")
+    print(f"  Skill:              CMC Narrative Rotation Index (NRI) v8.0")
     print(f"  Regime:             {regime} (cap: {cap}/100)")
     print(f"  Top Narrative:      {top_n} ({top_d['verdict']}, {top_d['conviction']}/{cap})")
     print(f"  Exhaustion:         {top_d['exhaustion_score']}/100")
     print(f"  Rotation:           {scan['rotation_signal']}")
+    print(f"  Scoring:            5-bucket (Momentum/Liquidity/Attention/Fundamental/Risk)")
+    print(f"  Social Source:      Kaito (SoFi) mindshare — all of Crypto Twitter")
+    print(f"  Dynamic Baskets:    New launch detection via CMC trending + Kaito")
     print(f"  Risk Controls:      Circuit breaker {CIRCUIT_BREAKER_THRESHOLD*100:.0f}% | Conviction decay {CONVICTION_DECAY_RATE*100:.0f}%/day | Max narrative {EXECUTION_LIMITS['max_allocation_per_narrative_pct']:.0f}%")
+    print(f"  Auto-Execute:       {'ENABLED' if AUTO_EXECUTE else 'DISABLED (confirmation required)'}")
     print(f"  Execution:          {'ALLOWED' if allowed else 'BLOCKED'} — {'; '.join(violations) if violations else 'all guards passed'}")
     print(f"  Backtest:           t-distribution(df={T_DISTRIBUTION_DF}) + Markov regimes + {TOTAL_COST_PCT*100:.1f}% costs + exhaustion sizing")
     print(f"  Metrics:            CMC-native core + external optional (source-annotated)")

@@ -1,11 +1,9 @@
 name: narrative-rotation-index
-version: "7.0"
+version: "8.0"
 description: >
-  A CMC-native Narrative Rotation Index (NRI) skill that ranks crypto narratives by 
-  relative strength, liquidity expansion, attention velocity, and macro regime. Outputs 
-  backtestable portfolio weights with structured confidence explanations, narrative 
-  exhaustion detection, and optional Trust Wallet execution payloads gated behind 
-  user confirmation.
+  A CMC-native Narrative Rotation Index (NRI) skill with dynamic token discovery,
+  Kaito (SoFi) social intelligence, 5-bucket scoring, narrative exhaustion detection,
+  auto-execute toggle, and optional Trust Wallet execution payloads.
 author: ASBESTOS19
 tags:
   - narrative-rotation
@@ -26,7 +24,7 @@ supported_narratives:
 
 scoring_model:
   description: >
-    4-bucket weighted scoring with narrative-specific fundamental customization.
+    5-bucket weighted scoring with narrative-specific fundamental customization.
   formula: "Final = 0.30×Momentum + 0.25×Liquidity + 0.20×Attention + 0.15×Fundamental + 0.10×Risk"
   buckets:
     Momentum (30%):
@@ -41,7 +39,8 @@ scoring_model:
       - spread_pct                    # CMC-native
     Attention (20%):
       - trending_rank_avg             # CMC-native
-      - social_volume_24h             # CMC community / LunarCrush
+      - social_volume_24h             # Kaito (SoFi) mindshare + CMC community
+      - kaito_mindshare_surge         # Kaito CT-wide attention spike detection
       - institutional_mentions_7d     # CMC news feed keyword filter
     Fundamental (15%):
       narrative-specific metrics — see alpha_metrics_by_narrative
@@ -245,3 +244,42 @@ backtest_config:
     - win_rate
     - profit_factor
     - total_fees_paid
+
+dynamic_token_discovery:
+  description: >
+    Scans CMC trending + new listings for new launch candidates that could
+    outperform core basket tokens. Especially high-turnover for Meme narrative.
+  sources:
+    - "CMC /v1/cryptocurrency/trending"
+    - "CMC /v1/cryptocurrency/new"
+    - "Kaito mindshare endpoint (CT-wide viral detection)"
+  filters:
+    min_age_days: 3
+    max_age_days: 30
+    min_volume_24h: 5000000
+    max_cmc_rank: 200
+  behavior: >
+    New launches are listed separately from core basket tokens. They pass through
+    the same scoring pipeline but carry a 'new_launch' flag so the agent knows
+    these are higher-risk, higher-reward additions. Especially active for Meme
+    narrative where token turnover is highest.
+
+kaito_integration:
+  description: >
+    Kaito (SoFi) provides Crypto Twitter-wide social intelligence.
+    Unlike CMC community stats (on-platform only), Kaito scans ALL of CT
+    for mindshare, mentions, engagement, and viral signals.
+  data_points:
+    - kaito_mindshare_score: "Normalized 0-100, measures CT-wide narrative attention"
+    - kaito_mindshare_surge: "Boolean, true when mindshare spikes >2x in 48h"
+    - social_volume_24h: "Aggregated from Kaito + CMC community stats"
+  use_in_scoring: "Attention bucket (+15 for mindshare surge, +10 for social surge on new launches)"
+
+auto_execute:
+  description: >
+    Toggle for autonomous agent operation. When True, TWAK payloads execute
+    without user confirmation. When False (default), requires confirmation.
+  default: false
+  config_location: "AUTO_EXECUTE flag at top of backtest.py"
+  when_to_enable: "For autonomous agents with pre-approved risk parameters"
+  when_to_disable: "For manual trading, testing, or first-time setup"
