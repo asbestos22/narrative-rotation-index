@@ -113,48 +113,43 @@ def build_regime_sequence(days, initial="TRANSITION"):
 # Tokens mapped to their native chains. TWAK routes to the correct chain.
 NARRATIVE_BASKETS = {
     "AI Tokens": {
-        "tokens": ["FET", "RENDER", "TAO", "AKT"],
+        "tokens": ["FET", "AGIX", "OCEAN"],
         "bsc_addresses": {
             "FET": "0x171b5c6Cb673d28580532E0b4C3B5F0E9e632809",
-            "RENDER": "0x2141d7fe06a1d69c019f408c4412d925c736e34b",
-            "TAO": "0x23A96680Ccde03Bd4Bdd9a3e9a08926c08E41439",
-            "AKT": "0x2222222222222222222222222222222222222222",
+            "AGIX": "0x52CE071Bd9b1C4B00A0b92D298c512478CaD67e8",
+            "OCEAN": "0x61299774020dA444Af134c82fa83E3810b309991",
         }
     },
     "RWA": {
-        "tokens": ["ONDO", "CFG", "MPL", "POLYX"],
+        "tokens": ["ONDO", "PENDLE", "TRU"],
         "bsc_addresses": {
             "ONDO": "0x4c19596f5aAff459fA4fF6555b7B16F4e1CdB49d",
-            "CFG": "0x1111111111111111111111111111111111111111",
-            "MPL": "0x3333333333333333333333333333333333333333",
-            "POLYX": "0x4444444444444444444444444444444444444444",
+            "PENDLE": "0xb3Ed0A426155B79B898849803E3B36552f7ED507",
+            "TRU": "0x8b4334d4812c530574bd4f2763fcd22de94a969b",
         }
     },
     "DePIN": {
-        "tokens": ["FIL", "HNT", "IOTX", "RNDR"],
+        "tokens": ["IOTX", "FIL", "NFP"],
         "bsc_addresses": {
-            "FIL": "0x5555555555555555555555555555555555555555",
-            "HNT": "0x6666666666666666666666666666666666666666",
             "IOTX": "0x9678E42ceBEb63F23197D726B29b1CB20d0064E5",
-            "RNDR": "0x7777777777777777777777777777777777777777",
+            "FIL": "0x0D8Ce2A99Bb6e3B7Db580eD848240e4a0F9aE153",
+            "NFP": "0x371E38d221A2AA61c494168a23304C9619773BC8",
         }
     },
     "Meme": {
-        "tokens": ["DOGE", "PEPE", "WIF", "BONK"],
+        "tokens": ["DOGE", "FLOKI", "BABYDOGE"],
         "bsc_addresses": {
             "DOGE": "0xbA2aE424d960c26247Dd6c32edC70B295c744C43",
-            "PEPE": "0x6982508145454Ce325dDbE47a25d4ec3d2311933",
-            "WIF": "0x8888888888888888888888888888888888888888",
-            "BONK": "0x9999999999999999999999999999999999999999",
+            "FLOKI": "0x43f11c02439e2736800433b4594994Bd43Cd066D",
+            "BABYDOGE": "0xc748673057861a797275CD8A068AbB95A902e8de",
         }
     },
     "Privacy": {
-        "tokens": ["ZEC", "SCRT", "ROSE", "TORN"],
+        "tokens": ["TORN", "SCRT", "ROSE"],
         "bsc_addresses": {
-            "ZEC": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-            "SCRT": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            "ROSE": "0xcccccccccccccccccccccccccccccccccccccccc",
-            "TORN": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
+            "TORN": "0x139a705E59382D704D4576A594a3231f3417f2E0",
+            "SCRT": "0x746DDbD6C2210B19E824225C81e18408D0024733",
+            "ROSE": "0xE4A2620edE1058D61BEe5F45F6414314fdf10548",
         }
     },
 }
