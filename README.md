@@ -153,6 +153,16 @@ Every signal includes structured confidence explanation:
 }
 ```
 
+## Setup & Environment
+
+1. Copy the environment template:
+   ```bash
+   cp .env.example .env
+   ```
+2. Add your CoinMarketCap API key to `.env` (required for live data fetching).
+   - Get a free/pro key at [pro.coinmarketcap.com](https://pro.coinmarketcap.com/)
+   - *Note: The `backtest.py` script runs out-of-the-box using cached mock data for demonstration. Live mode requires the API key.*
+
 ## Usage
 
 ```bash
@@ -164,6 +174,7 @@ python backtest.py
 
 | File | Purpose |
 |------|---------|
+| `.env.example` | Environment variable template |
 | `skill.yaml` | CMC Agent Hub skill specification |
 | `backtest.py` | Executable NRI engine with basket backtest |
 | `requirements.txt` | Python dependencies |
