@@ -98,8 +98,6 @@ alpha_metrics_by_narrative:
         source: "Inverse CMC news sentiment, 'regulation'+'privacy', normalized 1-10"
       - metric: shielded_pool_growth_7d_pct
         source: "Protocol dashboards"
-      - metric: cross_chain_bridges_active
-        source: "DeFiLlama bridges"
 
 actions:
   - name: GLOBAL_SCAN

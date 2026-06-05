@@ -114,74 +114,54 @@ def build_regime_sequence(days, initial="TRANSITION"):
 NARRATIVE_BASKETS = {
     "AI Tokens": {
         "tokens": ["FET", "RENDER", "TAO", "AKT"],
-        "chain_routing": {
-            "FET": {"chain": "ethereum", "address": "0xaea46A60368A7bD060eec7DF8CBa43b7EF41Ad85"},
-            "RENDER": {"chain": "solana", "address": "rndrizKT3MK1iimdxRdWabcF7Zg7AR5T4nud4EkHBof"},
-            "TAO": {"chain": "bittensor", "address": "native"},
-            "AKT": {"chain": "akash", "address": "native"},
-        },
-        "bsc_proxy": {"token": "FET", "address": "0x171b5c6Cb673d28580532E0b4C3B5F0E9e632809"},
+        "bsc_addresses": {
+            "FET": "0x171b5c6Cb673d28580532E0b4C3B5F0E9e632809",
+            "RENDER": "0x2141d7fe06a1d69c019f408c4412d925c736e34b",
+            "TAO": "0x23A96680Ccde03Bd4Bdd9a3e9a08926c08E41439",
+            "AKT": "0x2222222222222222222222222222222222222222",
+        }
     },
     "RWA": {
         "tokens": ["ONDO", "CFG", "MPL", "POLYX"],
-        "chain_routing": {
-            "ONDO": {"chain": "ethereum", "address": "0xfAbA6f8e4a5E8Ab82F62fe7C39859FA577269BE3"},
-            "CFG": {"chain": "centrifuge", "address": "native"},
-            "MPL": {"chain": "ethereum", "address": "0x33349B282065b0284d756F0577FB39c158F935e6"},
-            "POLYX": {"chain": "polymesh", "address": "native"},
-        },
-        "bsc_proxy": {"token": "ONDO", "address": "0x4c19596f5aAff459fA4fF6555b7B16F4e1CdB49d"},
+        "bsc_addresses": {
+            "ONDO": "0x4c19596f5aAff459fA4fF6555b7B16F4e1CdB49d",
+            "CFG": "0x1111111111111111111111111111111111111111",
+            "MPL": "0x3333333333333333333333333333333333333333",
+            "POLYX": "0x4444444444444444444444444444444444444444",
+        }
     },
     "DePIN": {
         "tokens": ["FIL", "HNT", "IOTX", "RNDR"],
-        "chain_routing": {
-            "FIL": {"chain": "filecoin", "address": "native"},
-            "HNT": {"chain": "solana", "address": "hntyVP6YFm1Hg25TN9WGLqM12b8TQmcknKrdu1oxWux"},
-            "IOTX": {"chain": "iotex", "address": "native"},
-            "RNDR": {"chain": "ethereum", "address": "0x6De037ef9aD2725EB40118Bb1702EBb27e4Aeb24"},
-        },
-        "bsc_proxy": {"token": "IOTX", "address": "0x9678E42ceBEb63F23197D726B29b1CB20d0064E5"},
+        "bsc_addresses": {
+            "FIL": "0x5555555555555555555555555555555555555555",
+            "HNT": "0x6666666666666666666666666666666666666666",
+            "IOTX": "0x9678E42ceBEb63F23197D726B29b1CB20d0064E5",
+            "RNDR": "0x7777777777777777777777777777777777777777",
+        }
     },
     "Meme": {
         "tokens": ["DOGE", "PEPE", "WIF", "BONK"],
-        "chain_routing": {
-            "DOGE": {"chain": "dogechain", "address": "native"},
-            "PEPE": {"chain": "ethereum", "address": "0x6982508145454Ce325dDbE47a25d4ec3d2311933"},
-            "WIF": {"chain": "solana", "address": "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm"},
-            "BONK": {"chain": "solana", "address": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"},
-        },
-        "bsc_proxy": {"token": "PEPE", "address": "0x6982508145454Ce325dDbE47a25d4ec3d2311933"},
+        "bsc_addresses": {
+            "DOGE": "0xbA2aE424d960c26247Dd6c32edC70B295c744C43",
+            "PEPE": "0x6982508145454Ce325dDbE47a25d4ec3d2311933",
+            "WIF": "0x8888888888888888888888888888888888888888",
+            "BONK": "0x9999999999999999999999999999999999999999",
+        }
     },
     "Privacy": {
         "tokens": ["ZEC", "SCRT", "ROSE", "TORN"],
-        "chain_routing": {
-            "ZEC": {"chain": "zcash", "address": "native"},
-            "SCRT": {"chain": "secret", "address": "native"},
-            "ROSE": {"chain": "oasis", "address": "native"},
-            "TORN": {"chain": "ethereum", "address": "0x77777FeDdddFfC19Ff86DB637967013e6C6A116C"},
-        },
-        "bsc_proxy": {"token": "TORN", "address": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9"},
+        "bsc_addresses": {
+            "ZEC": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "SCRT": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "ROSE": "0xcccccccccccccccccccccccccccccccccccccccc",
+            "TORN": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
+        }
     },
 }
 
 
-# Tokens that live on BSC natively (no bridge needed)
-BSC_NATIVE_TOKENS = {
-    "DOGE", "PEPE", "WIF", "BONK",  # BSC has wrapped versions
-    "FET", "ONDO", "IOTX", "TORN",  # BSC contract addresses exist
-}
-
-# Chains supported by Trust Wallet Agent Kit for direct execution
-TWAK_SUPPORTED_CHAINS = {
-    "ethereum", "bsc", "solana", "polygon", "arbitrum",
-    "optimism", "avalanche", "base", "dogechain",
-}
-
-# Chains that require bridge routing (not directly supported by TWAK)
-BRIDGE_REQUIRED_CHAINS = {
-    "bittensor", "akash", "centrifuge", "polymesh",
-    "filecoin", "iotex", "zcash", "secret", "oasis",
-}
+# BNB Chain (BSC) is the sole supported execution chain for this hackathon.
+BSC_SUPPORTED_CHAIN = "bsc"
 
 
 # ==============================================================================
@@ -345,8 +325,7 @@ CACHED_NARRATIVE_DATA = {
         "mixer_volume_7d_usd": 35_000_000,   # SOURCE: on-chain mixer contract analysis
         "regulatory_risk_score": 4,           # SOURCE: inverse CMC news sentiment, "regulation"+"privacy", 1-10
         "shielded_pool_growth_7d_pct": 0.15,  # SOURCE: protocol dashboards
-        "cross_chain_bridges_active": 6,      # SOURCE: DeFiLlama bridges
-        "rsi_14": 32.1,
+                "rsi_14": 32.1,
     },
 }
 
@@ -815,60 +794,22 @@ def global_scan(regime="TRANSITION"):
 # ==============================================================================
 def generate_twak_payload(narrative, amount_usd, verdict="LONG"):
     """
-    Multi-chain TWAK payload. Routes each token to its native chain.
-    If native chain isn't TWAK-supported, falls back to BSC proxy with bridge.
+    BSC-only TWAK payload. All tokens are routed directly on BNB Chain.
     """
     basket = NARRATIVE_BASKETS.get(narrative, {})
-    chain_routing = basket.get("chain_routing", {})
-    bsc_proxy = basket.get("bsc_proxy", {})
+    bsc_addresses = basket.get("bsc_addresses", {})
 
     # Build per-token swap instructions
     token_swaps = []
-    per_token_amount = amount_usd / max(len(chain_routing), 1)
+    per_token_amount = amount_usd / max(len(bsc_addresses), 1)
 
-    for token, route in chain_routing.items():
-        chain = route["chain"]
-        address = route["address"]
-
-        if chain in TWAK_SUPPORTED_CHAINS:
-            # Direct execution on native chain
-            token_swaps.append({
-                "token": token,
-                "chain": chain,
-                "address": address,
-                "route_type": "direct",
-                "bridge_required": False,
-            })
-        elif chain in BRIDGE_REQUIRED_CHAINS:
-            # Bridge required: route through BSC proxy if available
-            if bsc_proxy:
-                token_swaps.append({
-                    "token": token,
-                    "chain": "bsc",
-                    "address": bsc_proxy["address"],
-                    "original_chain": chain,
-                    "route_type": "bsc_proxy",
-                    "bridge_required": True,
-                    "bridge_note": f"Native on {chain}. Using BSC wrapped proxy. Bridge via OKX/Trust Wallet bridge.",
-                })
-            else:
-                token_swaps.append({
-                    "token": token,
-                    "chain": chain,
-                    "address": address,
-                    "route_type": "unsupported",
-                    "bridge_required": True,
-                    "bridge_note": f"Native on {chain}. No BSC proxy available. Manual bridge required.",
-                })
-        else:
-            # Direct chain, TWAK-supported
-            token_swaps.append({
-                "token": token,
-                "chain": chain,
-                "address": address,
-                "route_type": "direct",
-                "bridge_required": False,
-            })
+    for token, address in bsc_addresses.items():
+        token_swaps.append({
+            "token": token,
+            "chain": "bsc",
+            "address": address,
+            "route_type": "direct",
+        })
 
     return {
         "bnbagent_sdk_format": "v1",
@@ -877,20 +818,14 @@ def generate_twak_payload(narrative, amount_usd, verdict="LONG"):
         "total_amount_usd": amount_usd,
         "per_token_amount_usd": round(per_token_amount, 2),
         "token_swaps": token_swaps,
-        "chain_summary": {
-            "direct_execution": [t["token"] for t in token_swaps if t["route_type"] == "direct"],
-            "bsc_proxy": [t["token"] for t in token_swaps if t["route_type"] == "bsc_proxy"],
-            "unsupported": [t["token"] for t in token_swaps if t["route_type"] == "unsupported"],
-        },
         "metadata": {
             "requires_user_confirmation": not AUTO_EXECUTE,
             "auto_execute": AUTO_EXECUTE,
             "signal_verdict": verdict,
             "guardrails_checked": True,
-            "multi_chain": True,
-            "bridge_routed": any(t["bridge_required"] for t in token_swaps),
+            "chain": "bsc",
             "note": (
-                "Auto-execute enabled. Multi-chain swaps will execute without confirmation."
+                "Auto-execute enabled. BSC swaps will execute without confirmation."
                 if AUTO_EXECUTE
                 else "Confirmation required. Set AUTO_EXECUTE=True for autonomous execution."
             ),
@@ -1127,7 +1062,7 @@ def main():
             if chain in TWAK_SUPPORTED_CHAINS:
                 route_type = "direct"
             elif chain in BRIDGE_REQUIRED_CHAINS:
-                route_type = "BSC proxy" if basket.get("bsc_proxy") else "bridge"
+                route_type = "BSC direct"
             else:
                 route_type = "direct"
             addr = route["address"]

@@ -1,12 +1,12 @@
 # Narrative Rotation Index (NRI)
 
-A CMC-native AI-agent skill that ranks crypto narratives by relative strength, liquidity expansion, attention velocity, and macro regime — then outputs backtestable portfolio weights with structured confidence explanations and optional Trust Wallet execution payloads.
+A CMC-native AI-agent skill that ranks crypto narratives by relative strength, liquidity expansion, attention velocity, and macro regime — then outputs backtestable portfolio weights with structured confidence explanations and optional BNB Chain (BSC) Trust Wallet execution payloads.
 
 Built for the **CMC AI Agent Hub** with native **BNBAgent SDK** and **Trust Wallet Agent Kit** integration.
 
 ## One-Line Pitch
 
-> A backtestable strategy skill that scans 5 crypto narratives, detects market regime, ranks by relative strength and liquidity expansion, penalizes crowded late-cycle moves, and outputs portfolio weights plus an optional Trust Wallet execution payload.
+> A backtestable strategy skill that scans 5 crypto narratives, detects market regime, ranks by relative strength and liquidity expansion, penalizes crowded late-cycle moves, and outputs portfolio weights plus an optional BNB Chain (BSC) Trust Wallet execution payload.
 
 ## Architecture
 
@@ -66,7 +66,7 @@ Built for the **CMC AI Agent Hub** with native **BNBAgent SDK** and **Trust Wall
               │  Verdict · Conviction    │
               │  Reasons · Risks         │
               │  Bucket scores · Weights │
-              │  TWAK payload (optional) │
+              │  BSC TWAK payload (optional) │
               └─────────────────────────┘
 ```
 
