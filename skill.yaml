@@ -275,11 +275,16 @@ kaito_integration:
 
 auto_execute:
   description: >
-    Toggle for autonomous agent operation. When True, TWAK payloads execute
-    without user confirmation. When False (default), requires confirmation.
+    Toggle for autonomous TWAK payload generation. When True, payloads are
+    generated with `requires_user_confirmation: false`. When False (default),
+    payloads carry `requires_user_confirmation: true`.
+    NOTE: This skill never executes on-chain transactions itself. It only
+    generates v1 ToolCall payloads that downstream wallet/agent infrastructure
+    consumes. Final signing and broadcast always happen outside this skill,
+    governed by the consumer's own confirmation policy.
   default: false
   config_location: "AUTO_EXECUTE flag at top of backtest.py"
-  when_to_enable: "For autonomous agents with pre-approved risk parameters"
+  when_to_enable: "For agents with pre-approved risk parameters and external confirmation gates"
   when_to_disable: "For manual trading, testing, or first-time setup"
 
 example_call:
