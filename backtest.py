@@ -110,7 +110,8 @@ def build_regime_sequence(days, initial="TRANSITION"):
 # ==============================================================================
 # Each narrative is a basket of real tokens, weighted equally for backtest.
 # Core metrics are CMC-native: price, volume, market cap, liquidity.
-# Tokens mapped to their native chains. TWAK routes to the correct chain.
+# All tokens use their BEP-20 (BSC) contract addresses. Execution routes
+# directly through BNB Chain via TWAK — no bridges, no cross-chain swaps.
 NARRATIVE_BASKETS = {
     "AI Tokens": {
         "tokens": ["FET", "AGIX", "OCEAN"],
