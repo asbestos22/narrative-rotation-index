@@ -39,9 +39,24 @@ BNBAgent SDK + Trust Wallet Agent Kit + x402 + Kaito SoFi
     MOODENG    (Meme) — New viral meme, CMC new listing, whale wallets detected
     GOAT       (Meme) — AI-meme crossover, Kaito mindshare spike, top trending on X
 
-  Multi-Chain Routing (per-token):
+  BSC Token Addresses (BNB Chain only):
   Token      | Chain          | Route          | Address
   ----------------------------------------------------------------------
+  FET        | bsc            | direct         | 0x171b5c...632809
+  AGIX       | bsc            | direct         | 0x52CE07...aD67e8
+  OCEAN      | bsc            | direct         | 0x612997...309991
+  ONDO       | bsc            | direct         | 0x4c1959...CdB49d
+  PENDLE     | bsc            | direct         | 0xb3Ed0A...7ED507
+  TRU        | bsc            | direct         | 0x8b4334...4a969b
+  IOTX       | bsc            | direct         | 0x9678E4...0064E5
+  FIL        | bsc            | direct         | 0x0D8Ce2...9aE153
+  NFP        | bsc            | direct         | 0x371E38...773BC8
+  DOGE       | bsc            | direct         | 0xbA2aE4...744C43
+  FLOKI      | bsc            | direct         | 0x43f11c...Cd066D
+  BABYDOGE   | bsc            | direct         | 0xc74867...02e8de
+  TORN       | bsc            | direct         | 0x139a70...17f2E0
+  SCRT       | bsc            | direct         | 0x746DDb...024733
+  ROSE       | bsc            | direct         | 0xE4A262...f10548
 
 [3] NARRATIVE ROTATION INDEX: Global Scan
 --------------------------------------------------------------------------------
@@ -163,11 +178,11 @@ BNBAgent SDK + Trust Wallet Agent Kit + x402 + Kaito SoFi
   Trade Log: Meme (DOGE, FLOKI, BABYDOGE)
   Day   | Act   |  Return |       P&L | Regime      | Conv | EXH | CB     | Fees
   --------------------------------------------------------------------------------
-  65    | BUY   |  +5.09% | $   +6.32 | RISK_OFF    |   38 |  25 | OK     | $0.25
-  70    | BUY   |  +3.96% | $  +16.59 | RISK_ON     |   38 |  25 | OK     | $0.84
-  75    | BUY   |  +0.26% | $   +0.33 | RISK_OFF    |   38 |  25 | OK     | $0.26
+  65    | BUY   |  +5.09% | $   +6.32 | RISK_OFF    |   17 |  25 | OK     | $0.25
+  70    | BUY   |  +3.96% | $  +16.59 | RISK_ON     |   46 |  25 | OK     | $0.84
+  75    | BUY   |  +0.26% | $   +0.33 | RISK_OFF    |   17 |  25 | OK     | $0.26
   80    | SELL  |  -2.10% | $   -5.35 | TRANSITION  |   38 |  25 | OK     | $0.51
-  85    | BUY   |  +1.21% | $   +1.56 | RISK_OFF    |   38 |  25 | OK     | $0.26
+  85    | BUY   |  +1.21% | $   +1.56 | RISK_OFF    |   17 |  25 | OK     | $0.26
   90    | SELL  |  -0.63% | $   -1.62 | TRANSITION  |   38 |  25 | OK     | $0.52
 
 ================================================================================
