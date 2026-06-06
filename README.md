@@ -113,6 +113,40 @@ If `CMC_API_KEY` is not set, falls back to cached mock data with a clear warning
 
 📖 **[Full CMC metric → endpoint mapping](docs/cmc_metric_sources.md)** — every metric documented with its source, including external enrichments (Kaito, DeFiLlama, GitHub, BSCScan).
 
+## Command-Line Interface
+
+`cli.py` is a self-contained CLI (`nri`) over the engine, powered by live CMC data when `CMC_API_KEY` is set and cached data otherwise.
+
+```bash
+python cli.py scan                      # ranked verdicts across all narratives
+python cli.py score "AI Tokens" --json  # single-narrative score as JSON
+python cli.py regime                    # current macro regime only
+python cli.py backtest --days 90        # historical basket backtest
+```
+
+## x402 Payment Gate
+
+The signal API is gated by real [x402](https://www.x402.org/) HTTP-402 payments — not a shared secret. A client pays per call by signing an EIP-3009 `TransferWithAuthorization` over a BSC stablecoin; the signed authorization travels base64-encoded in the `X-PAYMENT` header. Verification (`verify_x402_payment`) recovers the EIP-712 signer and checks:
+
+- the signature is valid and the signer matches the authorization `from`
+- the authorized value covers the requested tier (`base` $0.05 / `regime_update` $0.20 / `full_scan` $0.50)
+- the authorization is inside its `validAfter`/`validBefore` window
+- (optional) funds are authorized to the expected payee, preventing replay
+
+Tampering with the amount after signing fails signer recovery and is rejected. See `build_x402_payment` for the client side and the `X402PaymentGateTests` suite for the verified behaviours.
+
+## BNB AI Agent SDK Integration
+
+`bnb_agent_integration.py` registers NRI as a discoverable on-chain agent using the real [`bnbagent` SDK](https://github.com/bnb-chain/bnbagent-sdk) (ERC-8004 agent identity). Registration is gas-free on BSC testnet via the MegaFuel paymaster.
+
+```bash
+pip install bnbagent
+python bnb_agent_integration.py             # offline dry-run: builds the agent URI, no wallet/chain
+python bnb_agent_integration.py --register  # real ERC-8004 registration (needs WALLET_PASSWORD)
+```
+
+The default mode is offline: it constructs the exact ERC-8004 agent URI the SDK would submit and prints it, touching no wallet and broadcasting nothing. On-chain registration is gated behind `--register` and a wallet password.
+
 ## Architecture
 
 ```
@@ -288,12 +322,15 @@ python backtest.py
 |------|---------|
 | `.env.example` | Environment variable template |
 | `skill.yaml` | CMC Agent Hub skill specification |
-| `backtest.py` | Executable NRI engine with basket backtest |
+| `backtest.py` | Executable NRI engine with basket backtest + x402 gate |
+| `cli.py` | `nri` command-line interface (scan / score / regime / backtest) |
 | `mcp_server.py` | Model Context Protocol server (stdio + HTTP) |
 | `live_demo.py` | Live CMC API integration with mock fallback |
+| `bnb_agent_integration.py` | BNB AI Agent SDK (ERC-8004) on-chain identity registration |
 | `compare_regime_scenarios.py` | Demo: regime cap and position sizing across RISK_ON/TRANSITION/RISK_OFF |
+| `backtest_compare.py` | Multi-window backtest comparison (30 / 90 / 365 day) |
 | `sample_output.txt` | Reference terminal output from `python backtest.py` |
-| `tests/test_backtest.py` | Unit tests for circuit breaker, t-distribution, conviction decay |
+| `tests/test_backtest.py` | Unit tests: circuit breaker, t-distribution, conviction decay, x402 gate |
 | `EXHAUSTION_DETECTOR.md` | Case studies showing the originality moat |
 | `docs/cmc_metric_sources.md` | Every metric mapped to its CMC endpoint |
 | `requirements.txt` | Python dependencies |

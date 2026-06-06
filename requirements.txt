@@ -1,4 +1,11 @@
+# Core — backtest engine, scoring, x402 signature verification, MCP server
 pyyaml>=6.0
 pandas>=2.0.0
 numpy>=1.24.0
 mcp>=1.0.0
+eth-account>=0.11.0
+
+# Optional — on-chain BNB AI Agent SDK integration (ERC-8004 identity).
+# Only needed to run bnb_agent_integration.py. Install with:
+#   pip install bnbagent
+# bnbagent>=0.3.4
