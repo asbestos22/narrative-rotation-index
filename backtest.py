@@ -301,6 +301,7 @@ CACHED_NARRATIVE_DATA = {
         "spread_pct": 0.2,
         "token_age_days": 365,
         "social_volume_24h": 12500,           # SOURCE: Kaito (SoFi) mindshare API + CMC community stats. Kaito scans all of CT (Crypto Twitter) for mindshare, mentions, and engagement. CMC community for on-platform activity.
+        "kaito_mindshare_surge": True,        # SOURCE: Kaito CT-wide attention spike detection (>2x in 48h)
         "holder_growth_7d_pct": 0.18,         # SOURCE: on-chain (BSCScan holders endpoint)
         "dev_sell_pressure": "Low",           # SOURCE: on-chain team wallet → CEX transfers, < $50k/7d = "Low"
         "whale_accumulation_7d_usd": 450000,  # SOURCE: on-chain whale wallet tracking
@@ -374,17 +375,32 @@ def compute_exhaustion_score(narrative, data):
 # 7. CONVICTION DECAY ENGINE
 # ==============================================================================
 CONVICTION_DECAY_RATE = 0.10
-CONVICTION_HISTORY = {}
 
 
-def apply_conviction_decay(narrative, raw_score, current_day):
-    if narrative in CONVICTION_HISTORY:
-        entry = CONVICTION_HISTORY[narrative]
+def apply_conviction_decay(narrative, raw_score, current_day, conviction_history=None):
+    """Apply exponential decay to conviction scores if narrative hasn't been refreshed.
+    
+    Args:
+        narrative: Narrative name (e.g., "Meme", "AI Tokens")
+        raw_score: Raw conviction score (0-100)
+        current_day: Current simulation day (or timestamp)
+        conviction_history: Optional dict to store history across calls. If None,
+                          creates a new dict for this call (stateless mode).
+    
+    Returns:
+        Decayed conviction score (0-100)
+    """
+    if conviction_history is None:
+        conviction_history = {}
+    
+    if narrative in conviction_history:
+        entry = conviction_history[narrative]
         days_stale = current_day - entry["last_refresh_day"]
         if days_stale > 1:
             decay_factor = (1 - CONVICTION_DECAY_RATE) ** days_stale
             raw_score = int(raw_score * decay_factor)
-    CONVICTION_HISTORY[narrative] = {"score": raw_score, "last_refresh_day": current_day}
+    
+    conviction_history[narrative] = {"score": raw_score, "last_refresh_day": current_day}
     return max(raw_score, 0)
 
 
@@ -394,20 +410,31 @@ def apply_conviction_decay(narrative, raw_score, current_day):
 CIRCUIT_BREAKER_THRESHOLD = 0.15
 CIRCUIT_BREAKER_ACTIVE = False
 CIRCUIT_BREAKER_RECOVERY_THRESHOLD = 0.05
+CIRCUIT_BREAKER_TROUGH = None
 
 
 def check_circuit_breaker(current_capital, peak_capital):
-    global CIRCUIT_BREAKER_ACTIVE
+    global CIRCUIT_BREAKER_ACTIVE, CIRCUIT_BREAKER_TROUGH
     dd = (peak_capital - current_capital) / peak_capital if peak_capital > 0 else 0
 
     if CIRCUIT_BREAKER_ACTIVE:
-        if dd < CIRCUIT_BREAKER_RECOVERY_THRESHOLD:
-            CIRCUIT_BREAKER_ACTIVE = False
-            return False, f"CIRCUIT BREAKER CLEARED — drawdown {dd*100:.1f}%"
+        # Track trough when breaker is active
+        if CIRCUIT_BREAKER_TROUGH is None or current_capital < CIRCUIT_BREAKER_TROUGH:
+            CIRCUIT_BREAKER_TROUGH = current_capital
+        
+        # Recovery: check if capital has recovered 5% from trough
+        if CIRCUIT_BREAKER_TROUGH > 0:
+            recovery = (current_capital - CIRCUIT_BREAKER_TROUGH) / CIRCUIT_BREAKER_TROUGH
+            if recovery >= CIRCUIT_BREAKER_RECOVERY_THRESHOLD:
+                CIRCUIT_BREAKER_ACTIVE = False
+                CIRCUIT_BREAKER_TROUGH = None
+                return False, f"CIRCUIT BREAKER CLEARED — recovered {recovery*100:.1f}% from trough"
+        
         return True, f"CIRCUIT BREAKER ACTIVE — drawdown {dd*100:.1f}%"
 
     if dd > CIRCUIT_BREAKER_THRESHOLD:
         CIRCUIT_BREAKER_ACTIVE = True
+        CIRCUIT_BREAKER_TROUGH = current_capital
         return True, f"CIRCUIT BREAKER TRIPPED — drawdown {dd*100:.1f}%"
 
     return False, f"Normal ({dd*100:.1f}%)"
@@ -847,10 +874,11 @@ def run_backtest(narrative, days=90, initial_capital=10000.0):
     - Conviction decay
     - Exhaustion-aware position sizing
     """
-    global CIRCUIT_BREAKER_ACTIVE
+    global CIRCUIT_BREAKER_ACTIVE, CIRCUIT_BREAKER_TROUGH
     random.seed(42)
     CIRCUIT_BREAKER_ACTIVE = False
-    CONVICTION_HISTORY.clear()
+    CIRCUIT_BREAKER_TROUGH = None
+    conviction_history = {}  # Local dict for this backtest run
 
     capital = initial_capital
     peak = initial_capital
@@ -883,10 +911,10 @@ def run_backtest(narrative, days=90, initial_capital=10000.0):
         sizing_mult = regime_position_multiplier(regime) * get_circuit_breaker_multiplier() * exhaustion_mult
 
         if day % trade_interval == 0:
-            # Student's t-distribution
+            # Student's t-distribution: t = Z / sqrt(χ²/df)
             t_sample = random.gauss(0, 1)
-            chi2 = sum(random.gauss(0, 1) ** 2 for _ in range(T_DISTRIBUTION_DF)) / T_DISTRIBUTION_DF
-            t_draw = t_sample / max(math.sqrt(chi2), 0.1)
+            chi2_var = sum(random.gauss(0, 1) ** 2 for _ in range(T_DISTRIBUTION_DF))
+            t_draw = t_sample / math.sqrt(chi2_var / T_DISTRIBUTION_DF)
 
             daily_vol = vol / math.sqrt(252)
             trade_return = base_return_7d + daily_vol * t_draw
@@ -903,7 +931,7 @@ def run_backtest(narrative, days=90, initial_capital=10000.0):
 
             # Conviction for trade log
             raw_conv = 65
-            decayed = apply_conviction_decay(narrative, raw_conv, day)
+            decayed = apply_conviction_decay(narrative, raw_conv, day, conviction_history)
 
             trades.append({
                 "day": day,

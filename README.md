@@ -8,6 +8,20 @@ Built for the **CMC AI Agent Hub** with native **BNBAgent SDK** and **Trust Wall
 
 > A backtestable strategy skill that scans 5 crypto narratives, detects market regime, ranks by relative strength and liquidity expansion, penalizes crowded late-cycle moves, and outputs portfolio weights plus an optional BNB Chain (BSC) Trust Wallet execution payload.
 
+## Narrative Exhaustion Detector — The Original Moat
+
+Prevents late-cycle entries by penalizing:
+- Parabolic returns (+40% 7d) with declining volume
+- Social hype without holder growth  
+- Price near 30d high with falling relative volume
+- Extreme volatility (>100% annualized)
+- Crowd consensus crowding (trending rank < 5)
+
+Score ranges:
+- **0-30**: Healthy trend — full conviction
+- **31-60**: Caution — sizing reduced
+- **61-100**: Crowded/late-cycle — strong penalty
+
 ## Architecture
 
 ```
@@ -90,21 +104,16 @@ Optional external enrichments are clearly source-annotated:
 - Whale tracking → on-chain wallet analysis
 - Social volume → LunarCrush / CMC community
 
-## Narrative Exhaustion Detector
+## Why BNB Chain (BSC)?
 
-Prevents late-cycle entries by penalizing:
-- Parabolic returns (+40% 7d) with declining volume
-- Social hype without holder growth
-- Price near 30d high with falling relative volume
-- Extreme volatility (>100% annualized)
-- Crowd consensus crowding (trending rank < 5)
+This skill targets BSC for execution because:
+- **Lower fees**: ~$0.01-0.10 per transaction vs Ethereum's $1-10+
+- **Trust Wallet native**: Official BNB Chain wallet with 100M+ users
+- **BNBAgent SDK alignment**: Native support for agentic operations
+- **High liquidity**: Major DEXs (PancakeSwap) with deep pools
+- **Fast confirmation**: 3-second block time vs Ethereum's 12 seconds
 
-Score ranges:
-- **0-30**: Healthy trend — full conviction
-- **31-60**: Caution — sizing reduced
-- **61-100**: Crowded/late-cycle — strong penalty
-
-## Market Regime Detection
+While the scoring logic is chain-agnostic, execution routing defaults to BSC for cost efficiency and Trust Wallet Agent Kit compatibility.
 
 Three regimes with Markov chain persistence (70% stay probability):
 
@@ -178,6 +187,50 @@ python backtest.py
 | `skill.yaml` | CMC Agent Hub skill specification |
 | `backtest.py` | Executable NRI engine with basket backtest |
 | `requirements.txt` | Python dependencies |
+
+## CHANGELOG: v1 → v8 Evolution
+
+**v8.0** (Current)
+- Fixed circuit breaker recovery logic (trough-based recovery)
+- Corrected t-distribution implementation (proper χ²/df scaling)
+- Made conviction decay stateless (thread-safe for live agents)
+- Added compare_regime_scenarios.py demo script
+- Highlighted Narrative Exhaustion Detector as key innovation
+
+**v7.0**
+- Added Kaito (SoFi) social intelligence integration
+- Enhanced dynamic token discovery with new launch filtering
+- Implemented quadratic portfolio weighting (w_i = conv_i² / Σconv_j²)
+
+**v6.0**
+- Added Markov chain regime detection (70% persistence)
+- Implemented regime-specific conviction caps
+- Added exhaustion-aware position sizing
+
+**v5.0**
+- Added 5-bucket scoring model (Momentum/Liquidity/Attention/Fundamental/Risk)
+- Implemented narrative exhaustion detector
+- Added circuit breaker (15% drawdown → 10% sizing)
+
+**v4.0**
+- Added structured confidence output with reasons + risks
+- Implemented execution guardrails (slippage, liquidity, token age)
+- Added BNBAgent SDK v1 ToolCall format
+
+**v3.0**
+- Added x402 payment gate with tiered pricing
+- Implemented auto-execute toggle for autonomous agents
+- Added Trust Wallet Agent Kit integration
+
+**v2.0**
+- Added dynamic basket discovery (CMC trending + new listings)
+- Implemented conviction decay (10%/day without refresh)
+- Added backtest engine with Student's t-distribution
+
+**v1.0**
+- Initial release: 5-narrative rotation engine
+- CMC-native metrics with external enrichments
+- Basic scoring + portfolio weighting
 
 ## License
 

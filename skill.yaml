@@ -281,3 +281,49 @@ auto_execute:
   config_location: "AUTO_EXECUTE flag at top of backtest.py"
   when_to_enable: "For autonomous agents with pre-approved risk parameters"
   when_to_disable: "For manual trading, testing, or first-time setup"
+
+example_call:
+  action: RUN_SKILL
+  input:
+    narrative: "AI Tokens"
+    risk_profile: "Balanced"
+  x402_header:
+    X-Payment-Proof: "valid_proof_123"
+    X-Tier: "full_scan"
+  output:
+    skill: "narrative-rotation-index"
+    version: "8.0"
+    regime: "TRANSITION"
+    top_narrative: "Meme"
+    verdict: "STRONG_LONG"
+    conviction: 74
+    cap: 75
+    position_size: "3.0%"
+    rotation_signal: "CONCENTRATE_MEME (conviction 74/75)"
+    exhaustion: "25/100"
+    bucket_scores:
+      momentum: 70
+      liquidity: 85
+      attention: 55
+      fundamental: 60
+      risk_adjustment: 70
+    reasons:
+      - "Strong relative strength vs BTC (1.215x)"
+      - "Healthy 7d return (+21.5%)"
+      - "RSI approaching oversold (38.5)"
+      - "Volume expanding rapidly (85% WoW)"
+      - "Market cap expanding (19% WoW)"
+      - "Deep liquidity ($85M)"
+    risks:
+      - "Regime is TRANSITION — not full risk-on, allocation reduced"
+      - "If Meme volume drops below 20d average, signal downgrades to LONG"
+    execution_guardrails:
+      execution_allowed: true
+      violations: []
+    twak_payload:
+      bnbagent_sdk_format: "v1"
+      action: "trust_wallet_agent_kit.multi_swap"
+      narrative: "Meme"
+      total_amount_usd: 500
+      per_token_amount_usd: 166.67
+      requires_user_confirmation: true
