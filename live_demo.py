@@ -154,6 +154,51 @@ def transform_to_scoring_schema(
     return live_data
 
 
+def fetch_live_dataset():
+    """Fetch and transform live CMC data for every narrative.
+
+    Returns (data_by_narrative, regime, source) where source is "CMC v1 API
+    (live)" or "cached mock data". Shared by the CLI (cli.py) and any caller
+    that wants the scoring-ready dataset without the demo's printing.
+    """
+    api_key = os.environ.get("CMC_API_KEY")
+    using_live = bool(api_key)
+
+    btc_dom, mcap_change, fg = 51.3, 0.04, 58
+    quotes: dict[str, Any] = {}
+
+    if using_live:
+        assert api_key is not None  # guaranteed by using_live
+        try:
+            global_data = fetch_global_metrics(api_key)
+            btc_dom = global_data.get("btc_dominance", 51.3)
+            mcap_change = (
+                global_data.get("quote", {}).get("USD", {}).get(
+                    "total_market_cap_yesterday_percentage_change", 4.0
+                )
+                / 100
+            )
+            fg = fetch_fear_greed(api_key)
+
+            all_symbols = ["BTC"]
+            for n_basket in NARRATIVE_BASKETS.values():
+                all_symbols.extend(n_basket["tokens"])
+            quotes = fetch_quotes(all_symbols, api_key)
+        except RuntimeError:
+            using_live = False
+
+    regime, _ = detect_market_regime(fg, btc_dom, mcap_change)
+
+    data_by_narrative = {}
+    for n in NARRATIVE_BASKETS:
+        fallback = CACHED_NARRATIVE_DATA[n]
+        data_by_narrative[n] = (
+            transform_to_scoring_schema(n, quotes, fallback) if using_live else fallback
+        )
+
+    return data_by_narrative, regime, "CMC v1 API (live)" if using_live else "cached mock data"
+
+
 def run_live(narrative: str | None, output_json: bool) -> int:
     api_key = os.environ.get("CMC_API_KEY")
     using_live = bool(api_key)
