@@ -28,6 +28,13 @@ jobs:
         run: python backtest.py > /dev/null
       - name: Smoke test regime comparison
         run: python compare_regime_scenarios.py > /dev/null
+      - name: Smoke test multi-window comparison
+        run: python backtest_compare.py > /dev/null
+      - name: Smoke test CLI
+        run: |
+          python cli.py scan > /dev/null
+          python cli.py score "AI Tokens" --json > /dev/null
+          python cli.py regime > /dev/null
       - name: Smoke test live_demo (mock fallback)
         run: python live_demo.py --json > /dev/null
       - name: Validate skill.yaml syntax
