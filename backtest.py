@@ -1,3 +1,4 @@
+import base64
 import json
 import math
 import random
@@ -7,21 +8,162 @@ from datetime import datetime
 # ==============================================================================
 # 1. X402 PAYMENT GATE (TIERED PRICING)
 # ==============================================================================
+# Real x402 (HTTP 402) verification. Clients pay per call by signing an
+# EIP-3009 TransferWithAuthorization over a stablecoin (the "exact" scheme used
+# by the x402 standard). The signed authorization is base64-JSON encoded in the
+# `X-PAYMENT` header. We verify it by recovering the EIP-712 signer and checking
+# the authorized value covers the tier price — no shared secret, no magic string.
 X402_PRICING = {
     "base": 0.05,
     "regime_update": 0.20,
     "full_scan": 0.50,
 }
 
-def verify_x402_payment(headers, tier="base"):
-    expected_proof = "valid_proof_123"
-    if headers.get("X402-Payment-Proof") != expected_proof:
-        return False, f"402 Payment Required ({X402_PRICING[tier]:.2f} USD)."
-    return True, f"Payment verified. ${X402_PRICING[tier]:.2f} fee deducted (tier: {tier})."
+# Payment token decimals (USDC/USDT-class stablecoin on BSC = 18, USDC on most
+# chains = 6). BSC stablecoins are 18-decimal.
+X402_TOKEN_DECIMALS = 18
+
+# EIP-712 type for the x402 "exact" scheme (EIP-3009 TransferWithAuthorization).
+_X402_EIP712_TYPES = {
+    "TransferWithAuthorization": [
+        {"name": "from", "type": "address"},
+        {"name": "to", "type": "address"},
+        {"name": "value", "type": "uint256"},
+        {"name": "validAfter", "type": "uint256"},
+        {"name": "validBefore", "type": "uint256"},
+        {"name": "nonce", "type": "bytes32"},
+    ]
+}
 
 
-# ==============================================================================
-# 2. EXECUTION GUARDRAILS & AUTO-EXECUTE TOGGLE
+def _price_to_units(tier):
+    """Tier price in USD -> raw token units (integer)."""
+    return int(round(X402_PRICING[tier] * (10 ** X402_TOKEN_DECIMALS)))
+
+
+def verify_x402_payment(headers, tier="base", pay_to=None):
+    """Verify a real x402 payment authorization.
+
+    Expects an `X-PAYMENT` header: base64(JSON) carrying the x402 "exact"
+    payment payload {scheme, network, payload:{signature, authorization:{...}}}.
+    Verification recovers the EIP-712 signer from the EIP-3009 authorization and
+    confirms (a) the signature is valid, (b) the authorized `value` covers the
+    tier price, (c) the authorization is within its validity window, and
+    (d) when `pay_to` is set, the funds are authorized to the expected payee.
+
+    Returns (ok: bool, message: str). Falls back to a clear 402 when no/invalid
+    payment is presented.
+    """
+    raw = headers.get("X-PAYMENT") or headers.get("X402-Payment")
+    if not raw:
+        return False, f"402 Payment Required: sign an x402 payment of ${X402_PRICING[tier]:.2f} (tier: {tier})."
+
+    # Decode base64 JSON envelope.
+    try:
+        decoded = base64.b64decode(raw)
+        envelope = json.loads(decoded)
+        auth = envelope["payload"]["authorization"]
+        signature = envelope["payload"]["signature"]
+        domain = envelope["payload"]["domain"]
+    except (ValueError, KeyError, TypeError) as exc:
+        return False, f"402 Payment Required: malformed X-PAYMENT envelope ({exc})."
+
+    # Recover the EIP-712 signer of the EIP-3009 authorization.
+    try:
+        from eth_account import Account
+        from eth_account.messages import encode_typed_data
+
+        signable = encode_typed_data(
+            domain_data=domain,
+            message_types=_X402_EIP712_TYPES,
+            message_data=auth,
+        )
+        recovered = Account.recover_message(signable, signature=signature)
+    except Exception as exc:  # noqa: BLE001 — surface any crypto failure as a 402
+        return False, f"402 Payment Required: signature verification failed ({exc})."
+
+    # The recovered signer must match the `from` field (self-authorized payment).
+    if recovered.lower() != str(auth.get("from", "")).lower():
+        return False, "402 Payment Required: signer does not match authorization 'from'."
+
+    # Authorized value must cover the tier price.
+    required = _price_to_units(tier)
+    try:
+        authorized_value = int(auth["value"])
+    except (KeyError, ValueError, TypeError):
+        return False, "402 Payment Required: authorization missing a valid 'value'."
+    if authorized_value < required:
+        return (
+            False,
+            f"402 Payment Required: authorized {authorized_value} < required {required} "
+            f"raw units for tier '{tier}'.",
+        )
+
+    # Validity window (EIP-3009 validAfter / validBefore).
+    now = int(time.time())
+    valid_after = int(auth.get("validAfter", 0))
+    valid_before = int(auth.get("validBefore", now + 1))
+    if not (valid_after <= now < valid_before):
+        return False, "402 Payment Required: authorization outside its validity window."
+
+    # Optional payee binding — prevents replaying a payment meant for someone else.
+    if pay_to is not None and str(auth.get("to", "")).lower() != str(pay_to).lower():
+        return False, "402 Payment Required: payment not authorized to this payee."
+
+    return (
+        True,
+        f"Payment verified: {authorized_value} raw units authorized by {recovered} "
+        f"(tier: {tier}, ${X402_PRICING[tier]:.2f}).",
+    )
+
+
+def build_x402_payment(private_key, tier="base", pay_to=None, ttl_seconds=300):
+    """Mint a real signed x402 payment authorization (EIP-3009 / EIP-712).
+
+    Produces the base64-JSON `X-PAYMENT` header value that verify_x402_payment
+    accepts. Used by the demo and tests to prove the gate verifies real
+    signatures rather than a shared secret.
+    """
+    import os
+    from eth_account import Account
+    from eth_account.messages import encode_typed_data
+
+    acct = Account.from_key(private_key)
+    now = int(time.time())
+    pay_to = pay_to or "0x000000000000000000000000000000000000dEaD"
+    authorization = {
+        "from": acct.address,
+        "to": pay_to,
+        "value": str(_price_to_units(tier)),
+        "validAfter": str(now - 1),
+        "validBefore": str(now + ttl_seconds),
+        "nonce": "0x" + os.urandom(32).hex(),
+    }
+    # x402 stablecoin domain (BSC). chainId 56 = BSC mainnet.
+    domain = {
+        "name": "USD Coin",
+        "version": "1",
+        "chainId": 56,
+        "verifyingContract": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+    }
+    signable = encode_typed_data(
+        domain_data=domain,
+        message_types=_X402_EIP712_TYPES,
+        message_data=authorization,
+    )
+    signed = acct.sign_message(signable)
+    envelope = {
+        "scheme": "exact",
+        "network": "bsc",
+        "payload": {
+            "signature": signed.signature.hex(),
+            "authorization": authorization,
+            "domain": domain,
+        },
+    }
+    return base64.b64encode(json.dumps(envelope).encode()).decode()
+
+
 # ==============================================================================
 # Auto-execute toggle: when True (default), TWAK payloads are generated and
 # execute without requiring user confirmation, for autonomous agent operation.
@@ -1032,7 +1174,12 @@ def main():
     print("-" * 80)
     for tier, fee in X402_PRICING.items():
         print(f"  {tier:<20} ${fee:.2f}/call")
-    headers = {"X402-Payment-Proof": "valid_proof_123"}
+    # Mint a real signed x402 payment (random throwaway key) to prove the gate
+    # verifies genuine EIP-712 signatures, not a shared secret.
+    from eth_account import Account
+    demo_key = Account.create().key.hex()
+    payment_header = build_x402_payment(demo_key, tier="full_scan")
+    headers = {"X-PAYMENT": payment_header}
     success, msg = verify_x402_payment(headers, "full_scan")
     print(f"  Status: {'VALID' if success else 'REJECTED'} | {msg}")
     if not success:

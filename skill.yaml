@@ -292,7 +292,7 @@ example_call:
     narrative: "AI Tokens"
     risk_profile: "Balanced"
   x402_header:
-    X-Payment-Proof: "valid_proof_123"
+    X-PAYMENT: "<base64(JSON) EIP-3009 TransferWithAuthorization — see build_x402_payment()>"
     X-Tier: "full_scan"
   output:
     skill: "narrative-rotation-index"

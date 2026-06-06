@@ -8,7 +8,7 @@ BNBAgent SDK + Trust Wallet Agent Kit + x402 + Kaito SoFi
   base                 $0.05/call
   regime_update        $0.20/call
   full_scan            $0.50/call
-  Status: VALID | Payment verified. $0.50 fee deducted (tier: full_scan).
+  Status: VALID | Payment verified: 500000000000000000 raw units authorized by 0x418466CbeE310752B9dfeb74ec95a022Cd3883eb (tier: full_scan, $0.50).
 
   Auto-Execute:   ENABLED
 

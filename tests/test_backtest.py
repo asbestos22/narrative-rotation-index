@@ -168,5 +168,58 @@ class RegimeScoringTests(unittest.TestCase):
         self.assertEqual(regime, "TRANSITION")
 
 
+class X402PaymentGateTests(unittest.TestCase):
+    """The x402 gate verifies real EIP-712 signatures, not a shared secret."""
+
+    def setUp(self):
+        from eth_account import Account
+
+        self.key = Account.create().key.hex()
+
+    def test_valid_payment_accepted(self):
+        hdr = backtest.build_x402_payment(self.key, tier="full_scan")
+        ok, msg = backtest.verify_x402_payment({"X-PAYMENT": hdr}, "full_scan")
+        self.assertTrue(ok, msg)
+
+    def test_missing_payment_rejected(self):
+        ok, _ = backtest.verify_x402_payment({}, "base")
+        self.assertFalse(ok)
+
+    def test_underpaid_rejected(self):
+        # A 'base' ($0.05) authorization must not satisfy a 'full_scan' ($0.50) call.
+        hdr = backtest.build_x402_payment(self.key, tier="base")
+        ok, msg = backtest.verify_x402_payment({"X-PAYMENT": hdr}, "full_scan")
+        self.assertFalse(ok)
+        self.assertIn("authorized", msg)
+
+    def test_tampered_value_rejected(self):
+        import base64
+        import json
+
+        hdr = backtest.build_x402_payment(self.key, tier="base")
+        env = json.loads(base64.b64decode(hdr))
+        env["payload"]["authorization"]["value"] = str(10 ** 30)  # inflate after signing
+        tampered = base64.b64encode(json.dumps(env).encode()).decode()
+        ok, _ = backtest.verify_x402_payment({"X-PAYMENT": tampered}, "full_scan")
+        self.assertFalse(ok)
+
+    def test_expired_authorization_rejected(self):
+        # ttl in the past -> outside validity window.
+        hdr = backtest.build_x402_payment(self.key, tier="base", ttl_seconds=-10)
+        ok, msg = backtest.verify_x402_payment({"X-PAYMENT": hdr}, "base")
+        self.assertFalse(ok)
+
+    def test_payee_binding(self):
+        payee = "0x1111111111111111111111111111111111111111"
+        hdr = backtest.build_x402_payment(self.key, tier="base", pay_to=payee)
+        ok, _ = backtest.verify_x402_payment({"X-PAYMENT": hdr}, "base", pay_to=payee)
+        self.assertTrue(ok)
+        # Wrong expected payee -> rejected.
+        ok2, _ = backtest.verify_x402_payment(
+            {"X-PAYMENT": hdr}, "base", pay_to="0x2222222222222222222222222222222222222222"
+        )
+        self.assertFalse(ok2)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
