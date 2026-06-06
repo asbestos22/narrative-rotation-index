@@ -1,14 +1,64 @@
 # Narrative Rotation Index (NRI)
 
+[![tests](https://github.com/asbestos22/narrative-rotation-index/actions/workflows/tests.yml/badge.svg)](https://github.com/asbestos22/narrative-rotation-index/actions/workflows/tests.yml)
+[![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+[![chain](https://img.shields.io/badge/chain-BNB%20Chain%20(BSC)-F0B90B.svg)](https://www.bnbchain.org/)
+[![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![mcp](https://img.shields.io/badge/MCP-compatible-purple.svg)](https://modelcontextprotocol.io/)
+
 A CMC-native AI-agent skill that ranks crypto narratives by relative strength, liquidity expansion, attention velocity, and macro regime — then outputs backtestable portfolio weights with structured confidence explanations and optional BNB Chain (BSC) Trust Wallet execution payloads.
 
-Built for the **CMC AI Agent Hub** with native **BNBAgent SDK** and **Trust Wallet Agent Kit** integration.
+Built for the **CMC AI Agent Hub** with native **BNBAgent SDK** and **Trust Wallet Agent Kit** integration. Exposed as an **MCP server** so any MCP-aware client can call it.
 
-## One-Line Pitch
+## Demo
+
+![Demo](demo.svg)
+
+```bash
+$ python live_demo.py            # live CMC scoring
+$ python mcp_server.py           # MCP stdio server (Claude Desktop, CMC Hub, agents)
+$ python backtest.py             # 90-day historical basket simulation
+$ python -m unittest tests       # 15 unit tests
+```
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [What is NRI](#what-is-nri)
+- [Narrative Exhaustion Detector](#narrative-exhaustion-detector--the-original-moat) — the moat
+- [Architecture](#architecture)
+- [MCP Server](#mcp-server)
+- [Live CMC Integration](#live-cmc-integration)
+- [Scoring Model](#scoring-model)
+- [Narrative Baskets (BSC)](#narrative-baskets-bsc)
+- [Risk Controls & Guardrails](#execution-guardrails)
+- [Files](#files)
+- [Testing](#testing)
+- [CHANGELOG](#changelog-v1--v8-evolution)
+
+## Quick Start
+
+```bash
+git clone https://github.com/asbestos22/narrative-rotation-index.git
+cd narrative-rotation-index
+pip install -r requirements.txt
+
+# Run the 90-day backtest with cached mock data (no API key needed)
+python backtest.py
+
+# Run the live demo against real CMC data
+cp .env.example .env
+# add your CMC_API_KEY
+python live_demo.py
+```
+
+## What is NRI
 
 > A backtestable strategy skill that scans 5 crypto narratives, detects market regime, ranks by relative strength and liquidity expansion, penalizes crowded late-cycle moves, and outputs portfolio weights plus an optional BNB Chain (BSC) Trust Wallet execution payload.
 
 ## Narrative Exhaustion Detector — The Original Moat
+
+> 📖 **[Read the full Exhaustion Detector deep-dive](EXHAUSTION_DETECTOR.md)** — case studies (LUNA, FTT, BLUR, PEPE, DOGE) showing how the detector catches late-cycle moves before they reverse.
 
 Prevents late-cycle entries by penalizing:
 - Parabolic returns (+40% 7d) with declining volume
@@ -21,6 +71,62 @@ Score ranges:
 - **0-30**: Healthy trend — full conviction
 - **31-60**: Caution — sizing reduced
 - **61-100**: Crowded/late-cycle — strong penalty
+
+## MCP Server
+
+NRI runs as a Model Context Protocol server so any MCP-aware client (Claude Desktop, CMC AI Agent Hub, BNBAgent SDK, custom agents) can call it natively over stdio or HTTP.
+
+```bash
+# stdio mode (default — for Claude Desktop / local clients)
+python mcp_server.py
+
+# streamable HTTP mode (for remote agents)
+python mcp_server.py --http --port 8765
+```
+
+Tools exposed:
+
+| Tool | Purpose |
+|------|---------|
+| `run_skill(narrative)` | Single-narrative deep dive with verdict, conviction, bucket scores, exhaustion, TWAK payload |
+| `global_scan(regime?)` | Cross-narrative rotation engine with quadratic portfolio weighting |
+| `detect_regime(fg, btc_dom, mcap_chg)` | Classify market regime from macro inputs |
+| `get_twak_payload(narrative, amount, verdict)` | Generate BSC swap payload (BNBAgent SDK v1 ToolCall format) |
+| `list_narratives()` | List supported narratives + BSC basket compositions |
+| `get_skill_info()` | Skill metadata, scoring model, integrations |
+
+**Claude Desktop config** (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "narrative-rotation-index": {
+      "command": "python3",
+      "args": ["/path/to/narrative-rotation-index/mcp_server.py"]
+    }
+  }
+}
+```
+
+## Live CMC Integration
+
+`live_demo.py` pulls real-time data from CMC v1 endpoints, transforms it into the scoring schema, and runs the full pipeline.
+
+```bash
+export CMC_API_KEY=your_key
+python live_demo.py                     # scan all 5 narratives
+python live_demo.py --narrative Meme    # single narrative
+python live_demo.py --json              # structured JSON output
+```
+
+**Endpoints used:**
+- `/v1/global-metrics/quotes/latest` — BTC dominance, total mcap change
+- `/v1/cryptocurrency/quotes/latest` — basket token quotes (price, volume, mcap, % changes)
+- `/v3/fear-and-greed/latest` — Fear & Greed index for regime detection
+
+If `CMC_API_KEY` is not set, falls back to cached mock data with a clear warning so the demo still produces output.
+
+📖 **[Full CMC metric → endpoint mapping](docs/cmc_metric_sources.md)** — every metric documented with its source, including external enrichments (Kaito, DeFiLlama, GitHub, BSCScan).
 
 ## Architecture
 
@@ -198,10 +304,24 @@ python backtest.py
 | `.env.example` | Environment variable template |
 | `skill.yaml` | CMC Agent Hub skill specification |
 | `backtest.py` | Executable NRI engine with basket backtest |
+| `mcp_server.py` | Model Context Protocol server (stdio + HTTP) |
+| `live_demo.py` | Live CMC API integration with mock fallback |
 | `compare_regime_scenarios.py` | Demo: regime cap and position sizing across RISK_ON/TRANSITION/RISK_OFF |
 | `sample_output.txt` | Reference terminal output from `python backtest.py` |
 | `tests/test_backtest.py` | Unit tests for circuit breaker, t-distribution, conviction decay |
+| `EXHAUSTION_DETECTOR.md` | Case studies showing the originality moat |
+| `docs/cmc_metric_sources.md` | Every metric mapped to its CMC endpoint |
 | `requirements.txt` | Python dependencies |
+
+## Testing
+
+15 unit tests cover the three v8.1 bug fixes (circuit breaker recovery, Student's t-distribution, conviction decay) plus regime scoring guarantees.
+
+```bash
+python -m unittest tests.test_backtest -v
+```
+
+CI runs on every push and PR across Python 3.10, 3.11, and 3.12 — see [`.github/workflows/tests.yml`](.github/workflows/tests.yml).
 
 ## CHANGELOG: v1 → v8 Evolution
 
