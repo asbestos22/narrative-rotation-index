@@ -929,8 +929,9 @@ def run_backtest(narrative, days=90, initial_capital=10000.0):
 
             action = "BUY" if trade_return > 0 else "SELL"
 
-            # Conviction for trade log
-            raw_conv = 65
+            # Conviction for trade log: compute live from current regime + data
+            score_result = compute_narrative_score(narrative, data, regime)
+            raw_conv = score_result["conviction"]
             decayed = apply_conviction_decay(narrative, raw_conv, day, conviction_history)
 
             trades.append({
@@ -1074,24 +1075,15 @@ def main():
             for t in launches:
                 print(f"    {t['symbol']:<10} ({narrative}) — {t['reason']}")
 
-    # --- Chain Routing ---
-    print(f"\n  Multi-Chain Routing (per-token):")
+    # --- BSC Token Addresses ---
+    print(f"\n  BSC Token Addresses (BNB Chain only):")
     print(f"  {'Token':<10} | {'Chain':<14} | {'Route':<14} | {'Address'}")
     print(f"  {'-'*70}")
     for narrative in NARRATIVE_BASKETS:
         basket = NARRATIVE_BASKETS[narrative]
-        for token, route in basket.get("chain_routing", {}).items():
-            chain = route["chain"]
-            if chain in TWAK_SUPPORTED_CHAINS:
-                route_type = "direct"
-            elif chain in BRIDGE_REQUIRED_CHAINS:
-                route_type = "BSC direct"
-            else:
-                route_type = "direct"
-            addr = route["address"]
-            if len(addr) > 20:
-                addr = addr[:8] + "..." + addr[-6:]
-            print(f"  {token:<10} | {chain:<14} | {route_type:<14} | {addr}")
+        for token, addr in basket.get("bsc_addresses", {}).items():
+            display_addr = addr[:8] + "..." + addr[-6:] if len(addr) > 20 else addr
+            print(f"  {token:<10} | {'bsc':<14} | {'direct':<14} | {display_addr}")
 
     # --- Global Scan ---
     print(f"\n[3] NARRATIVE ROTATION INDEX: Global Scan")
