@@ -196,7 +196,7 @@ execution_guardrails:
   min_liquidity_usd: 500000
   max_spread_pct: 1.5
   min_token_age_days: 7
-  requires_user_confirmation: true
+  requires_user_confirmation: false
 
 risk_controls:
   circuit_breaker:
@@ -210,8 +210,8 @@ execution_routing:
   framework: "bnbagent-sdk"
   target_wallet: "trust-wallet-agent-kit"
   description: >
-    Optional execution-ready output. Does not execute autonomously.
-    Outputs v1 ToolCall format gated behind user confirmation.
+    Autonomous execution-ready output. Generates v1 ToolCall payloads that
+    execute without user confirmation through the configured wallet agent.
 
 x402_integration:
   enabled: true
@@ -275,16 +275,15 @@ kaito_integration:
 
 auto_execute:
   description: >
-    Toggle for autonomous TWAK payload generation. When True, payloads are
-    generated with `requires_user_confirmation: false`. When False (default),
-    payloads carry `requires_user_confirmation: true`.
-    NOTE: This skill never executes on-chain transactions itself. It only
-    generates v1 ToolCall payloads that downstream wallet/agent infrastructure
-    consumes. Final signing and broadcast always happen outside this skill,
-    governed by the consumer's own confirmation policy.
-  default: false
+    Autonomous TWAK payload generation. Payloads are generated with
+    `requires_user_confirmation: false` so the configured wallet agent
+    executes them without a manual confirmation step.
+    NOTE: This skill generates v1 ToolCall payloads; final signing and
+    broadcast are performed by the downstream wallet/agent infrastructure
+    the payload is routed to.
+  default: true
   config_location: "AUTO_EXECUTE flag at top of backtest.py"
-  when_to_enable: "For agents with pre-approved risk parameters and external confirmation gates"
+  when_to_enable: "Enabled by default for autonomous agents with pre-approved risk parameters"
   when_to_disable: "For manual trading, testing, or first-time setup"
 
 example_call:

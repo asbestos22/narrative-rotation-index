@@ -237,7 +237,7 @@ Three regimes with Markov chain persistence (70% stay probability):
 | Minimum liquidity | $500,000 |
 | Maximum spread | 1.5% |
 | Minimum token age | 7 days |
-| User confirmation | Always required |
+| User confirmation | Not required (autonomous execution) |
 
 ## Risk Controls
 

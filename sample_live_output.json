@@ -1,0 +1,185 @@
+{
+  "skill": "narrative-rotation-index",
+  "version": "8.1",
+  "data_source": "CMC v1 API (live)",
+  "timestamp_utc": "2026-06-06T11:50:10Z",
+  "macro": {
+    "fear_greed_index": 13,
+    "btc_dominance_pct": 58.27,
+    "total_mcap_change_7d_pct": -2.33
+  },
+  "regime": "RISK_OFF",
+  "regime_reason": "Flight to safety: fear dominant, BTC absorbing capital.",
+  "regime_cap": 50,
+  "narratives": {
+    "AI Tokens": {
+      "verdict": "NEUTRAL",
+      "conviction": 22,
+      "exhaustion_score": 0,
+      "bucket_scores": {
+        "momentum": 5,
+        "liquidity": 40,
+        "attention": 5,
+        "fundamental": 75,
+        "risk_adjustment": 85
+      },
+      "reasons": [
+        "Underperforming BTC (0.941x)",
+        "Negative 7d return (-22.0%)",
+        "Pullback from 30d high (18%) \u2014 dip-buy territory",
+        "RSI approaching oversold (41.2)",
+        "Healthy volume growth (14% WoW)"
+      ],
+      "execution_allowed": true,
+      "violations": [],
+      "cmc_live_metrics": {
+        "avg_24h_change_pct": -4.98,
+        "avg_7d_change_pct": -22.04,
+        "avg_30d_change_pct": -14.66,
+        "total_24h_volume_usd": 181335704,
+        "total_market_cap_usd": 436125831,
+        "avg_cmc_rank": 2797
+      },
+      "resolved_tokens": [
+        "FET",
+        "AGIX",
+        "OCEAN"
+      ]
+    },
+    "RWA": {
+      "verdict": "NEUTRAL",
+      "conviction": 27,
+      "exhaustion_score": 0,
+      "bucket_scores": {
+        "momentum": 50,
+        "liquidity": 5,
+        "attention": 20,
+        "fundamental": 60,
+        "risk_adjustment": 100
+      },
+      "reasons": [
+        "Strong relative strength vs BTC (1.187x)",
+        "Negative 7d return (-1.7%)",
+        "Pullback from 30d high (12%) \u2014 dip-buy territory",
+        "RSI approaching oversold (44.6)",
+        "Volume declining (-12% WoW)"
+      ],
+      "execution_allowed": true,
+      "violations": [],
+      "cmc_live_metrics": {
+        "avg_24h_change_pct": -0.98,
+        "avg_7d_change_pct": -1.67,
+        "avg_30d_change_pct": -2.56,
+        "total_24h_volume_usd": 273750511,
+        "total_market_cap_usd": 1796973360,
+        "avg_cmc_rank": 564
+      },
+      "resolved_tokens": [
+        "ONDO",
+        "PENDLE",
+        "TRU"
+      ]
+    },
+    "DePIN": {
+      "verdict": "NEUTRAL",
+      "conviction": 23,
+      "exhaustion_score": 0,
+      "bucket_scores": {
+        "momentum": 5,
+        "liquidity": 50,
+        "attention": 5,
+        "fundamental": 60,
+        "risk_adjustment": 100
+      },
+      "reasons": [
+        "Underperforming BTC (0.868x)",
+        "Negative 7d return (-28.1%)",
+        "Pullback from 30d high (22%) \u2014 dip-buy territory",
+        "RSI approaching oversold (36.8)",
+        "Volume expanding rapidly (126% WoW)"
+      ],
+      "execution_allowed": true,
+      "violations": [],
+      "cmc_live_metrics": {
+        "avg_24h_change_pct": -6.46,
+        "avg_7d_change_pct": -28.13,
+        "avg_30d_change_pct": -34.3,
+        "total_24h_volume_usd": 236467478,
+        "total_market_cap_usd": 606892667,
+        "avg_cmc_rank": 610
+      },
+      "resolved_tokens": [
+        "IOTX",
+        "FIL",
+        "NFP"
+      ]
+    },
+    "Meme": {
+      "verdict": "AVOID",
+      "conviction": 18,
+      "exhaustion_score": 15,
+      "bucket_scores": {
+        "momentum": 0,
+        "liquidity": 55,
+        "attention": 70,
+        "fundamental": 60,
+        "risk_adjustment": 70
+      },
+      "reasons": [
+        "Negative 7d return (-18.2%)",
+        "RSI approaching oversold (38.5)",
+        "Healthy volume growth (26% WoW)",
+        "Deep liquidity ($1759M)",
+        "Tight spread (0.2%)"
+      ],
+      "execution_allowed": true,
+      "violations": [],
+      "cmc_live_metrics": {
+        "avg_24h_change_pct": -3.6,
+        "avg_7d_change_pct": -18.19,
+        "avg_30d_change_pct": -30.6,
+        "total_24h_volume_usd": 1758514665,
+        "total_market_cap_usd": 14085562740,
+        "avg_cmc_rank": 66
+      },
+      "resolved_tokens": [
+        "DOGE",
+        "FLOKI"
+      ]
+    },
+    "Privacy": {
+      "verdict": "AVOID",
+      "conviction": 17,
+      "exhaustion_score": 0,
+      "bucket_scores": {
+        "momentum": 15,
+        "liquidity": 0,
+        "attention": 5,
+        "fundamental": 60,
+        "risk_adjustment": 100
+      },
+      "reasons": [
+        "Underperforming BTC (0.915x)",
+        "Negative 7d return (-24.3%)",
+        "Pullback from 30d high (15%) \u2014 dip-buy territory",
+        "RSI oversold (32.1)",
+        "Volume declining (-6% WoW)"
+      ],
+      "execution_allowed": true,
+      "violations": [],
+      "cmc_live_metrics": {
+        "avg_24h_change_pct": -6.0,
+        "avg_7d_change_pct": -24.26,
+        "avg_30d_change_pct": -38.88,
+        "total_24h_volume_usd": 14429369,
+        "total_market_cap_usd": 97129553,
+        "avg_cmc_rank": 565
+      },
+      "resolved_tokens": [
+        "TORN",
+        "SCRT",
+        "ROSE"
+      ]
+    }
+  }
+}

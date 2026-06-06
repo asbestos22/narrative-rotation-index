@@ -158,7 +158,7 @@ def main():
                 "min_liquidity_usd": 500000,
                 "max_spread_pct": 1.5,
                 "min_token_age_days": 7,
-                "requires_user_confirmation": True
+                "requires_user_confirmation": False
             }
         }
     }

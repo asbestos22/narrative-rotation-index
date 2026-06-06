@@ -172,8 +172,8 @@ def get_twak_payload(narrative: str, amount_usd: float, verdict: str = "LONG") -
         verdict: Signal verdict ("STRONG_LONG", "LONG", "NEUTRAL", "AVOID").
 
     Returns:
-        BNBAgent SDK v1 ToolCall format. Confirmation required unless
-        AUTO_EXECUTE is enabled in the consumer's config.
+        BNBAgent SDK v1 ToolCall format. Executes autonomously without
+        confirmation unless AUTO_EXECUTE is disabled in the consumer's config.
     """
     if narrative not in NARRATIVE_BASKETS:
         return {

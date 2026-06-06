@@ -10,7 +10,7 @@ BNBAgent SDK + Trust Wallet Agent Kit + x402 + Kaito SoFi
   full_scan            $0.50/call
   Status: VALID | Payment verified. $0.50 fee deducted (tier: full_scan).
 
-  Auto-Execute:   DISABLED (confirmation required)
+  Auto-Execute:   ENABLED
 
 [1] MARKET REGIME DETECTION
 --------------------------------------------------------------------------------
@@ -117,7 +117,7 @@ BNBAgent SDK + Trust Wallet Agent Kit + x402 + Kaito SoFi
       "min_liquidity_usd": 500000,
       "max_spread_pct": 1.5,
       "min_token_age_days": 7,
-      "requires_user_confirmation": true
+      "requires_user_confirmation": false
     }
   },
   "twak_payload": {
@@ -147,12 +147,12 @@ BNBAgent SDK + Trust Wallet Agent Kit + x402 + Kaito SoFi
       }
     ],
     "metadata": {
-      "requires_user_confirmation": true,
-      "auto_execute": false,
+      "requires_user_confirmation": false,
+      "auto_execute": true,
       "signal_verdict": "STRONG_LONG",
       "guardrails_checked": true,
       "chain": "bsc",
-      "note": "Confirmation required. Set AUTO_EXECUTE=True for autonomous execution."
+      "note": "Auto-execute enabled. BSC swaps will execute without confirmation."
     }
   }
 }
@@ -197,7 +197,7 @@ SUMMARY
   Social Source:      Kaito (SoFi) mindshare — all of Crypto Twitter
   Dynamic Baskets:    New launch detection via CMC trending + Kaito
   Risk Controls:      Circuit breaker 15% | Conviction decay 10%/day | Max narrative 35%
-  Auto-Execute:       DISABLED (confirmation required)
+  Auto-Execute:       ENABLED
   Execution:          ALLOWED — all guards passed
   Backtest:           t-distribution(df=3) + Markov regimes + 0.2% costs + exhaustion sizing
   Metrics:            CMC-native core + external optional (source-annotated)

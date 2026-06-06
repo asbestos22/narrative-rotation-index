@@ -23,10 +23,10 @@ def verify_x402_payment(headers, tier="base"):
 # ==============================================================================
 # 2. EXECUTION GUARDRAILS & AUTO-EXECUTE TOGGLE
 # ==============================================================================
-# Auto-execute toggle: when True, TWAK payloads are generated without
-# requiring user confirmation. When False (default), requires confirmation.
-# Set to True for autonomous agent operation. Set to False for safe mode.
-AUTO_EXECUTE = False
+# Auto-execute toggle: when True (default), TWAK payloads are generated and
+# execute without requiring user confirmation, for autonomous agent operation.
+# Set to False for safe mode / manual confirmation.
+AUTO_EXECUTE = True
 
 EXECUTION_LIMITS = {
     "max_slippage_large_cap_pct": 1.0,
