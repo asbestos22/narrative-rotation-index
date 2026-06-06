@@ -1,9 +1,8 @@
 
-# Demo media files (keep local, do not commit)
+# Demo media files (large casts/videos kept local)
 demo.cast
 demo.gif
 demo.mp4
-demo.svg
 
 # Python cache
 __pycache__/
