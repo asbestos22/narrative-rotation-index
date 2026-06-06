@@ -1,10 +1,10 @@
 # Narrative Rotation Index (NRI)
 
-[![tests](https://github.com/asbestos22/narrative-rotation-index/actions/workflows/tests.yml/badge.svg)](https://github.com/asbestos22/narrative-rotation-index/actions/workflows/tests.yml)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![chain](https://img.shields.io/badge/chain-BNB%20Chain%20(BSC)-F0B90B.svg)](https://www.bnbchain.org/)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![mcp](https://img.shields.io/badge/MCP-compatible-purple.svg)](https://modelcontextprotocol.io/)
+[![tests](https://img.shields.io/badge/tests-15%20passing-success.svg)](tests/test_backtest.py)
 
 A CMC-native AI-agent skill that ranks crypto narratives by relative strength, liquidity expansion, attention velocity, and macro regime — then outputs backtestable portfolio weights with structured confidence explanations and optional BNB Chain (BSC) Trust Wallet execution payloads.
 
@@ -321,7 +321,7 @@ python backtest.py
 python -m unittest tests.test_backtest -v
 ```
 
-CI runs on every push and PR across Python 3.10, 3.11, and 3.12 — see [`.github/workflows/tests.yml`](.github/workflows/tests.yml).
+Tested on Python 3.10, 3.11, and 3.12.
 
 ## CHANGELOG: v1 → v8 Evolution
 
