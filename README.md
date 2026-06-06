@@ -21,21 +21,6 @@ $ python backtest.py             # 90-day historical basket simulation
 $ python -m unittest tests       # 15 unit tests
 ```
 
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [What is NRI](#what-is-nri)
-- [Narrative Exhaustion Detector](#narrative-exhaustion-detector--the-original-moat) — the moat
-- [Architecture](#architecture)
-- [MCP Server](#mcp-server)
-- [Live CMC Integration](#live-cmc-integration)
-- [Scoring Model](#scoring-model)
-- [Narrative Baskets (BSC)](#narrative-baskets-bsc)
-- [Risk Controls & Guardrails](#execution-guardrails)
-- [Files](#files)
-- [Testing](#testing)
-- [CHANGELOG](#changelog-v1--v8-evolution)
-
 ## Quick Start
 
 ```bash

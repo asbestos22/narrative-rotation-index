@@ -11,7 +11,7 @@ Usage:
     python live_demo.py --json             # output structured JSON only
 
 If CMC_API_KEY is not set, falls back to cached mock data with a clear
-warning so the demo still produces output for judges who don't have a key.
+warning so the demo still produces output without a key.
 """
 
 import argparse
