@@ -1,5 +1,5 @@
 name: narrative-rotation-index
-version: "8.0"
+version: "8.1"
 description: >
   A CMC-native Narrative Rotation Index (NRI) skill with dynamic token discovery,
   Kaito (SoFi) social intelligence, 5-bucket scoring, narrative exhaustion detection,
@@ -292,7 +292,7 @@ example_call:
     X-Tier: "full_scan"
   output:
     skill: "narrative-rotation-index"
-    version: "8.0"
+    version: "8.1"
     regime: "TRANSITION"
     top_narrative: "Meme"
     verdict: "STRONG_LONG"

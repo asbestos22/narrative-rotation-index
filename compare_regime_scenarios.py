@@ -4,66 +4,23 @@ Compare regime scenarios for Narrative Rotation Index.
 
 Shows how the same narrative scores differently across RISK_ON, TRANSITION, and RISK_OFF regimes.
 Demonstrates regime-aware conviction caps and position sizing.
+
+Uses the actual scoring pipeline from backtest.py for consistency.
 """
 
 import json
-import math
-import random
-from datetime import datetime
+import sys
+import os
 
-# Mock data for demonstration
-def simulate_narrative_scores(narrative):
-    """Generate consistent mock scores for a narrative across regimes."""
-    base_scores = {
-        "Meme": {"momentum": 70, "liquidity": 85, "attention": 55, "fundamental": 60, "risk": 70},
-        "AI Tokens": {"momentum": 65, "liquidity": 60, "attention": 20, "fundamental": 75, "risk": 85},
-        "RWA": {"momentum": 70, "liquidity": 40, "attention": 15, "fundamental": 60, "risk": 100},
-        "DePIN": {"momentum": 70, "liquidity": 40, "attention": 0, "fundamental": 60, "risk": 100},
-        "Privacy": {"momentum": 80, "liquidity": 30, "attention": 0, "fundamental": 60, "risk": 100},
-    }
-    return base_scores.get(narrative, base_scores["Meme"])
+# Import actual scoring pipeline from backtest.py
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from backtest import (
+    compute_narrative_score,
+    detect_market_regime,
+    CACHED_NARRATIVE_DATA,
+    REGIME_CONVICTION_CAP,
+)
 
-def calculate_conviction(scores, regime):
-    """Calculate conviction score with regime-specific caps."""
-    # Weighted sum
-    total = (
-        scores["momentum"] * 0.30 +
-        scores["liquidity"] * 0.25 +
-        scores["attention"] * 0.20 +
-        scores["fundamental"] * 0.15 +
-        scores["risk"] * 0.10
-    )
-    
-    # Apply regime caps
-    if regime == "RISK_ON":
-        cap = 100
-        position_multiplier = 1.0
-    elif regime == "TRANSITION":
-        cap = 75
-        position_multiplier = 0.6
-    else:  # RISK_OFF
-        cap = 50
-        position_multiplier = 0.3
-    
-    conviction = min(total, cap)
-    
-    # Determine verdict
-    if conviction >= 60:
-        verdict = "STRONG_LONG"
-    elif conviction >= 40:
-        verdict = "LONG"
-    elif conviction >= 20:
-        verdict = "NEUTRAL"
-    else:
-        verdict = "AVOID"
-    
-    return {
-        "conviction": round(conviction),
-        "cap": cap,
-        "verdict": verdict,
-        "position_multiplier": position_multiplier,
-        "position_size_pct": round(5.0 * position_multiplier, 1)
-    }
 
 def main():
     print("=" * 80)
@@ -71,25 +28,27 @@ def main():
     print("=" * 80)
     print("\nShows how the same narrative scores differently across market regimes.")
     print("Regime detection → conviction cap → position sizing → execution signal.")
-    print("\n")
-    
+    print("Uses actual scoring pipeline from backtest.py (5-bucket weighted).\n")
+
     # Test with Meme narrative (strongest in our mock data)
     narrative = "Meme"
-    scores = simulate_narrative_scores(narrative)
-    
-    print(f"Narrative: {narrative}")
-    print(f"Base Scores: Momentum={scores['momentum']}, Liquidity={scores['liquidity']}, ")
-    print(f"             Attention={scores['attention']}, Fundamental={scores['fundamental']}, Risk={scores['risk']}")
-    print("\n")
-    
+    data = CACHED_NARRATIVE_DATA[narrative]
+
     # Table header
     print(f"{'Regime':<15} {'Conviction':<12} {'Cap':<8} {'Verdict':<15} {'Position':<12} {'Signal'}")
     print("-" * 80)
-    
+
     # Compare all three regimes
+    position_multipliers = {"RISK_ON": 1.0, "TRANSITION": 0.6, "RISK_OFF": 0.3}
+    results = {}
+
     for regime in ["RISK_ON", "TRANSITION", "RISK_OFF"]:
-        result = calculate_conviction(scores, regime)
-        
+        result = compute_narrative_score(narrative, data, regime)
+        results[regime] = result
+
+        pos_mult = position_multipliers[regime]
+        pos_size = round(5.0 * pos_mult, 1)
+
         # Determine signal strength
         if result["verdict"] == "STRONG_LONG":
             signal = "✅ CONCENTRATE"
@@ -99,34 +58,64 @@ def main():
             signal = "⚖️  NEUTRAL"
         else:
             signal = "⛔ AVOID"
-        
+
         print(f"{regime:<15} {result['conviction']:<12} {result['cap']:<8} "
-              f"{result['verdict']:<15} {result['position_size_pct']}%{'':<6} {signal}")
-    
+              f"{result['verdict']:<15} {pos_size}%{'':<6} {signal}")
+
+    # Show bucket breakdown
+    print("\n" + "=" * 80)
+    print("BUCKET SCORE BREAKDOWN (same data, different regimes)")
+    print("=" * 80)
+
+    ref = results["TRANSITION"]
+    buckets = ref["bucket_scores"]
+    print(f"\nMomentum:     {buckets['momentum']:<4} × 0.30 = {buckets['momentum'] * 0.30:.1f}")
+    print(f"Liquidity:    {buckets['liquidity']:<4} × 0.25 = {buckets['liquidity'] * 0.25:.1f}")
+    print(f"Attention:    {buckets['attention']:<4} × 0.20 = {buckets['attention'] * 0.20:.1f}")
+    print(f"Fundamental:  {buckets['fundamental']:<4} × 0.15 = {buckets['fundamental'] * 0.15:.1f}")
+    print(f"Risk Adj:     {buckets['risk_adjustment']:<4} × 0.10 = {buckets['risk_adjustment'] * 0.10:.1f}")
+    raw = sum(buckets[k] * w for k, w in [
+        ("momentum", 0.30), ("liquidity", 0.25), ("attention", 0.20),
+        ("fundamental", 0.15), ("risk_adjustment", 0.10)
+    ])
+    print(f"{'─' * 35}")
+    print(f"Weighted raw: {raw:.1f}")
+    print(f"After regime multiplier + cap → see table above")
+
     print("\n" + "=" * 80)
     print("KEY INSIGHTS:")
     print("=" * 80)
-    print("\n1. REGIME CAPS CONVICTION")
-    print("   - RISK_ON:    100 cap → STRONG_LONG (62/100)")
-    print("   - TRANSITION:  75 cap → STRONG_LONG (62/75)")
-    print("   - RISK_OFF:    50 cap → LONG (50/50) - STRONG_LONG impossible")
-    
-    print("\n2. POSITION SIZING ADJUSTS")
-    print("   - RISK_ON:    5.0% base × 1.0 = 5.0% allocation")
-    print("   - TRANSITION: 5.0% base × 0.6 = 3.0% allocation")
-    print("   - RISK_OFF:   5.0% base × 0.3 = 1.5% allocation")
-    
-    print("\n3. EXECUTION SIGNAL CHANGES")
-    print("   - RISK_ON:    ✅ CONCENTRATE (full allocation)")
-    print("   - TRANSITION: ✅ CONCENTRATE (reduced allocation)")
-    print("   - RISK_OFF:   📈 MODERATE (minimal allocation)")
-    
-    print("\n4. PRACTICAL IMPLICATIONS")
-    print("   • Same narrative, same metrics → different conviction based on regime")
-    print("   • RISK_OFF prevents overconfidence (STRONG_LONG impossible)")
-    print("   • Position sizing protects capital in uncertain regimes")
-    print("   • Markov chain (70% persistence) prevents regime whipsaw")
-    
+    ro, tr, off = results["RISK_ON"], results["TRANSITION"], results["RISK_OFF"]
+    print(f"\n1. REGIME CAPS CONVICTION")
+    print(f"   - RISK_ON:    {ro['cap']} cap → {ro['verdict']} ({ro['conviction']}/{ro['cap']})")
+    print(f"   - TRANSITION: {tr['cap']} cap → {tr['verdict']} ({tr['conviction']}/{tr['cap']})")
+    print(f"   - RISK_OFF:   {off['cap']} cap → {off['verdict']} ({off['conviction']}/{off['cap']})")
+
+    print(f"\n2. POSITION SIZING ADJUSTS")
+    print(f"   - RISK_ON:    5.0% base × 1.0 = 5.0% allocation")
+    print(f"   - TRANSITION: 5.0% base × 0.6 = 3.0% allocation")
+    print(f"   - RISK_OFF:   5.0% base × 0.3 = 1.5% allocation")
+
+    print(f"\n3. REGIME MULTIPLIERS (applied before cap)")
+    print(f"   - RISK_ON:    × 1.1 (bonus)")
+    print(f"   - TRANSITION: × 0.9 (penalty)")
+    print(f"   - RISK_OFF:   × 0.7 (penalty) + Meme-specific × 0.6")
+
+    print(f"\n4. PRACTICAL IMPLICATIONS")
+    print(f"   • Same narrative, same metrics → different conviction based on regime")
+    print(f"   • RISK_OFF prevents overconfidence (STRONG_LONG impossible at cap {off['cap']})")
+    print(f"   • Position sizing protects capital in uncertain regimes")
+    print(f"   • Markov chain (70% persistence) prevents regime whipsaw")
+
+    print(f"\n5. EXHAUSTION SCORE: {ref['exhaustion_score']}/100")
+    exh = ref['exhaustion_score']
+    if exh <= 30:
+        print(f"   → Healthy trend — full conviction allowed")
+    elif exh <= 60:
+        print(f"   → Caution — sizing reduced")
+    else:
+        print(f"   → Crowded/late-cycle — strong penalty")
+
     print("\n" + "=" * 80)
     print("SCORING MODEL (5-BUCKET WEIGHTED)")
     print("=" * 80)
@@ -135,47 +124,25 @@ def main():
     print("Attention:     20%  (social velocity, CMC trending, Kaito CT)")
     print("Fundamental:   15%  (narrative-specific utility metrics)")
     print("Risk Adj:      10%  (volatility penalty + exhaustion detector)")
-    print("\nTotal = Σ(bucket_score × weight)")
-    print(f"Meme example: {scores['momentum']}×0.30 + {scores['liquidity']}×0.25 + "
-          f"{scores['attention']}×0.20 + {scores['fundamental']}×0.15 + {scores['risk']}×0.10 = {sum([scores['momentum']*0.30, scores['liquidity']*0.25, scores['attention']*0.20, scores['fundamental']*0.15, scores['risk']*0.10]):.1f}")
-    
-    print("\n" + "=" * 80)
-    print("USE CASE: AGENT DECISION FLOW")
-    print("=" * 80)
-    print("1. Detect regime (Fear & Greed + BTC dominance + mcap momentum)")
-    print("2. Score all 5 narratives (Meme, AI, RWA, DePIN, Privacy)")
-    print("3. Apply regime cap to each conviction score")
-    print("4. Apply quadratic weighting: w_i = conv_i² / Σ(conv_j²)")
-    print("5. Check execution guardrails (liquidity, slippage, token age)")
-    print("6. Output structured JSON with reasons + risks + TWAK payload")
-    
+    print(f"\nTotal = Σ(bucket_score × weight) × regime_mult → capped at regime limit")
+
     print("\n" + "=" * 80)
     print("DEMO OUTPUT (TRANSITION regime)")
     print("=" * 80)
-    
-    # Show full structured output for TRANSITION regime
-    transition_result = calculate_conviction(scores, "TRANSITION")
-    
+
     demo_output = {
         "skill": "narrative-rotation-index",
-        "version": "8.0",
+        "version": "8.1",
         "regime": "TRANSITION",
         "top_narrative": narrative,
-        "verdict": transition_result["verdict"],
-        "conviction": transition_result["conviction"],
-        "cap": transition_result["cap"],
-        "position_size": f"{transition_result['position_size_pct']}%",
-        "rotation_signal": f"CONCENTRATE_{narrative.upper().replace(' ', '_')} (conviction {transition_result['conviction']}/{transition_result['cap']})",
-        "exhaustion": "25/100",
-        "bucket_scores": scores,
-        "reasons": [
-            "Strong relative strength vs BTC (1.215x)",
-            "Healthy 7d return (+21.5%)",
-            "RSI approaching oversold (38.5)",
-            "Volume expanding rapidly (85% WoW)",
-            "Market cap expanding (19% WoW)",
-            "Deep liquidity ($85M)"
-        ],
+        "verdict": tr["verdict"],
+        "conviction": tr["conviction"],
+        "cap": tr["cap"],
+        "position_size": "3.0%",
+        "rotation_signal": f"CONCENTRATE_{narrative.upper().replace(' ', '_')} (conviction {tr['conviction']}/{tr['cap']})",
+        "exhaustion": f"{tr['exhaustion_score']}/100",
+        "bucket_scores": tr["bucket_scores"],
+        "reasons": tr["reasons"][:6],
         "risks": [
             "Regime is TRANSITION — not full risk-on, allocation reduced",
             "If volume drops below 20d average, signal downgrades to LONG"
@@ -195,8 +162,9 @@ def main():
             }
         }
     }
-    
+
     print(json.dumps(demo_output, indent=2))
+
 
 if __name__ == "__main__":
     main()

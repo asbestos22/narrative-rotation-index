@@ -1020,7 +1020,7 @@ def run_backtest(narrative, days=90, initial_capital=10000.0):
 # ==============================================================================
 def main():
     print("=" * 80)
-    print("CMC Narrative Rotation Index (NRI) Skill v8.0")
+    print("CMC Narrative Rotation Index (NRI) Skill v8.1")
     print("BNBAgent SDK + Trust Wallet Agent Kit + x402 + Kaito SoFi")
     print("=" * 80)
     time.sleep(0.2)
@@ -1125,7 +1125,7 @@ def main():
     sizing_pct = 5 * REGIME_SIZING[regime]
     confidence_output = {
         "skill": "narrative-rotation-index",
-        "version": "8.0",
+        "version": "8.1",
         "regime": regime,
         "top_narrative": top_n,
         "verdict": top_d["verdict"],
@@ -1191,7 +1191,7 @@ def main():
     print(f"\n{'='*80}")
     print("SUMMARY")
     print(f"{'='*80}")
-    print(f"  Skill:              CMC Narrative Rotation Index (NRI) v8.0")
+    print(f"  Skill:              CMC Narrative Rotation Index (NRI) v8.1")
     print(f"  Regime:             {regime} (cap: {cap}/100)")
     print(f"  Top Narrative:      {top_n} ({top_d['verdict']}, {top_d['conviction']}/{cap})")
     print(f"  Exhaustion:         {top_d['exhaustion_score']}/100")
