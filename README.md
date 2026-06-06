@@ -40,14 +40,14 @@ Score ranges:
      │                     │                     │
   ┌──▼───────────┐  ┌──────▼──────┐  ┌──────────▼──────┐
   │ AI Tokens     │  │ RWA         │  │ DePIN            │
-  │ FET, RENDER   │  │ ONDO, CFG   │  │ FIL, HNT, RNDR  │
-  │ TAO, AKT      │  │ MPL, POLYX  │  │ IOTX             │
+  │ FET, AGIX,    │  │ ONDO,       │  │ IOTX, FIL, NFP  │
+  │ OCEAN         │  │ PENDLE, TRU │  │                  │
   └──┬────────────┘  └──────┬──────┘  └──────────┬──────┘
      │                     │                     │
   ┌──▼────────────┐  ┌─────▼───────┐            │
   │ Meme           │  │ Privacy      │            │
-  │ DOGE, PEPE     │  │ ZEC, SCRT   │            │
-  │ WIF, BONK      │  │ ROSE, TORN  │            │
+  │ DOGE, FLOKI,   │  │ TORN, SCRT, │            │
+  │ BABYDOGE       │  │ ROSE        │            │
   └──┬────────────┘  └─────┬───────┘            │
      │                     │                     │
      └─────────────────────┼─────────────────────┘
@@ -83,6 +83,18 @@ Score ranges:
               │  BSC TWAK payload (optional) │
               └─────────────────────────┘
 ```
+
+## Narrative Baskets (BSC)
+
+| Narrative | Tokens (BEP-20 on BSC) |
+|-----------|------------------------|
+| AI Tokens | FET, AGIX, OCEAN¹ |
+| RWA | ONDO, PENDLE, TRU |
+| DePIN | IOTX, FIL, NFP |
+| Meme | DOGE, FLOKI, BABYDOGE |
+| Privacy | TORN, SCRT, ROSE |
+
+¹ *AGIX and OCEAN merged into FET (ASI Alliance, Apr 2024). Standalone tokens are scheduled for deprecation. The basket is preserved for backtest reproducibility on historical 2024 data; live deployment should migrate to FET-only or substitute RENDER/TAO/AKT (currently bridge-required, not BSC-native).*
 
 ## Scoring Model
 
@@ -152,8 +164,8 @@ Every signal includes structured confidence explanation:
   "regime": "TRANSITION",
   "top_narrative": "Meme",
   "verdict": "STRONG_LONG",
-  "conviction": 62,
-  "bucket_scores": {"momentum": 70, "liquidity": 85, "attention": 55, "fundamental": 60, "risk_adjustment": 70},
+  "conviction": 65,
+  "bucket_scores": {"momentum": 70, "liquidity": 85, "attention": 70, "fundamental": 60, "risk_adjustment": 70},
   "exhaustion": "25/100",
   "reasons": ["Strong relative strength vs BTC", "Volume expanding 85% WoW", ...],
   "risks": ["Regime is TRANSITION — allocation reduced", ...],
@@ -186,6 +198,9 @@ python backtest.py
 | `.env.example` | Environment variable template |
 | `skill.yaml` | CMC Agent Hub skill specification |
 | `backtest.py` | Executable NRI engine with basket backtest |
+| `compare_regime_scenarios.py` | Demo: regime cap and position sizing across RISK_ON/TRANSITION/RISK_OFF |
+| `sample_output.txt` | Reference terminal output from `python backtest.py` |
+| `tests/test_backtest.py` | Unit tests for circuit breaker, t-distribution, conviction decay |
 | `requirements.txt` | Python dependencies |
 
 ## CHANGELOG: v1 → v8 Evolution
