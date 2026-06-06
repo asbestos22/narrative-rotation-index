@@ -53,7 +53,7 @@ Score ranges:
      └─────────────────────┼─────────────────────┘
                            │
               ┌────────────▼────────────┐
-              │  4-Bucket Scoring        │
+              │  5-Bucket Scoring        │
               │  30% Momentum            │
               │  25% Liquidity           │  Quadratic weighting
               │  20% Attention           │  w_i = conv²/Σ(conv²)

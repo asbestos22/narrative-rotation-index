@@ -1,0 +1,190 @@
+================================================================================
+CMC Narrative Rotation Index (NRI) Skill v8.1
+BNBAgent SDK + Trust Wallet Agent Kit + x402 + Kaito SoFi
+================================================================================
+
+[0] X402 PAYMENT GATE
+--------------------------------------------------------------------------------
+  base                 $0.05/call
+  regime_update        $0.20/call
+  full_scan            $0.50/call
+  Status: VALID | Payment verified. $0.50 fee deducted (tier: full_scan).
+
+  Auto-Execute:   DISABLED (confirmation required)
+
+[1] MARKET REGIME DETECTION
+--------------------------------------------------------------------------------
+  Regime:         TRANSITION
+  Reason:         Mixed signals: regime unclear, reduced position sizing.
+  Conviction Cap: 75/100
+  Sizing:         60% of base
+
+[2] DYNAMIC BASKET DISCOVERY: New Launches & Trending
+--------------------------------------------------------------------------------
+  Source: CMC trending + new listings + Kaito mindshare
+  Filter: age 3-30d, vol > $5M, rank < 200
+
+  Narrative      | Core Basket              | New Launches         | Combined
+  --------------------------------------------------------------------------------
+  AI Tokens      | FET, AGIX, OCEAN         | AI16Z                | FET, AGIX, OCEAN, AI16Z
+  RWA            | ONDO, PENDLE, TRU        | —                    | ONDO, PENDLE, TRU
+  DePIN          | IOTX, FIL, NFP           | GRASS                | IOTX, FIL, NFP, GRASS
+  Meme           | DOGE, FLOKI, BABYDOGE    | NEIRO, MOODENG, GOAT | DOGE, FLOKI, BABYDOGE, NEIRO, MOODENG, GOAT
+  Privacy        | TORN, SCRT, ROSE         | —                    | TORN, SCRT, ROSE
+
+  New Launch Details:
+    AI16Z      (AI Tokens) — AI agent narrative, CMC new listing, developer activity picking up
+    GRASS      (DePIN) — DePIN bandwidth network, CMC trending, node growth accelerating
+    NEIRO      (Meme) — CMC trending #3, social volume +340% in 48h, holder growth +52%/7d
+    MOODENG    (Meme) — New viral meme, CMC new listing, whale wallets detected
+    GOAT       (Meme) — AI-meme crossover, Kaito mindshare spike, top trending on X
+
+  Multi-Chain Routing (per-token):
+  Token      | Chain          | Route          | Address
+  ----------------------------------------------------------------------
+
+[3] NARRATIVE ROTATION INDEX: Global Scan
+--------------------------------------------------------------------------------
+  Scoring Model:  0.30×Momentum + 0.25×Liquidity + 0.20×Attention + 0.15×Fundamental + 0.10×Risk (5-bucket)
+  Weight Formula: w_i = conv_i² / Σ(conv_j²), min threshold = 20
+  Social Source:  Kaito (SoFi) mindshare — scans ALL of Crypto Twitter
+
+  Narrative      | Verdict      | Conv | MOM | LIQ | ATT | FND | RSK | EXH |   Wt%
+  ---------------------------------------------------------------------------
+  Meme           | STRONG_LONG  |   65 |  70 |  85 |  70 |  60 |  70 |  25 |  31.8%
+  AI Tokens      | LONG         |   53 |  70 |  60 |  20 |  75 |  85 |   0 |  21.1%
+  RWA            | LONG         |   47 |  70 |  40 |  15 |  60 | 100 |   0 |  16.6%
+  DePIN          | LONG         |   45 |  70 |  40 |   0 |  60 | 100 |   0 |  15.2%
+  Privacy        | LONG         |   45 |  80 |  30 |   0 |  60 | 100 |   0 |  15.2%
+
+  Rotation: CONCENTRATE_MEME (conviction 65/75)
+
+[4] STRUCTURED CONFIDENCE OUTPUT: Meme
+--------------------------------------------------------------------------------
+{
+  "skill": "narrative-rotation-index",
+  "version": "8.1",
+  "regime": "TRANSITION",
+  "top_narrative": "Meme",
+  "verdict": "STRONG_LONG",
+  "conviction": 65,
+  "cap": 75,
+  "position_size": "3.0%",
+  "rotation_signal": "CONCENTRATE_MEME (conviction 65/75)",
+  "exhaustion": "25/100",
+  "bucket_scores": {
+    "momentum": 70,
+    "liquidity": 85,
+    "attention": 70,
+    "fundamental": 60,
+    "risk_adjustment": 70
+  },
+  "reasons": [
+    "Strong relative strength vs BTC (1.215x)",
+    "Healthy 7d return (+21.5%)",
+    "RSI approaching oversold (38.5)",
+    "Volume expanding rapidly (85% WoW)",
+    "Market cap expanding (19% WoW)",
+    "Deep liquidity ($85M)"
+  ],
+  "risks": [
+    "Regime is TRANSITION \u2014 not full risk-on, allocation reduced",
+    "If Meme volume drops below 20d average, signal downgrades to LONG"
+  ],
+  "execution_guardrails": {
+    "execution_allowed": true,
+    "violations": [],
+    "limits": {
+      "max_slippage_large_cap_pct": 1.0,
+      "max_slippage_meme_pct": 2.5,
+      "max_allocation_per_narrative_pct": 35.0,
+      "max_allocation_per_token_pct": 15.0,
+      "min_liquidity_usd": 500000,
+      "max_spread_pct": 1.5,
+      "min_token_age_days": 7,
+      "requires_user_confirmation": true
+    }
+  },
+  "twak_payload": {
+    "bnbagent_sdk_format": "v1",
+    "action": "trust_wallet_agent_kit.multi_swap",
+    "narrative": "Meme",
+    "total_amount_usd": 500,
+    "per_token_amount_usd": 166.67,
+    "token_swaps": [
+      {
+        "token": "DOGE",
+        "chain": "bsc",
+        "address": "0xbA2aE424d960c26247Dd6c32edC70B295c744C43",
+        "route_type": "direct"
+      },
+      {
+        "token": "FLOKI",
+        "chain": "bsc",
+        "address": "0x43f11c02439e2736800433b4594994Bd43Cd066D",
+        "route_type": "direct"
+      },
+      {
+        "token": "BABYDOGE",
+        "chain": "bsc",
+        "address": "0xc748673057861a797275CD8A068AbB95A902e8de",
+        "route_type": "direct"
+      }
+    ],
+    "metadata": {
+      "requires_user_confirmation": true,
+      "auto_execute": false,
+      "signal_verdict": "STRONG_LONG",
+      "guardrails_checked": true,
+      "chain": "bsc",
+      "note": "Confirmation required. Set AUTO_EXECUTE=True for autonomous execution."
+    }
+  }
+}
+
+[5] BASKET BACKTEST: 90-Day Simulation
+--------------------------------------------------------------------------------
+  Baskets:        Equal-weight tokens per narrative (CMC-native)
+  Distribution:   Student's t (df=3)
+  Regime:         Markov chain (70% persistence)
+  Costs:          0.1% swap + 0.1% slippage = 0.2%/trade
+  Circuit Breaker: 15% drawdown → 10% sizing
+  Exhaustion:     Penalizes sizing in late-cycle narratives
+
+  Narrative      | Basket                 |  Return | Sharpe | Sortino | Calmar |  MaxDD | WinRt |    PF |   Fees
+  --------------------------------------------------------------------------------------------------------------
+  AI Tokens      | FET, AGIX, OCEAN       |  +3.94% |   0.86 |    0.12 |   0.76 |  5.16% | 72.2% |  2.59 | $11.91
+  RWA            | ONDO, PENDLE, TRU      |  +3.47% |   0.75 |    0.18 |   0.68 |  5.13% | 77.8% |  2.93 | $11.91
+  DePIN          | IOTX, FIL, NFP         |  +3.07% |   0.65 |    0.10 |   0.59 |  5.25% | 66.7% |  1.42 | $11.87
+  Meme           | DOGE, FLOKI, BABYDOGE  |  +3.50% |   0.87 |    0.06 |   0.80 |  4.38% | 72.2% |  2.13 | $9.97
+  Privacy        | TORN, SCRT, ROSE       |  +3.50% |   0.75 |    0.14 |   0.68 |  5.17% | 72.2% |  2.31 | $11.91
+
+──────────────────────────────────────────────────────────────────────────────────────────
+  Trade Log: Meme (DOGE, FLOKI, BABYDOGE)
+  Day   | Act   |  Return |       P&L | Regime      | Conv | EXH | CB     | Fees
+  --------------------------------------------------------------------------------
+  65    | BUY   |  +5.09% | $   +6.32 | RISK_OFF    |   38 |  25 | OK     | $0.25
+  70    | BUY   |  +3.96% | $  +16.59 | RISK_ON     |   38 |  25 | OK     | $0.84
+  75    | BUY   |  +0.26% | $   +0.33 | RISK_OFF    |   38 |  25 | OK     | $0.26
+  80    | SELL  |  -2.10% | $   -5.35 | TRANSITION  |   38 |  25 | OK     | $0.51
+  85    | BUY   |  +1.21% | $   +1.56 | RISK_OFF    |   38 |  25 | OK     | $0.26
+  90    | SELL  |  -0.63% | $   -1.62 | TRANSITION  |   38 |  25 | OK     | $0.52
+
+================================================================================
+SUMMARY
+================================================================================
+  Skill:              CMC Narrative Rotation Index (NRI) v8.1
+  Regime:             TRANSITION (cap: 75/100)
+  Top Narrative:      Meme (STRONG_LONG, 65/75)
+  Exhaustion:         25/100
+  Rotation:           CONCENTRATE_MEME (conviction 65/75)
+  Scoring:            5-bucket (Momentum/Liquidity/Attention/Fundamental/Risk)
+  Social Source:      Kaito (SoFi) mindshare — all of Crypto Twitter
+  Dynamic Baskets:    New launch detection via CMC trending + Kaito
+  Risk Controls:      Circuit breaker 15% | Conviction decay 10%/day | Max narrative 35%
+  Auto-Execute:       DISABLED (confirmation required)
+  Execution:          ALLOWED — all guards passed
+  Backtest:           t-distribution(df=3) + Markov regimes + 0.2% costs + exhaustion sizing
+  Metrics:            CMC-native core + external optional (source-annotated)
+  Output:             Structured JSON with reasons, risks, bucket scores, guardrails
+================================================================================
