@@ -4,7 +4,7 @@
 [![chain](https://img.shields.io/badge/chain-BNB%20Chain%20(BSC)-F0B90B.svg)](https://www.bnbchain.org/)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![mcp](https://img.shields.io/badge/MCP-compatible-purple.svg)](https://modelcontextprotocol.io/)
-[![tests](https://img.shields.io/badge/tests-15%20passing-success.svg)](tests/test_backtest.py)
+[![tests](https://github.com/asbestos22/narrative-rotation-index/actions/workflows/tests.yml/badge.svg)](https://github.com/asbestos22/narrative-rotation-index/actions/workflows/tests.yml)
 
 A CMC-native AI-agent skill that ranks crypto narratives by relative strength, liquidity expansion, attention velocity, and macro regime — then outputs backtestable portfolio weights with structured confidence explanations and optional BNB Chain (BSC) Trust Wallet execution payloads.
 
