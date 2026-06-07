@@ -33,7 +33,7 @@ WIDTH, HEIGHT = 1920, 1080
 DEMO_PK = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"  # well-known hardhat key #1
 DEMO_ADDR = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
 
-REAL_TX = "0x6fd6c6073b5d4afe09f8ab12171332177c8c8a90c4a075f98953b0aaa5a1e19b"
+REAL_TX = "0xecb5ab20f66ca0183127d0f4309326310b01b0ab4319f2c4f7f7222e579905b9"
 
 # Injected EIP-1193 provider. Uses the page's own loaded `ethers` to sign.
 INJECT = """
@@ -99,15 +99,30 @@ async def record() -> Path:
         await page.add_init_script(INJECT)
         await page.goto(BUY_URL, wait_until="networkidle")
         await asyncio.sleep(2)
-        # pick base tier (cheapest) for the demo
-        await page.click('.tier[data-tier="base"]')
+        # pick full scan tier (richest, most human-readable payload)
+        await page.click('.tier[data-tier="full_scan"]')
         await asyncio.sleep(1.2)
         await page.click("#btnConnect")
         await asyncio.sleep(2.2)            # connection + step 1
         await page.click("#btnBuy")
         # signing pause + fetch + result render
         await page.wait_for_selector("#resultCard:not(.hide)", timeout=20000)
-        await asyncio.sleep(3.5)            # let the summary + result breathe
+        await asyncio.sleep(2.0)
+        # expand the raw payload so judges see the full signed feed
+        try:
+            await page.evaluate("document.querySelector('details').open = true")
+        except Exception:
+            pass
+        await asyncio.sleep(1.0)
+        # slow scroll through the rich result (summary + narratives + payload)
+        rh = await page.evaluate("document.body.scrollHeight - window.innerHeight")
+        rsteps = 30
+        for i in range(rsteps + 1):
+            await page.evaluate(f"window.scrollTo({{top:{int(rh*i/rsteps)}, behavior:'instant'}})")
+            await asyncio.sleep(6 / rsteps)
+        await asyncio.sleep(2.0)
+        await page.evaluate("window.scrollTo({top:0, behavior:'instant'})")
+        await asyncio.sleep(1.5)
 
         # ── Segment 3: settlement proof slate ────────────────────────────
         await page.evaluate(SLATE_JS, REAL_TX)
@@ -136,7 +151,7 @@ SLATE_JS = """
     <div style="color:#848e9c;font-size:18px;margin-bottom:36px">
       x402 EIP-3009 settlement &mdash; buyer signs gasless, NRI redeems on-chain</div>
     <div style="font-size:16px;line-height:2">
-      <div><span style="color:#848e9c">Token&nbsp;&nbsp;&nbsp;</span> 0.01 U &middot; United Stables</div>
+      <div><span style="color:#848e9c">Token&nbsp;&nbsp;&nbsp;</span> 0.1 U &middot; United Stables</div>
       <div><span style="color:#848e9c">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> NRI 0x7D93&hellip;72C1 (agent 129156)</div>
       <div><span style="color:#848e9c">Buyer&nbsp;&nbsp;&nbsp;</span> paid 0 gas &mdash; just a signature</div>
     </div>
