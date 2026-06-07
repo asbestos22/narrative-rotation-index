@@ -252,47 +252,107 @@ def build_regime_sequence(days, initial="TRANSITION"):
 # ==============================================================================
 # Each narrative is a basket of real tokens, weighted equally for backtest.
 # Core metrics are CMC-native: price, volume, market cap, liquidity.
-# All tokens use their BEP-20 (BSC) contract addresses. Execution routes
-# directly through BNB Chain via TWAK — no bridges, no cross-chain swaps.
+# All tokens use their BEP-20 (BSC) contract addresses.
+# v9.0: aligned to DoraHacks BNB Hack Track 1 149-token whitelist. Multichain
+# names (SHIB, PENGU, ETH, etc.) trade on BSC as Binance-Peg BEP-20 wrappers.
+# Execution routes through TWAK on BNB Chain, no bridges, no cross-chain swaps.
 NARRATIVE_BASKETS = {
     "AI Tokens": {
-        "tokens": ["FET", "AGIX", "OCEAN"],
+        "tokens": ["FET", "INJ", "SAHARA", "0G", "PEAQ"],
         "bsc_addresses": {
-            "FET": "0x171b5c6Cb673d28580532E0b4C3B5F0E9e632809",
-            "AGIX": "0x52CE071Bd9b1C4B00A0b92D298c512478CaD67e8",
-            "OCEAN": "0x61299774020dA444Af134c82fa83E3810b309991",
+            "FET": "0x031b41e504677879370e9dbcf937283a8691fa7f",
+            "INJ": "0xa2b726b1145a4773f68593cf171187d8ebe4d495",
+            "SAHARA": "0xFDFfB411C4A70AA7C95D5C981a6Fb4Da867e1111",
+            "0G": "0x4B948d64dE1F71fCd12fB586f4c776421a35b3eE",
+            "PEAQ": "0x8b9Ee39195eA99d6ddD68030F44131116bc218F6",
+        }
+    },
+    "AI Agents": {
+        "tokens": ["SKYAI", "DEXE", "AB", "EDGE", "GENIUS"],
+        "bsc_addresses": {
+            "SKYAI": "0x92aa03137385F18539301349dcfC9EbC923fFb10",
+            "DEXE": "0x6E88056E8376Ae7709496Ba64d37fa2f8015ce3e",
+            "AB": "0x95034f653d5d161890836ad2b6b8cc49d14e029a",
+            "EDGE": "0x70f2eadf1ca1969ff42b0c78e9da519e8937cbaf",
+            "GENIUS": "0x1F12B85aAC097E43Aa1555b2881E98a51090e9A6",
         }
     },
     "RWA": {
-        "tokens": ["ONDO", "PENDLE", "TRU"],
+        "tokens": ["PENDLE", "PLUME", "USDC", "FDUSD"],
         "bsc_addresses": {
-            "ONDO": "0x4c19596f5aAff459fA4fF6555b7B16F4e1CdB49d",
             "PENDLE": "0xb3Ed0A426155B79B898849803E3B36552f7ED507",
-            "TRU": "0x8b4334d4812c530574bd4f2763fcd22de94a969b",
+            "PLUME": "0x5aFadCd1E8E3CA78Ee2D37100102f2aec8Bc0Aa8",
+            "USDC": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+            "FDUSD": "0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
         }
     },
     "DePIN": {
-        "tokens": ["IOTX", "FIL", "NFP"],
+        "tokens": ["FIL", "PEAQ", "AIOZ", "TAC", "IRYS"],
         "bsc_addresses": {
-            "IOTX": "0x9678E42ceBEb63F23197D726B29b1CB20d0064E5",
-            "FIL": "0x0D8Ce2A99Bb6e3B7Db580eD848240e4a0F9aE153",
-            "NFP": "0x371E38d221A2AA61c494168a23304C9619773BC8",
+            "FIL": "0x0d8ce2a99bb6e3b7db580ed848240e4a0f9ae153",
+            "PEAQ": "0x8b9Ee39195eA99d6ddD68030F44131116bc218F6",
+            "AIOZ": "0x33d08D8C7a168333a85285a68C0042b39fC3741D",
+            "TAC": "0x1219c409fabe2c27bd0d1a565daeed9bd9f271de",
+            "IRYS": "0x91152B4Ef635403efBAe860edD0F8c321d7c035d",
         }
     },
     "Meme": {
-        "tokens": ["DOGE", "FLOKI", "BABYDOGE"],
+        "tokens": ["DOGE", "SHIB", "BONK", "PENGU", "FLOKI"],
         "bsc_addresses": {
-            "DOGE": "0xbA2aE424d960c26247Dd6c32edC70B295c744C43",
-            "FLOKI": "0x43f11c02439e2736800433b4594994Bd43Cd066D",
-            "BABYDOGE": "0xc748673057861a797275CD8A068AbB95A902e8de",
+            "DOGE": "0xba2ae424d960c26247dd6c32edc70b295c744c43",
+            "SHIB": "0x2859e4544c4bb03966803b044a93563bd2d0dd4d",
+            "BONK": "0xA697e272a73744b343528C3Bc4702F2565b2F422",
+            "PENGU": "0x6418c0dd099a9fda397c766304cdd918233e8847",
+            "FLOKI": "0xfb5b838b6cfeedc2873ab27866079ac55363d37e",
         }
     },
     "Privacy": {
-        "tokens": ["TORN", "SCRT", "ROSE"],
+        "tokens": ["ZEC", "ROSE", "DUSK", "ZAMA"],
         "bsc_addresses": {
-            "TORN": "0x139a705E59382D704D4576A594a3231f3417f2E0",
-            "SCRT": "0x746DDbD6C2210B19E824225C81e18408D0024733",
-            "ROSE": "0xE4A2620edE1058D61BEe5F45F6414314fdf10548",
+            "ZEC": "0x1ba42e5193dfa8b03d15dd1b86a3113bbbef8eeb",
+            "ROSE": "0xF00600eBC7633462BC4F9C61eA2cE99F5AAEBd4a",
+            "DUSK": "0xb2bd0749dbe21f623d9baba856d3b0f0e1bfec9c",
+            "ZAMA": "0x6907a5986c4950bdaf2f81828ec0737ce787519f",
+        }
+    },
+    "DeFi Blue": {
+        "tokens": ["AAVE", "UNI", "CAKE", "COMP", "PENDLE"],
+        "bsc_addresses": {
+            "AAVE": "0xfb6115445bff7b52feb98650c87f44907e58f802",
+            "UNI": "0xbf5140a22578168fd562dccf235e5d43a02ce9b1",
+            "CAKE": "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",
+            "COMP": "0x52ce071bd9b1c4b00a0b92d298c512478cad67e8",
+            "PENDLE": "0xb3Ed0A426155B79B898849803E3B36552f7ED507",
+        }
+    },
+    "L1/L2": {
+        "tokens": ["ETH", "AVAX", "ADA", "DOT", "TON"],
+        "bsc_addresses": {
+            "ETH": "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
+            "AVAX": "0x1ce0c2827e2ef14d5c4f29a091d735a204794041",
+            "ADA": "0x3ee2200efb3400fabb9aacf31297cbdd1d435d47",
+            "DOT": "0x7083609fce4d1d8dc0c979aab8c869ea2c873402",
+            "TON": "0x76a797a59ba2c17726896976b7b3747bfd1d220f",
+        }
+    },
+    "Gaming/NFT": {
+        "tokens": ["AXS", "APE", "BEAM", "BTT", "ACH"],
+        "bsc_addresses": {
+            "AXS": "0x715d400f88c167884bbcc41c5fea407ed4d2f8a0",
+            "APE": "0x8f86a15EC17cb3369d8b3E666dAdBC11daA82b79",
+            "BEAM": "0x62D0A8458eD7719FDAF978fe5929C6D342B0bFcE",
+            "BTT": "0x352Cb5E19b12FC216548a2677bD0fce83BaE434B",
+            "ACH": "0xBc7d6B50616989655AfD682fb42743507003056D",
+        }
+    },
+    "BNB Chain": {
+        "tokens": ["CAKE", "TWT", "ASTER", "SFP", "DEXE"],
+        "bsc_addresses": {
+            "CAKE": "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",
+            "TWT": "0x4b0f1812e5df2a09796481ff14017e6005508003",
+            "ASTER": "0x000Ae314E2A2172a039B26378814C252734f556A",
+            "SFP": "0xd41fdb03ba84762dd66a0af1a6c8540ff1ba5dfb",
+            "DEXE": "0x6E88056E8376Ae7709496Ba64d37fa2f8015ce3e",
         }
     },
 }
@@ -465,6 +525,76 @@ CACHED_NARRATIVE_DATA = {
         "regulatory_risk_score": 4,           # SOURCE: inverse CMC news sentiment, "regulation"+"privacy", 1-10
         "shielded_pool_growth_7d_pct": 0.15,  # SOURCE: protocol dashboards
                 "rsi_14": 32.1,
+    },
+    "AI Agents": {
+        "basket_return_7d_pct": 0.182,
+        "volume_change_7d_pct": 0.55,
+        "market_cap_change_7d_pct": 0.15,
+        "trending_rank_avg": 8,
+        "volatility_30d": 0.85,
+        "relative_strength_vs_btc_7d": 1.182,
+        "drawdown_from_30d_high_pct": 0.10,
+        "liquidity_usd": 38_000_000,
+        "spread_pct": 0.4,
+        "token_age_days": 180,
+        "social_volume_24h": 8500,            # SOURCE: Kaito mindshare API
+        "kaito_mindshare_surge": True,        # SOURCE: Kaito CT-wide attention spike
+        "github_commits_7d": 280,             # SOURCE: GitHub API, agent-framework repos
+        "developer_growth_30d_pct": 0.42,     # SOURCE: GitHub unique contributors
+        "rsi_14": 52.3,
+    },
+    "DeFi Blue": {
+        "basket_return_7d_pct": 0.041,
+        "volume_change_7d_pct": 0.08,
+        "market_cap_change_7d_pct": 0.03,
+        "trending_rank_avg": 25,
+        "volatility_30d": 0.45,
+        "relative_strength_vs_btc_7d": 1.041,
+        "drawdown_from_30d_high_pct": 0.14,
+        "liquidity_usd": 220_000_000,
+        "spread_pct": 0.15,
+        "token_age_days": 1500,
+        "tvl_change_7d_pct": 0.04,            # SOURCE: DeFiLlama API, aggregated TVL
+        "rsi_14": 48.0,
+    },
+    "L1/L2": {
+        "basket_return_7d_pct": 0.018,
+        "volume_change_7d_pct": 0.03,
+        "market_cap_change_7d_pct": 0.01,
+        "trending_rank_avg": 8,
+        "volatility_30d": 0.42,
+        "relative_strength_vs_btc_7d": 1.018,
+        "drawdown_from_30d_high_pct": 0.08,
+        "liquidity_usd": 1_800_000_000,
+        "spread_pct": 0.05,
+        "token_age_days": 2000,
+        "rsi_14": 50.5,
+    },
+    "Gaming/NFT": {
+        "basket_return_7d_pct": -0.062,
+        "volume_change_7d_pct": -0.18,
+        "market_cap_change_7d_pct": -0.05,
+        "trending_rank_avg": 55,
+        "volatility_30d": 0.75,
+        "relative_strength_vs_btc_7d": 0.938,
+        "drawdown_from_30d_high_pct": 0.32,
+        "liquidity_usd": 22_000_000,
+        "spread_pct": 0.6,
+        "token_age_days": 1100,
+        "rsi_14": 38.2,
+    },
+    "BNB Chain": {
+        "basket_return_7d_pct": 0.092,
+        "volume_change_7d_pct": 0.32,
+        "market_cap_change_7d_pct": 0.08,
+        "trending_rank_avg": 18,
+        "volatility_30d": 0.62,
+        "relative_strength_vs_btc_7d": 1.092,
+        "drawdown_from_30d_high_pct": 0.11,
+        "liquidity_usd": 145_000_000,
+        "spread_pct": 0.25,
+        "token_age_days": 800,
+        "rsi_14": 54.8,
     },
 }
 
