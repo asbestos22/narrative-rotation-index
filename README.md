@@ -198,6 +198,58 @@ The default mode is offline: it constructs the exact ERC-8004 agent URI the SDK 
 pip install bnbagent
 ```
 
+### x402 Payment Gate (live on `/signal`)
+
+The signal API is paywalled with **x402 v2** — a buyer signs an EIP-3009 `TransferWithAuthorization` for U on BSC mainnet, sends it as `X-PAYMENT`, and gets the protected scan. The seller verifies signature recovery, amount, recipient, and nonce replay before serving.
+
+| Tier | Price | Returns |
+|------|-------|---------|
+| `base` | 0.01 U | Top narrative + regime |
+| `regime_update` | 0.1 U | Full regime classification + macro |
+| `full_scan` | 0.5 U | Full 10-narrative scan + SRR overlay |
+
+Manifest: <https://nri.realdo.org/.well-known/x402>
+
+End-to-end buyer demo using the SDK's `X402Signer`:
+
+```bash
+python x402_buyer.py --tier base --url https://nri.realdo.org/signal
+```
+
+Output:
+```
+[1] GET /signal -> 402 Payment Required + EIP-3009 challenge
+[2] Sign via X402Signer (per-call cap enforced)
+[3] Retry with X-PAYMENT envelope -> 200 + scan
+```
+
+Replay protection: nonces cached 10min. Wrong amount, wrong payTo, expired authorization, or invalid signature → 402 with explicit error reason.
+
+### ERC-8183 Agentic Commerce (escrow-backed signed delivery)
+
+NRI is also exposed as a sellable agent service via the SDK's ERC-8183 commerce stack. A client agent posts a job, locks U in escrow, NRI delivers a signed scan manifest, optimistic settlement releases the escrow on `complete`.
+
+```bash
+# Dry-run: build full lifecycle calldata + manifest hash, no broadcast
+python erc8183_commerce.py
+
+# Live on testnet (gas sponsored by MegaFuel, ~1 U test capital needed)
+CLIENT_PK=0x... PROVIDER_PK=0x... python erc8183_commerce.py --live-testnet
+```
+
+Lifecycle:
+1. `client.createJob(provider=NRI, evaluator=router, expired_at, description)`
+2. `client.registerJob(jobId, policy=optimistic)`
+3. `client.setBudget(jobId, 1e18)` — 1 U service price
+4. `client.fund(jobId, 1e18)` — escrow locks U
+5. `provider.submit(jobId, keccak256(manifest), opt_params={'deliverable_url': ...})`
+6. Wait dispute window — silence = approve
+7. `router.settle(jobId)` — escrow releases to NRI
+
+The deliverable manifest pins the entire snapshot (regime + narratives + SRR). Buyers fetch the URL and verify the on-chain hash matches. Disputes route to whitelisted voters via OptimisticPolicy.
+
+`erc8183_dryrun.json` ships in this repo as a reproducible proof artifact.
+
 ## Architecture
 
 ```

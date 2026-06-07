@@ -10,6 +10,10 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
+import sys
+sys.path.insert(0, str(Path(__file__).parent))
+from x402_paywall import serve_signal, PRICE_TIERS, NRI_AGENT_ID, NRI_PAY_TO, U_MAINNET
+
 WEB = Path("/home/ubuntu/nri-web")
 DATA = WEB / "data" / "live.json"
 STATIC = WEB / "static"
@@ -104,6 +108,48 @@ def api_live() -> JSONResponse:
 @app.get("/api/health", response_class=PlainTextResponse)
 def health() -> str:
     return "ok"
+
+
+# ─── x402-paywalled signal API (real on-chain payment gate) ───────────────
+@app.get("/signal")
+def signal_endpoint(request: Request, tier: str = "full_scan") -> JSONResponse:
+    """Paywalled signal endpoint.
+
+    GET /signal                 -> 402 Payment Required + EIP-3009 challenge
+    GET /signal with X-PAYMENT  -> 200 + protected scan (tier-scoped)
+
+    Tiers: base (0.01 U) / regime_update (0.1 U) / full_scan (0.5 U).
+    All payments settle in U on BSC mainnet to the NRI agent wallet.
+    """
+    payment_header = request.headers.get("X-PAYMENT") or request.headers.get("x-payment")
+    snapshot = load_data()
+    result = serve_signal(payment_header, tier, snapshot)
+    return JSONResponse(
+        content=result.body,
+        status_code=result.status,
+        headers=result.headers,
+    )
+
+
+@app.get("/.well-known/x402", response_class=JSONResponse)
+def x402_manifest() -> JSONResponse:
+    """x402 service manifest — tells crawlers + clients what's paywalled."""
+    return JSONResponse({
+        "x402Version": 2,
+        "service": "Narrative Rotation Index",
+        "agentId": NRI_AGENT_ID,
+        "agentRegistry": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+        "network": "eip155:56",
+        "asset": U_MAINNET,
+        "payTo": NRI_PAY_TO,
+        "tiers": {
+            tier: {"amount": str(amount), "amount_human": f"{amount / 1e18:.4f} U"}
+            for tier, amount in PRICE_TIERS.items()
+        },
+        "endpoints": {
+            "/signal": "GET — full scan (tier=full_scan), regime (tier=regime_update), or single signal (tier=base)",
+        },
+    })
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -357,6 +403,20 @@ def index(request: Request) -> HTMLResponse:
   <div class="agent-id-foot">
     Registered via the official BNB AI Agent SDK (<code>pip install bnbagent</code>).
     NRI is a discoverable on-chain agent — any client can resolve agentId #{aid} to the live MCP and signal endpoints.
+  </div>
+  <div class="agent-id-protos">
+    <div class="agent-id-proto">
+      <span class="agent-id-proto-tag">ERC-8004</span>
+      <span class="agent-id-proto-desc">on-chain identity · LIVE on mainnet</span>
+    </div>
+    <div class="agent-id-proto">
+      <span class="agent-id-proto-tag">x402</span>
+      <span class="agent-id-proto-desc">paywalled <a href="/.well-known/x402">/signal</a> · 0.01–0.5 U per call</span>
+    </div>
+    <div class="agent-id-proto">
+      <span class="agent-id-proto-tag">ERC-8183</span>
+      <span class="agent-id-proto-desc">commerce escrow · sells signed scans</span>
+    </div>
   </div>
 </div>"""
     else:
@@ -662,6 +722,23 @@ td.tk {{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mut
 @media (max-width: 640px) {{
   .agent-id-grid {{ grid-template-columns:repeat(2, 1fr); }}
 }}
+.agent-id-protos {{
+  display:flex; gap:10px; margin-top:12px; padding-top:10px;
+  border-top:1px solid var(--border-soft);
+  flex-wrap:wrap;
+}}
+.agent-id-proto {{
+  display:flex; align-items:center; gap:8px;
+  padding:5px 10px; border:1px solid var(--gold);
+  border-radius:3px; background:rgba(240,185,11,0.04);
+  font-size:11px;
+}}
+.agent-id-proto-tag {{
+  font-family:'JetBrains Mono',monospace; font-weight:700;
+  letter-spacing:0.5px; color:var(--gold);
+}}
+.agent-id-proto-desc {{ color:var(--muted); }}
+.agent-id-proto a {{ color:var(--gold); text-decoration:underline; }}
 
 /* ─── Footer ─── */
 footer {{ padding:24px 16px 32px; color:var(--dim); font-size:11px; text-align:center; border-top:1px solid var(--border); margin-top:32px; }}

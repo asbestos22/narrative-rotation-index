@@ -76,6 +76,46 @@ bnb_ai_agent_sdk:
     sdk_install: "pip install bnbagent"
     register_command: "python bnb_agent_integration.py --register"
     snapshot_file: "agent_identity.json"
+  x402_paywall:
+    enabled: true
+    endpoint: "https://nri.realdo.org/signal"
+    manifest: "https://nri.realdo.org/.well-known/x402"
+    payment_token: "0xcE24439F2D9C6a2289F741120FE202248B666666"
+    network: "eip155:56"
+    pay_to: "0x7D93a5a96f9306E9b0D3B185aef702d03D1572C1"
+    tiers:
+      base: "0.01 U"
+      regime_update: "0.1 U"
+      full_scan: "0.5 U"
+    buyer_demo: "python x402_buyer.py --tier base --url https://nri.realdo.org/signal"
+    seller_module: "web/x402_paywall.py"
+    verification:
+      - signature_recovery
+      - amount_check
+      - recipient_check
+      - asset_check
+      - nonce_replay_protection_10min
+      - validity_window_check
+  erc8183_commerce:
+    enabled: true
+    description: "Sell signed NRI scans via on-chain escrow + optimistic settlement"
+    service_price_base_units: 1000000000000000000
+    service_price_human: "1 U"
+    deliverable: "Full snapshot manifest with regime + 10 narratives + SRR overlay"
+    deliverable_url: "https://nri.realdo.org/api/live"
+    manifest_hash_algo: "keccak256(canonical_json)"
+    lifecycle:
+      - "client.createJob(provider=NRI, evaluator=router, expired_at, description)"
+      - "client.registerJob(jobId, policy=optimistic)"
+      - "client.setBudget(jobId, price)"
+      - "client.fund(jobId, price)  # escrow locks U"
+      - "provider.submit(jobId, manifest_hash, opt_params)"
+      - "WAIT dispute_window"
+      - "router.settle(jobId)  # escrow → provider on happy path"
+    module: "erc8183_commerce.py"
+    dry_run: "python erc8183_commerce.py"
+    live_testnet: "python erc8183_commerce.py --live-testnet"
+    proof_artifact: "erc8183_dryrun.json"
 
 scoring_model:
   description: >

@@ -1,0 +1,1466 @@
+{
+  "service": "Narrative Rotation Index \u2014 full scan + SRR overlay",
+  "agentId": 129156,
+  "provider": "0x7D93a5a96f9306E9b0D3B185aef702d03D1572C1",
+  "registry": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+  "spec": {
+    "description": "Narrative Rotation Index \u2014 full scan + SRR overlay",
+    "deliverable_url": "https://nri.realdo.org/api/live",
+    "expired_at": 1780901792,
+    "budget_base_units": 1000000000000000000
+  },
+  "manifest_hash": "0x14e6a7439cced8a936574c5cd086d3037b769b646b77a8465902e50a4bbdf355",
+  "manifest": {
+    "service": "narrative-rotation-index",
+    "version": "10.2",
+    "agent_id": 129156,
+    "provider": "0x7D93a5a96f9306E9b0D3B185aef702d03D1572C1",
+    "registry": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+    "delivered_at": 1780815392,
+    "snapshot": {
+      "skill": "narrative-rotation-index",
+      "version": "8.1",
+      "data_source": "CMC v1 API (live)",
+      "timestamp_utc": "2026-06-07T06:44:23Z",
+      "macro": {
+        "fear_greed_index": 14,
+        "btc_dominance_pct": 58.23,
+        "total_mcap_change_7d_pct": 2.1
+      },
+      "regime": "RISK_OFF",
+      "regime_reason": "Flight to safety: fear dominant, BTC absorbing capital.",
+      "regime_cap": 50,
+      "narratives": {
+        "AI Tokens": {
+          "verdict": "NEUTRAL",
+          "conviction": 20,
+          "exhaustion_score": 0,
+          "bucket_scores": {
+            "momentum": 15,
+            "liquidity": 5,
+            "attention": 20,
+            "fundamental": 75,
+            "risk_adjustment": 85
+          },
+          "reasons": [
+            "Negative 7d return (-17.4%)",
+            "Pullback from 30d high (18%) \u2014 dip-buy territory",
+            "RSI approaching oversold (41.2)",
+            "Volume declining (-46% WoW)",
+            "Deep liquidity ($290M)"
+          ],
+          "execution_allowed": true,
+          "violations": [],
+          "cmc_live_metrics": {
+            "avg_24h_change_pct": 3.31,
+            "avg_7d_change_pct": -17.45,
+            "avg_30d_change_pct": 7.91,
+            "total_24h_volume_usd": 290105002,
+            "total_market_cap_usd": 1240933066,
+            "avg_cmc_rank": 207
+          },
+          "resolved_tokens": [
+            "FET",
+            "INJ",
+            "SAHARA",
+            "0G",
+            "PEAQ"
+          ]
+        },
+        "AI Agents": {
+          "verdict": "NEUTRAL",
+          "conviction": 23,
+          "exhaustion_score": 0,
+          "bucket_scores": {
+            "momentum": 10,
+            "liquidity": 50,
+            "attention": 50,
+            "fundamental": 0,
+            "risk_adjustment": 85
+          },
+          "reasons": [
+            "Moderate outperformance vs BTC (1.115x)",
+            "Negative 7d return (-6.3%)",
+            "Volume expanding rapidly (52% WoW)",
+            "Deep liquidity ($182M)",
+            "Moderate trending visibility (avg #12)"
+          ],
+          "execution_allowed": true,
+          "violations": [],
+          "cmc_live_metrics": {
+            "avg_24h_change_pct": 8.24,
+            "avg_7d_change_pct": -6.29,
+            "avg_30d_change_pct": -20.26,
+            "total_24h_volume_usd": 182144266,
+            "total_market_cap_usd": 2349141817,
+            "avg_cmc_rank": 121
+          },
+          "resolved_tokens": [
+            "SKYAI",
+            "DEXE",
+            "AB",
+            "EDGE",
+            "GENIUS"
+          ]
+        },
+        "RWA": {
+          "verdict": "NEUTRAL",
+          "conviction": 26,
+          "exhaustion_score": 0,
+          "bucket_scores": {
+            "momentum": 35,
+            "liquidity": 5,
+            "attention": 35,
+            "fundamental": 60,
+            "risk_adjustment": 100
+          },
+          "reasons": [
+            "Moderate outperformance vs BTC (1.132x)",
+            "Negative 7d return (-4.9%)",
+            "Pullback from 30d high (12%) \u2014 dip-buy territory",
+            "RSI approaching oversold (44.6)",
+            "Volume declining (-55% WoW)"
+          ],
+          "execution_allowed": true,
+          "violations": [],
+          "cmc_live_metrics": {
+            "avg_24h_change_pct": 1.31,
+            "avg_7d_change_pct": -4.9,
+            "avg_30d_change_pct": -11.92,
+            "total_24h_volume_usd": 9329879584,
+            "total_market_cap_usd": 76104758950,
+            "avg_cmc_rank": 137
+          },
+          "resolved_tokens": [
+            "PENDLE",
+            "PLUME",
+            "USDC",
+            "FDUSD"
+          ]
+        },
+        "DePIN": {
+          "verdict": "AVOID",
+          "conviction": 17,
+          "exhaustion_score": 0,
+          "bucket_scores": {
+            "momentum": 15,
+            "liquidity": 5,
+            "attention": 0,
+            "fundamental": 60,
+            "risk_adjustment": 100
+          },
+          "reasons": [
+            "Negative 7d return (-14.8%)",
+            "Pullback from 30d high (22%) \u2014 dip-buy territory",
+            "RSI approaching oversold (36.8)",
+            "Volume declining (-55% WoW)",
+            "Deep liquidity ($103M)"
+          ],
+          "execution_allowed": true,
+          "violations": [],
+          "cmc_live_metrics": {
+            "avg_24h_change_pct": 3.87,
+            "avg_7d_change_pct": -14.8,
+            "avg_30d_change_pct": -18.74,
+            "total_24h_volume_usd": 103453625,
+            "total_market_cap_usd": 852030269,
+            "avg_cmc_rank": 290
+          },
+          "resolved_tokens": [
+            "FIL",
+            "PEAQ",
+            "AIOZ",
+            "TAC",
+            "IRYS"
+          ]
+        },
+        "Meme": {
+          "verdict": "AVOID",
+          "conviction": 14,
+          "exhaustion_score": 15,
+          "bucket_scores": {
+            "momentum": 0,
+            "liquidity": 20,
+            "attention": 70,
+            "fundamental": 60,
+            "risk_adjustment": 70
+          },
+          "reasons": [
+            "Negative 7d return (-16.4%)",
+            "RSI approaching oversold (38.5)",
+            "Volume declining (-48% WoW)",
+            "Deep liquidity ($989M)",
+            "Tight spread (0.2%)"
+          ],
+          "execution_allowed": true,
+          "violations": [],
+          "cmc_live_metrics": {
+            "avg_24h_change_pct": 5.23,
+            "avg_7d_change_pct": -16.4,
+            "avg_30d_change_pct": -29.08,
+            "total_24h_volume_usd": 989481291,
+            "total_market_cap_usd": 18244314183,
+            "avg_cmc_rank": 67
+          },
+          "resolved_tokens": [
+            "DOGE",
+            "SHIB",
+            "BONK",
+            "PENGU",
+            "FLOKI"
+          ]
+        },
+        "Privacy": {
+          "verdict": "AVOID",
+          "conviction": 17,
+          "exhaustion_score": 0,
+          "bucket_scores": {
+            "momentum": 15,
+            "liquidity": 5,
+            "attention": 0,
+            "fundamental": 60,
+            "risk_adjustment": 100
+          },
+          "reasons": [
+            "Underperforming BTC (0.908x)",
+            "Negative 7d return (-23.7%)",
+            "Pullback from 30d high (15%) \u2014 dip-buy territory",
+            "RSI oversold (32.1)",
+            "Volume declining (-46% WoW)"
+          ],
+          "execution_allowed": true,
+          "violations": [],
+          "cmc_live_metrics": {
+            "avg_24h_change_pct": 5.0,
+            "avg_7d_change_pct": -23.71,
+            "avg_30d_change_pct": -23.79,
+            "total_24h_volume_usd": 1344318414,
+            "total_market_cap_usd": 6989158432,
+            "avg_cmc_rank": 285
+          },
+          "resolved_tokens": [
+            "ZEC",
+            "ROSE",
+            "DUSK",
+            "ZAMA"
+          ]
+        },
+        "DeFi Blue": {
+          "verdict": "AVOID",
+          "conviction": 15,
+          "exhaustion_score": 0,
+          "bucket_scores": {
+            "momentum": 5,
+            "liquidity": 20,
+            "attention": 30,
+            "fundamental": 0,
+            "risk_adjustment": 100
+          },
+          "reasons": [
+            "Negative 7d return (-15.7%)",
+            "Pullback from 30d high (14%) \u2014 dip-buy territory",
+            "Volume declining (-49% WoW)",
+            "Deep liquidity ($329M)",
+            "Tight spread (0.1%)"
+          ],
+          "execution_allowed": true,
+          "violations": [],
+          "cmc_live_metrics": {
+            "avg_24h_change_pct": 4.24,
+            "avg_7d_change_pct": -15.68,
+            "avg_30d_change_pct": -27.67,
+            "total_24h_volume_usd": 328669255,
+            "total_market_cap_usd": 3349457447,
+            "avg_cmc_rank": 91
+          },
+          "resolved_tokens": [
+            "AAVE",
+            "UNI",
+            "CAKE",
+            "COMP",
+            "PENDLE"
+          ]
+        },
+        "L1/L2": {
+          "verdict": "AVOID",
+          "conviction": 14,
+          "exhaustion_score": 10,
+          "bucket_scores": {
+            "momentum": 0,
+            "liquidity": 20,
+            "attention": 30,
+            "fundamental": 0,
+            "risk_adjustment": 100
+          },
+          "reasons": [
+            "Underperforming BTC (0.945x)",
+            "Negative 7d return (-20.6%)",
+            "Volume declining (-40% WoW)",
+            "Deep liquidity ($15957M)",
+            "Tight spread (0.1%)"
+          ],
+          "execution_allowed": true,
+          "violations": [],
+          "cmc_live_metrics": {
+            "avg_24h_change_pct": 5.39,
+            "avg_7d_change_pct": -20.59,
+            "avg_30d_change_pct": -31.6,
+            "total_24h_volume_usd": 15957492968,
+            "total_market_cap_usd": 209839435319,
+            "avg_cmc_rank": 21
+          },
+          "resolved_tokens": [
+            "ETH",
+            "AVAX",
+            "ADA",
+            "DOT",
+            "TON"
+          ]
+        },
+        "Gaming/NFT": {
+          "verdict": "AVOID",
+          "conviction": 9,
+          "exhaustion_score": 0,
+          "bucket_scores": {
+            "momentum": 5,
+            "liquidity": 0,
+            "attention": 20,
+            "fundamental": 0,
+            "risk_adjustment": 85
+          },
+          "reasons": [
+            "Negative 7d return (-14.5%)",
+            "Deep drawdown (32%) \u2014 higher risk/reward",
+            "RSI approaching oversold (38.2)",
+            "Volume declining (-49% WoW)",
+            "Adequate liquidity ($45M)"
+          ],
+          "execution_allowed": true,
+          "violations": [],
+          "cmc_live_metrics": {
+            "avg_24h_change_pct": 2.7,
+            "avg_7d_change_pct": -14.46,
+            "avg_30d_change_pct": -26.39,
+            "total_24h_volume_usd": 44631416,
+            "total_market_cap_usd": 685627679,
+            "avg_cmc_rank": 212
+          },
+          "resolved_tokens": [
+            "AXS",
+            "APE",
+            "BEAM",
+            "BTT",
+            "ACH"
+          ]
+        },
+        "BNB Chain": {
+          "verdict": "AVOID",
+          "conviction": 14,
+          "exhaustion_score": 0,
+          "bucket_scores": {
+            "momentum": 5,
+            "liquidity": 20,
+            "attention": 30,
+            "fundamental": 0,
+            "risk_adjustment": 85
+          },
+          "reasons": [
+            "Negative 7d return (-15.0%)",
+            "Pullback from 30d high (11%) \u2014 dip-buy territory",
+            "Volume declining (-38% WoW)",
+            "Deep liquidity ($188M)",
+            "Tight spread (0.2%)"
+          ],
+          "execution_allowed": true,
+          "violations": [],
+          "cmc_live_metrics": {
+            "avg_24h_change_pct": 2.68,
+            "avg_7d_change_pct": -14.98,
+            "avg_30d_change_pct": -1.29,
+            "total_24h_volume_usd": 187718559,
+            "total_market_cap_usd": 3985028122,
+            "avg_cmc_rank": 96
+          },
+          "resolved_tokens": [
+            "CAKE",
+            "TWT",
+            "ASTER",
+            "SFP",
+            "DEXE"
+          ]
+        }
+      },
+      "stablecoin_risk": {
+        "source": "cmc_live",
+        "rankings": [
+          {
+            "symbol": "USDT",
+            "verdict": "WATCH",
+            "score": 29,
+            "issuer": "Tether",
+            "type": "fiat-backed",
+            "bucket_scores": {
+              "peg": 5,
+              "flow": 35,
+              "reserves": 50,
+              "liquidity": 40,
+              "contagion": 30
+            },
+            "reasons": [
+              "[Peg] Peg holding tight (3.2bps)",
+              "[Flow] Flat supply (+0.1% 7d)",
+              "[Reserves] Reserve data unavailable, neutral"
+            ],
+            "risks": [],
+            "bsc_address": "0x55d398326f99059fF775485246999027B3197955"
+          },
+          {
+            "symbol": "USDC",
+            "verdict": "WATCH",
+            "score": 29,
+            "issuer": "Circle",
+            "type": "fiat-backed",
+            "bucket_scores": {
+              "peg": 5,
+              "flow": 35,
+              "reserves": 50,
+              "liquidity": 40,
+              "contagion": 30
+            },
+            "reasons": [
+              "[Peg] Peg holding tight (2.0bps)",
+              "[Flow] Flat supply (+0.0% 7d)",
+              "[Reserves] Reserve data unavailable, neutral"
+            ],
+            "risks": [],
+            "bsc_address": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"
+          },
+          {
+            "symbol": "USDe",
+            "verdict": "WATCH",
+            "score": 29,
+            "issuer": "Ethena",
+            "type": "synthetic",
+            "bucket_scores": {
+              "peg": 5,
+              "flow": 35,
+              "reserves": 50,
+              "liquidity": 40,
+              "contagion": 30
+            },
+            "reasons": [
+              "[Peg] Peg holding tight (4.4bps)",
+              "[Flow] Flat supply (+0.1% 7d)",
+              "[Reserves] Reserve data unavailable, neutral"
+            ],
+            "risks": [],
+            "bsc_address": "0xA9CB73Df2bD3147eAa8C5e7C56e44D6f3FbBE12B"
+          },
+          {
+            "symbol": "DAI",
+            "verdict": "WATCH",
+            "score": 29,
+            "issuer": "MakerDAO",
+            "type": "crypto-backed",
+            "bucket_scores": {
+              "peg": 5,
+              "flow": 35,
+              "reserves": 50,
+              "liquidity": 40,
+              "contagion": 30
+            },
+            "reasons": [
+              "[Peg] Peg holding tight (3.0bps)",
+              "[Flow] Flat supply (+0.0% 7d)",
+              "[Reserves] Reserve data unavailable, neutral"
+            ],
+            "risks": [],
+            "bsc_address": "0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3"
+          },
+          {
+            "symbol": "TUSD",
+            "verdict": "WATCH",
+            "score": 29,
+            "issuer": "TrueUSD",
+            "type": "fiat-backed",
+            "bucket_scores": {
+              "peg": 5,
+              "flow": 35,
+              "reserves": 50,
+              "liquidity": 40,
+              "contagion": 30
+            },
+            "reasons": [
+              "[Peg] Peg holding tight (4.0bps)",
+              "[Flow] Flat supply (+0.1% 7d)",
+              "[Reserves] Reserve data unavailable, neutral"
+            ],
+            "risks": [],
+            "bsc_address": "0x40af3827F39D0EAcBF4A168f8D4ee67c121D11c9"
+          },
+          {
+            "symbol": "USDD",
+            "verdict": "WATCH",
+            "score": 29,
+            "issuer": "Tron",
+            "type": "crypto-backed",
+            "bucket_scores": {
+              "peg": 5,
+              "flow": 35,
+              "reserves": 50,
+              "liquidity": 40,
+              "contagion": 30
+            },
+            "reasons": [
+              "[Peg] Peg holding tight (4.8bps)",
+              "[Flow] Flat supply (+0.0% 7d)",
+              "[Reserves] Reserve data unavailable, neutral"
+            ],
+            "risks": [],
+            "bsc_address": "0x392004BEe213F1FF580C867359C246924f21E6Ad"
+          },
+          {
+            "symbol": "FDUSD",
+            "verdict": "WATCH",
+            "score": 35,
+            "issuer": "First Digital",
+            "type": "fiat-backed",
+            "bucket_scores": {
+              "peg": 25,
+              "flow": 35,
+              "reserves": 50,
+              "liquidity": 40,
+              "contagion": 30
+            },
+            "reasons": [
+              "[Peg] Minor peg drift (23.6bps)",
+              "[Flow] Flat supply (-0.0% 7d)",
+              "[Reserves] Reserve data unavailable, neutral"
+            ],
+            "risks": [],
+            "bsc_address": "0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409"
+          },
+          {
+            "symbol": "lisUSD",
+            "verdict": "WATCH",
+            "score": 35,
+            "issuer": "Lista DAO",
+            "type": "crypto-backed",
+            "bucket_scores": {
+              "peg": 25,
+              "flow": 35,
+              "reserves": 50,
+              "liquidity": 40,
+              "contagion": 30
+            },
+            "reasons": [
+              "[Peg] Minor peg drift (14.2bps)",
+              "[Flow] Flat supply (+0.2% 7d)",
+              "[Reserves] Reserve data unavailable, neutral"
+            ],
+            "risks": [],
+            "bsc_address": "0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5"
+          },
+          {
+            "symbol": "FRAX",
+            "verdict": "WATCH",
+            "score": 44,
+            "issuer": "Frax",
+            "type": "fractional",
+            "bucket_scores": {
+              "peg": 55,
+              "flow": 35,
+              "reserves": 50,
+              "liquidity": 40,
+              "contagion": 30
+            },
+            "reasons": [
+              "[Peg] Notable peg deviation (65.1bps)",
+              "[Flow] Flat supply (+0.2% 7d)",
+              "[Reserves] Reserve data unavailable, neutral"
+            ],
+            "risks": [],
+            "bsc_address": "0x90C97F71E18723b0CF0dfa30ee176Ab653E89F40"
+          }
+        ],
+        "target": null
+      },
+      "_refreshed_at_utc": "2026-06-07T06:44:23Z",
+      "_refresh_elapsed_s": 1.16,
+      "bsc_discovery": {
+        "discovered_at_utc": "2026-06-07T06:44:31Z",
+        "elapsed_s": 8.09,
+        "errors": [],
+        "narratives": {
+          "AI Tokens": [
+            {
+              "symbol": "SIREN",
+              "name": "siren",
+              "address": "0x997a58129890bbda032231a52ed1ddc845fc18e1",
+              "cmc_rank": 71,
+              "market_cap": 607744917.4,
+              "volume_24h": 33633381.81958792,
+              "change_24h": 10.53029862,
+              "change_7d": 72.30658328,
+              "change_30d": -23.17634653,
+              "price": 0.8364372727378439
+            },
+            {
+              "symbol": "SKYAI",
+              "name": "SKYAI",
+              "address": "0x92aa03137385F18539301349dcfC9EbC923fFb10",
+              "cmc_rank": 107,
+              "market_cap": 273611518.73,
+              "volume_24h": 120798593.60462262,
+              "change_24h": 38.32447729,
+              "change_7d": 53.91433777,
+              "change_30d": -55.21584184,
+              "price": 0.27361151873154915
+            },
+            {
+              "symbol": "TAG",
+              "name": "Tagger",
+              "address": "0x208bf3e7da9639f1eaefa2de78c23396b0682025",
+              "cmc_rank": 166,
+              "market_cap": 112461252.1,
+              "volume_24h": 3628668.06714859,
+              "change_24h": 1.5248226,
+              "change_7d": -15.64753557,
+              "change_30d": -27.75763681,
+              "price": 0.0010374216641164935
+            },
+            {
+              "symbol": "GUA",
+              "name": "SUPERFORTUNE",
+              "address": "0xa5c8e1513b6a08334b479fe4d71f1253259469be",
+              "cmc_rank": 253,
+              "market_cap": 98789234.54,
+              "volume_24h": 8028364.76678283,
+              "change_24h": 5.27013855,
+              "change_7d": -10.51048112,
+              "change_30d": -9.66168886,
+              "price": 0.7903138763283578
+            },
+            {
+              "symbol": "VELVET",
+              "name": "Velvet",
+              "address": "0x8b194370825E37b33373e74A41009161808C1488",
+              "cmc_rank": 269,
+              "market_cap": 81627918.53,
+              "volume_24h": 8513879.35475587,
+              "change_24h": 22.95060868,
+              "change_7d": 105.02778104,
+              "change_30d": 113.99088779,
+              "price": 0.1943115940111042
+            },
+            {
+              "symbol": "BAS",
+              "name": "BNB Attestation Service",
+              "address": "0x0f0df6cb17ee5e883eddfef9153fc6036bdb4e37",
+              "cmc_rank": 270,
+              "market_cap": 80522159.26,
+              "volume_24h": 7999765.93934788,
+              "change_24h": 6.71991088,
+              "change_7d": 10.27820732,
+              "change_30d": 101.63773599,
+              "price": 0.03220886370456013
+            },
+            {
+              "symbol": "UAI",
+              "name": "UnifAI Network",
+              "address": "0x3e5d4f8aee0d9b3082d5f6da5d6e225d17ba9ea0",
+              "cmc_rank": 313,
+              "market_cap": 66048125.88,
+              "volume_24h": 4796970.69283424,
+              "change_24h": 7.38696155,
+              "change_7d": 0.18116846,
+              "change_30d": -5.05711656,
+              "price": 0.2763519911295285
+            },
+            {
+              "symbol": "MY",
+              "name": "MetYa",
+              "address": "0xf0ebb572643336834d516c485ad31d3299999999",
+              "cmc_rank": 333,
+              "market_cap": 62357171.32,
+              "volume_24h": 214703.88708945,
+              "change_24h": -6.51366987,
+              "change_7d": -35.05353591,
+              "change_30d": 22.20698906,
+              "price": 0.06321426872904243
+            },
+            {
+              "symbol": "ROSE",
+              "name": "Oasis",
+              "address": "0xF00600eBC7633462BC4F9C61eA2cE99F5AAEBd4a",
+              "cmc_rank": 392,
+              "market_cap": 51022255.5,
+              "volume_24h": 2515677.3185261,
+              "change_24h": 3.57290811,
+              "change_7d": -27.22827653,
+              "change_30d": -37.9216093,
+              "price": 0.006653931737700394
+            },
+            {
+              "symbol": "KGEN",
+              "name": "KGeN",
+              "address": "0xf3d5b4c34ed623478cc5141861776e6cf7ae3a1e",
+              "cmc_rank": 434,
+              "market_cap": 44967211.88,
+              "volume_24h": 2663565.69966776,
+              "change_24h": 6.91986297,
+              "change_7d": 20.16294013,
+              "change_30d": 10.01177839,
+              "price": 0.2130314125756029
+            }
+          ],
+          "RWA": [
+            {
+              "symbol": "COLLECT",
+              "name": "Collect on Fanable",
+              "address": "0x4B3D30992f003c8167699735F5Ab2831B2A087D3",
+              "cmc_rank": 657,
+              "market_cap": 23587623.76,
+              "volume_24h": 10924047.59410367,
+              "change_24h": 3.43812024,
+              "change_7d": -21.83159653,
+              "change_30d": 49.0057481,
+              "price": 0.043924811468725886
+            },
+            {
+              "symbol": "LUMIA",
+              "name": "Lumia",
+              "address": "0x7F39BcdCa8E0E581c1d43aaa1cB862AA1c8C2047",
+              "cmc_rank": 904,
+              "market_cap": 11724674.3,
+              "volume_24h": 1802415.71012901,
+              "change_24h": 2.62912133,
+              "change_7d": -22.09174646,
+              "change_30d": -27.0045987,
+              "price": 0.08324462528919452
+            },
+            {
+              "symbol": "BTX",
+              "name": "BeatSwap",
+              "address": "0xAa242a47F4cC074E59cbC7D65309B1F21202AaA3",
+              "cmc_rank": 1314,
+              "market_cap": 3877279.02,
+              "volume_24h": 809441.60237808,
+              "change_24h": -2.28127308,
+              "change_7d": -9.45795675,
+              "change_30d": 25.34796058,
+              "price": 0.017251117125310585
+            },
+            {
+              "symbol": "TOKEN",
+              "name": "TokenFi",
+              "address": "0x4507cEf57C46789eF8d1a19EA45f4216bae2B528",
+              "cmc_rank": 1473,
+              "market_cap": 2602402.1,
+              "volume_24h": 7618359.72347958,
+              "change_24h": 6.65335536,
+              "change_7d": -20.17791349,
+              "change_30d": -21.87045673,
+              "price": 0.0026023506033853155
+            },
+            {
+              "symbol": "RWA",
+              "name": "Allo",
+              "address": "0x9C8B5CA345247396bDfAc0395638ca9045C6586E",
+              "cmc_rank": 1479,
+              "market_cap": 2513235.83,
+              "volume_24h": 463059.71439869,
+              "change_24h": 0.65469449,
+              "change_7d": -15.67418986,
+              "change_30d": -9.56084222,
+              "price": 0.0013962421256153246
+            }
+          ],
+          "DePIN": [
+            {
+              "symbol": "ROSE",
+              "name": "Oasis",
+              "address": "0xF00600eBC7633462BC4F9C61eA2cE99F5AAEBd4a",
+              "cmc_rank": 391,
+              "market_cap": 51022255.5,
+              "volume_24h": 2515677.3185261,
+              "change_24h": 3.57290811,
+              "change_7d": -27.22827653,
+              "change_30d": -37.9216093,
+              "price": 0.006653931737700394
+            },
+            {
+              "symbol": "XPIN",
+              "name": "XPIN Network",
+              "address": "0xD955c9bA56Fb1AB30e34766e252A97ccCE3D31A6",
+              "cmc_rank": 434,
+              "market_cap": 45143461.54,
+              "volume_24h": 4501286.50259308,
+              "change_24h": 6.48459139,
+              "change_7d": -0.95082717,
+              "change_30d": -7.90842353,
+              "price": 0.0012114117328688538
+            },
+            {
+              "symbol": "OPG",
+              "name": "OpenGradient",
+              "address": "0x5feCcD17C393CaF1001D18164236A37E731FCb9d",
+              "cmc_rank": 577,
+              "market_cap": 29610167.0,
+              "volume_24h": 25432422.65705895,
+              "change_24h": 4.44688392,
+              "change_7d": -9.16337364,
+              "change_30d": -35.57678478,
+              "price": 0.1558429841936033
+            },
+            {
+              "symbol": "STAR",
+              "name": "Starpower",
+              "address": "0x8fce7206e3043dd360f115afa956ee31b90b787c",
+              "cmc_rank": 608,
+              "market_cap": 27836421.85,
+              "volume_24h": 10305149.72766586,
+              "change_24h": -4.59940772,
+              "change_7d": -10.2827837,
+              "change_30d": 108.57161286,
+              "price": 0.14959430596867762
+            },
+            {
+              "symbol": "BLESS",
+              "name": "Bless",
+              "address": "0x7C8217517ed4711fe2DECCdFefFE8d906b9Ae11F",
+              "cmc_rank": 897,
+              "market_cap": 11795394.19,
+              "volume_24h": 13393123.04205595,
+              "change_24h": 31.4740324,
+              "change_7d": 17.71219517,
+              "change_30d": -11.99986618,
+              "price": 0.006074979274295343
+            },
+            {
+              "symbol": "SHARE",
+              "name": "ShareX",
+              "address": "0x5FCA51aff213bFBEAB0b711b93c3374252fD6aC3",
+              "cmc_rank": 1348,
+              "market_cap": 3567370.73,
+              "volume_24h": 2671561.94089713,
+              "change_24h": -4.50225701,
+              "change_7d": -0.63634595,
+              "change_30d": -73.51656843,
+              "price": 0.1981872625829282
+            },
+            {
+              "symbol": "CESS",
+              "name": "CESS Network",
+              "address": "0x0c78d4605c2972e5f989DE9019De1Fb00c5D3462",
+              "cmc_rank": 1386,
+              "market_cap": 3258264.4,
+              "volume_24h": 218184.37461647,
+              "change_24h": -1.32479515,
+              "change_7d": -20.40456508,
+              "change_30d": -54.46780059,
+              "price": 0.001229533737440472
+            }
+          ],
+          "Meme": [
+            {
+              "symbol": "\u5e01\u5b89\u4eba\u751f",
+              "name": "\u5e01\u5b89\u4eba\u751f",
+              "address": "0x924fa68a0FC644485b8df8AbfA0A41C2e7744444",
+              "cmc_rank": 63,
+              "market_cap": 842850199.89,
+              "volume_24h": 88983121.12108009,
+              "change_24h": 24.15935443,
+              "change_7d": 68.44025414,
+              "change_30d": 126.17952906,
+              "price": 0.8428501998916288
+            },
+            {
+              "symbol": "SIREN",
+              "name": "siren",
+              "address": "0x997a58129890bbda032231a52ed1ddc845fc18e1",
+              "cmc_rank": 71,
+              "market_cap": 607744917.4,
+              "volume_24h": 33633381.81958792,
+              "change_24h": 10.53029862,
+              "change_7d": 72.30658328,
+              "change_30d": -23.17634653,
+              "price": 0.8364372727378439
+            },
+            {
+              "symbol": "SKYAI",
+              "name": "SKYAI",
+              "address": "0x92aa03137385F18539301349dcfC9EbC923fFb10",
+              "cmc_rank": 107,
+              "market_cap": 273611518.73,
+              "volume_24h": 120798593.60462262,
+              "change_24h": 38.32447729,
+              "change_7d": 53.91433777,
+              "change_30d": -55.21584184,
+              "price": 0.27361151873154915
+            },
+            {
+              "symbol": "B",
+              "name": "BUILDon",
+              "address": "0x6bdcce4a559076e37755a78ce0c06214e59e4444",
+              "cmc_rank": 114,
+              "market_cap": 257191396.72,
+              "volume_24h": 8466311.46363546,
+              "change_24h": 16.60819134,
+              "change_7d": 4.40314647,
+              "change_30d": -28.90233641,
+              "price": 0.2571913967179101
+            },
+            {
+              "symbol": "BANANAS31",
+              "name": "Banana For Scale",
+              "address": "0x3d4f0513e8a29669b960f9dbca61861548a9a760",
+              "cmc_rank": 175,
+              "market_cap": 107243611.16,
+              "volume_24h": 11722675.35854596,
+              "change_24h": 9.2141929,
+              "change_7d": -1.4729779,
+              "change_30d": -11.88216572,
+              "price": 0.010724361115647991
+            },
+            {
+              "symbol": "CHEEMS",
+              "name": "Cheems (cheems.pet)",
+              "address": "0x0df0587216a4a1bb7d5082fdc491d93d2dd4b413",
+              "cmc_rank": 183,
+              "market_cap": 91704102.47,
+              "volume_24h": 1797709.48654509,
+              "change_24h": 1.83775201,
+              "change_7d": -24.47468118,
+              "change_30d": -22.37921785,
+              "price": 4.891014984746625e-07
+            },
+            {
+              "symbol": "BRETT",
+              "name": "Brett (Based)",
+              "address": "0xa7440029eca41deabd8775ef1d6086b37d4df8d6",
+              "cmc_rank": 379,
+              "market_cap": 54282293.4,
+              "volume_24h": 12937880.26246443,
+              "change_24h": 5.41242529,
+              "change_7d": -21.39243963,
+              "change_30d": -37.55123179,
+              "price": 0.005428230672910323
+            },
+            {
+              "symbol": "TOSHI",
+              "name": "Toshi",
+              "address": "0x6a2608Dabe09bc1128EEC7275B92DFB939D5Db3f",
+              "cmc_rank": 387,
+              "market_cap": 52477165.81,
+              "volume_24h": 8147185.57069743,
+              "change_24h": 6.15665636,
+              "change_7d": -15.69793741,
+              "change_30d": -32.32290873,
+              "price": 0.0001247468153493169
+            },
+            {
+              "symbol": "WKC",
+              "name": "Wiki Cat",
+              "address": "0x6Ec90334d89dBdc89E08A133271be3d104128Edb",
+              "cmc_rank": 509,
+              "market_cap": 34879554.95,
+              "volume_24h": 237468.71216738,
+              "change_24h": 14.81075227,
+              "change_7d": -6.00686542,
+              "change_30d": -19.81804698,
+              "price": 6.489242267389751e-08
+            },
+            {
+              "symbol": "GIGGLE",
+              "name": "Giggle Fund",
+              "address": "0x20d6015660b3fe52e6690a889b5C51F69902cE0e",
+              "cmc_rank": 591,
+              "market_cap": 28586895.44,
+              "volume_24h": 32934863.02399517,
+              "change_24h": 14.58963077,
+              "change_7d": -8.82627495,
+              "change_30d": -21.84643702,
+              "price": 28.90038171970333
+            }
+          ],
+          "Privacy": [
+            {
+              "symbol": "NIGHT",
+              "name": "Midnight",
+              "address": "0xfe930c2d63aed9b82fc4dbc801920dd2c1a3224f",
+              "cmc_rank": 79,
+              "market_cap": 518222410.38,
+              "volume_24h": 30899169.51307615,
+              "change_24h": 0.48632999,
+              "change_7d": -19.54381546,
+              "change_30d": -3.67804177,
+              "price": 0.031204308264658726
+            },
+            {
+              "symbol": "ROSE",
+              "name": "Oasis",
+              "address": "0xF00600eBC7633462BC4F9C61eA2cE99F5AAEBd4a",
+              "cmc_rank": 391,
+              "market_cap": 51022255.5,
+              "volume_24h": 2515677.3185261,
+              "change_24h": 3.57290811,
+              "change_7d": -27.22827653,
+              "change_30d": -37.9216093,
+              "price": 0.006653931737700394
+            },
+            {
+              "symbol": "ALEO",
+              "name": "Aleo",
+              "address": "0x6CFfFa5bFD4277a04D83307fEedFe2D18D944DD2",
+              "cmc_rank": 503,
+              "market_cap": 35899787.78,
+              "volume_24h": 1812052.49627752,
+              "change_24h": 0.31644592,
+              "change_7d": -22.20811828,
+              "change_30d": -32.63767636,
+              "price": 0.030626084749056353
+            },
+            {
+              "symbol": "LUMIA",
+              "name": "Lumia",
+              "address": "0x7F39BcdCa8E0E581c1d43aaa1cB862AA1c8C2047",
+              "cmc_rank": 904,
+              "market_cap": 11724674.3,
+              "volume_24h": 1802415.71012901,
+              "change_24h": 2.62912133,
+              "change_7d": -22.09174646,
+              "change_30d": -27.0045987,
+              "price": 0.08324462528919452
+            }
+          ],
+          "Binance Alpha": [
+            {
+              "symbol": "LAB",
+              "name": "LAB",
+              "address": "0x7ec43Cf65F1663F820427C62A5780b8f2E25593A",
+              "cmc_rank": 202,
+              "market_cap": 3999867283.67,
+              "volume_24h": 148655268.1397934,
+              "change_24h": 37.93032926,
+              "change_7d": 46.57993293,
+              "change_30d": 180.97098411,
+              "price": 12.904782111704536
+            },
+            {
+              "symbol": "SIREN",
+              "name": "siren",
+              "address": "0x997a58129890bbda032231a52ed1ddc845fc18e1",
+              "cmc_rank": 71,
+              "market_cap": 607744917.4,
+              "volume_24h": 33633381.81958792,
+              "change_24h": 10.53029862,
+              "change_7d": 72.30658328,
+              "change_30d": -23.17634653,
+              "price": 0.8364372727378439
+            },
+            {
+              "symbol": "BEAT",
+              "name": "Audiera",
+              "address": "0xcf3232B85b43BCa90E51D38cc06Cc8bB8C8A3E36",
+              "cmc_rank": 74,
+              "market_cap": 591117907.21,
+              "volume_24h": 47588488.39101039,
+              "change_24h": 9.23149469,
+              "change_7d": 67.49037839,
+              "change_30d": 307.17451754,
+              "price": 2.052373966470057
+            },
+            {
+              "symbol": "SKYAI",
+              "name": "SKYAI",
+              "address": "0x92aa03137385F18539301349dcfC9EbC923fFb10",
+              "cmc_rank": 107,
+              "market_cap": 273611518.73,
+              "volume_24h": 120798593.60462262,
+              "change_24h": 38.32447729,
+              "change_7d": 53.91433777,
+              "change_30d": -55.21584184,
+              "price": 0.27361151873154915
+            },
+            {
+              "symbol": "B",
+              "name": "BUILDon",
+              "address": "0x6bdcce4a559076e37755a78ce0c06214e59e4444",
+              "cmc_rank": 114,
+              "market_cap": 257191396.72,
+              "volume_24h": 8466311.46363546,
+              "change_24h": 16.60819134,
+              "change_7d": 4.40314647,
+              "change_30d": -28.90233641,
+              "price": 0.2571913967179101
+            },
+            {
+              "symbol": "KOGE",
+              "name": "48 Club Token",
+              "address": "0xe6df05ce8c8301223373cf5b969afcb1498c5528",
+              "cmc_rank": 220,
+              "market_cap": 218495719.14,
+              "volume_24h": 171449.55892924,
+              "change_24h": 1.21640543,
+              "change_7d": 87.31265501,
+              "change_30d": 103.88954946,
+              "price": 64.4867144161152
+            },
+            {
+              "symbol": "TAG",
+              "name": "Tagger",
+              "address": "0x208bf3e7da9639f1eaefa2de78c23396b0682025",
+              "cmc_rank": 166,
+              "market_cap": 112461252.1,
+              "volume_24h": 3628668.06714859,
+              "change_24h": 1.5248226,
+              "change_7d": -15.64753557,
+              "change_30d": -27.75763681,
+              "price": 0.0010374216641164935
+            },
+            {
+              "symbol": "AB",
+              "name": "AB",
+              "address": "0x95034f653d5d161890836ad2b6b8cc49d14e029a",
+              "cmc_rank": 168,
+              "market_cap": 111819892.12,
+              "volume_24h": 1884805.04655146,
+              "change_24h": 1.32048326,
+              "change_7d": -13.5075725,
+              "change_30d": -26.55436392,
+              "price": 0.0011315093034225986
+            },
+            {
+              "symbol": "GUA",
+              "name": "SUPERFORTUNE",
+              "address": "0xa5c8e1513b6a08334b479fe4d71f1253259469be",
+              "cmc_rank": 253,
+              "market_cap": 98789234.54,
+              "volume_24h": 8028364.76678283,
+              "change_24h": 5.27013855,
+              "change_7d": -10.51048112,
+              "change_30d": -9.66168886,
+              "price": 0.7903138763283578
+            },
+            {
+              "symbol": "SOON",
+              "name": "SOON",
+              "address": "0xb9E1Fd5A02D3A33b25a14d661414E6ED6954a721",
+              "cmc_rank": 193,
+              "market_cap": 86807413.34,
+              "volume_24h": 14807033.35037827,
+              "change_24h": 12.15128145,
+              "change_7d": 5.55863032,
+              "change_30d": -8.74392177,
+              "price": 0.16890441903305028
+            }
+          ],
+          "Four.Meme": [
+            {
+              "symbol": "\u5e01\u5b89\u4eba\u751f",
+              "name": "\u5e01\u5b89\u4eba\u751f",
+              "address": "0x924fa68a0FC644485b8df8AbfA0A41C2e7744444",
+              "cmc_rank": 63,
+              "market_cap": 842850199.89,
+              "volume_24h": 88983121.12108009,
+              "change_24h": 24.15935443,
+              "change_7d": 68.44025414,
+              "change_30d": 126.17952906,
+              "price": 0.8428501998916288
+            },
+            {
+              "symbol": "SIREN",
+              "name": "siren",
+              "address": "0x997a58129890bbda032231a52ed1ddc845fc18e1",
+              "cmc_rank": 71,
+              "market_cap": 607744917.4,
+              "volume_24h": 33633381.81958792,
+              "change_24h": 10.53029862,
+              "change_7d": 72.30658328,
+              "change_30d": -23.17634653,
+              "price": 0.8364372727378439
+            },
+            {
+              "symbol": "SKYAI",
+              "name": "SKYAI",
+              "address": "0x92aa03137385F18539301349dcfC9EbC923fFb10",
+              "cmc_rank": 104,
+              "market_cap": 273611518.73,
+              "volume_24h": 120798593.60462262,
+              "change_24h": 38.32447729,
+              "change_7d": 53.91433777,
+              "change_30d": -55.21584184,
+              "price": 0.27361151873154915
+            },
+            {
+              "symbol": "B",
+              "name": "BUILDon",
+              "address": "0x6bdcce4a559076e37755a78ce0c06214e59e4444",
+              "cmc_rank": 114,
+              "market_cap": 257191396.72,
+              "volume_24h": 8466311.46363546,
+              "change_24h": 16.60819134,
+              "change_7d": 4.40314647,
+              "change_30d": -28.90233641,
+              "price": 0.2571913967179101
+            },
+            {
+              "symbol": "\u54c8\u57fa\u7c73",
+              "name": "\u54c8\u57fa\u7c73",
+              "address": "0x82Ec31D69b3c289E541b50E30681FD1ACAd24444",
+              "cmc_rank": 823,
+              "market_cap": 14521196.84,
+              "volume_24h": 2852043.60537734,
+              "change_24h": 18.75223193,
+              "change_7d": -7.20273263,
+              "change_30d": 10.50842811,
+              "price": 0.014521196835577165
+            },
+            {
+              "symbol": "TST",
+              "name": "Test",
+              "address": "0x86Bb94DdD16Efc8bc58e6b056e8df71D9e666429",
+              "cmc_rank": 854,
+              "market_cap": 13189000.69,
+              "volume_24h": 9981051.25341113,
+              "change_24h": 6.46722253,
+              "change_7d": -25.00651559,
+              "change_30d": -39.24838777,
+              "price": 0.014003874214708825
+            },
+            {
+              "symbol": "EGL1",
+              "name": "EGL1",
+              "address": "0xf4b385849f2e817e92bffbfb9aeb48f950ff4444",
+              "cmc_rank": 864,
+              "market_cap": 12968702.79,
+              "volume_24h": 1346217.71149923,
+              "change_24h": -0.67279819,
+              "change_7d": -21.02979722,
+              "change_30d": -37.27763539,
+              "price": 0.012968702788046028
+            },
+            {
+              "symbol": "\u9f99\u867e",
+              "name": "\u9f99\u867e (Lobster)",
+              "address": "0xeccbb861c0dda7efd964010085488b69317e4444",
+              "cmc_rank": 891,
+              "market_cap": 12182785.67,
+              "volume_24h": 6716846.48337486,
+              "change_24h": 26.75224488,
+              "change_7d": 99.15479142,
+              "change_30d": 62.722769,
+              "price": 0.01218278567035919
+            },
+            {
+              "symbol": "BROCCOLI",
+              "name": "CZ's Dog",
+              "address": "0x6d5AD1592ed9D6D1dF9b93c793AB759573Ed6714",
+              "cmc_rank": 931,
+              "market_cap": 11032676.1,
+              "volume_24h": 5756616.3163959,
+              "change_24h": 5.17103581,
+              "change_7d": -21.82118989,
+              "change_30d": -37.08254535,
+              "price": 0.011397970707864273
+            },
+            {
+              "symbol": "MUBARAK",
+              "name": "Mubarak",
+              "address": "0x5c85d6c6825ab4032337f11ee92a72df936b46f6",
+              "cmc_rank": 954,
+              "market_cap": 10297799.83,
+              "volume_24h": 5354760.06775049,
+              "change_24h": 3.96900642,
+              "change_7d": -19.07556464,
+              "change_30d": -35.76909677,
+              "price": 0.010297799828904526
+            }
+          ],
+          "AI Agents": [
+            {
+              "symbol": "SIREN",
+              "name": "siren",
+              "address": "0x997a58129890bbda032231a52ed1ddc845fc18e1",
+              "cmc_rank": 71,
+              "market_cap": 607744917.4,
+              "volume_24h": 33633381.81958792,
+              "change_24h": 10.53029862,
+              "change_7d": 72.30658328,
+              "change_30d": -23.17634653,
+              "price": 0.8364372727378439
+            },
+            {
+              "symbol": "AIO",
+              "name": "OLAXBT",
+              "address": "0x81a7DA4074b8e0eD51beA40f9dCbDF4d9d4832b4",
+              "cmc_rank": 586,
+              "market_cap": 28601775.58,
+              "volume_24h": 2106125.9297102,
+              "change_24h": 16.92083722,
+              "change_7d": 42.57921178,
+              "change_30d": 18.14459635,
+              "price": 0.1242205237047537
+            },
+            {
+              "symbol": "BLUAI",
+              "name": "Bluwhale",
+              "address": "0xed9Ae3DEF8d6F052971Bb8b6d1975FF267Cf9aaD",
+              "cmc_rank": 797,
+              "market_cap": 15655774.58,
+              "volume_24h": 32116282.62454924,
+              "change_24h": -5.58236842,
+              "change_7d": 11.55239797,
+              "change_30d": -9.69087701,
+              "price": 0.012749002104489275
+            },
+            {
+              "symbol": "AIA",
+              "name": "DeAgentAI",
+              "address": "0x53EC33Cd4fA46b9ecED9cA3f6dB626C5FfCd55cC",
+              "cmc_rank": 947,
+              "market_cap": 10441488.01,
+              "volume_24h": 8377962.19364542,
+              "change_24h": 6.76898683,
+              "change_7d": -23.36288042,
+              "change_30d": 4.83292208,
+              "price": 0.055260148805746284
+            },
+            {
+              "symbol": "COOKIE",
+              "name": "Cookie DAO",
+              "address": "0xc0041ef357b183448b235a8ea73ce4e4ec8c265f",
+              "cmc_rank": 1054,
+              "market_cap": 7493213.25,
+              "volume_24h": 2384798.32416537,
+              "change_24h": 1.23401336,
+              "change_7d": -22.20528883,
+              "change_30d": -47.89022534,
+              "price": 0.009742951130859108
+            },
+            {
+              "symbol": "TRADOOR",
+              "name": "Tradoor",
+              "address": "0x9123400446a56176eb1b6be9ee5cf703e409f492",
+              "cmc_rank": 1167,
+              "market_cap": 5587980.92,
+              "volume_24h": 4122782.28167282,
+              "change_24h": 6.58709591,
+              "change_7d": -16.16281369,
+              "change_30d": -48.44118698,
+              "price": 0.38943347405683726
+            },
+            {
+              "symbol": "STRIKE",
+              "name": "StrikeBit AI",
+              "address": "0x2AA89A0113BcbBcdC5812C6Df794E2D9650fC1AF",
+              "cmc_rank": 1322,
+              "market_cap": 3782357.38,
+              "volume_24h": 168948.74979016,
+              "change_24h": -3.23174094,
+              "change_7d": -17.92005934,
+              "change_30d": -25.5278006,
+              "price": 0.018019806460238
+            },
+            {
+              "symbol": "BID",
+              "name": "CreatorBid",
+              "address": "0xa1832f7F4e534aE557f9B5AB76dE54B1873e498B",
+              "cmc_rank": 1517,
+              "market_cap": 2272293.57,
+              "volume_24h": 192311.37781274,
+              "change_24h": 2.28776506,
+              "change_7d": -26.15415986,
+              "change_30d": -24.67895401,
+              "price": 0.005895336995609028
+            },
+            {
+              "symbol": "HGPT",
+              "name": "HyperGPT",
+              "address": "0x529C79f6918665EBE250F32eeEAA1d410a0798C6",
+              "cmc_rank": 1613,
+              "market_cap": 1795900.02,
+              "volume_24h": 309900.66913306,
+              "change_24h": 6.46449021,
+              "change_7d": -3.82304955,
+              "change_30d": -18.42995809,
+              "price": 0.0019604876232981296
+            },
+            {
+              "symbol": "MAIGA",
+              "name": "Maiga",
+              "address": "0xcd1679f117e81defc4f0009311ddc23fc1ae4a5e",
+              "cmc_rank": 1739,
+              "market_cap": 1397985.68,
+              "volume_24h": 141643.72394537,
+              "change_24h": -7.48736013,
+              "change_7d": -22.2185855,
+              "change_30d": 68.02169584,
+              "price": 0.004992805999228348
+            }
+          ],
+          "DeFAI": [
+            {
+              "symbol": "VELVET",
+              "name": "Velvet",
+              "address": "0x8b194370825E37b33373e74A41009161808C1488",
+              "cmc_rank": 269,
+              "market_cap": 81627918.53,
+              "volume_24h": 8513879.35475587,
+              "change_24h": 22.95060868,
+              "change_7d": 105.02778104,
+              "change_30d": 113.99088779,
+              "price": 0.1943115940111042
+            },
+            {
+              "symbol": "C",
+              "name": "Chainbase",
+              "address": "0xc32cc70741c3A8433dCbcB5adE071c299B55FfC8",
+              "cmc_rank": 490,
+              "market_cap": 37298748.89,
+              "volume_24h": 17372572.07633065,
+              "change_24h": 15.63350164,
+              "change_7d": 22.71584262,
+              "change_30d": 29.4555435,
+              "price": 0.10613465174334856
+            },
+            {
+              "symbol": "ORI",
+              "name": "Orizon",
+              "address": "0xDA033999bB6165e64DB01Bd9be14B40f5653092E",
+              "cmc_rank": 678,
+              "market_cap": 21834109.23,
+              "volume_24h": 406861.72716347,
+              "change_24h": 0.69587028,
+              "change_7d": 3.58308178,
+              "change_30d": 4.74745099,
+              "price": 57.92814454407267
+            },
+            {
+              "symbol": "GTAI",
+              "name": "GT Protocol",
+              "address": "0x003d87d02A2A01E9E8a20f507C83E15DD83A33d1",
+              "cmc_rank": 1696,
+              "market_cap": 1514514.75,
+              "volume_24h": 203405.78085493,
+              "change_24h": -1.20811221,
+              "change_7d": -12.3554401,
+              "change_30d": -11.45584003,
+              "price": 0.022080656701025318
+            }
+          ]
+        }
+      }
+    }
+  },
+  "lifecycle": [
+    "1. client.createJob(provider=NRI, evaluator=router, expired_at, description, hook=router)",
+    "2. client.registerJob(jobId, policy=optimistic)",
+    "3. client.setBudget(jobId, 1000000000000000000)",
+    "4. client.fund(jobId, 1000000000000000000)",
+    "5. provider.submit(jobId, manifest_hash, opt_params={'deliverable_url': ...})",
+    "6. WAIT dispute window",
+    "7. anyone.router.settle(jobId) \u2192 escrow \u2192 provider"
+  ]
+}
