@@ -415,7 +415,7 @@ def index(request: Request) -> HTMLResponse:
     </div>
     <div class="agent-id-proto">
       <span class="agent-id-proto-tag">ERC-8183</span>
-      <span class="agent-id-proto-desc">commerce escrow · sells signed scans</span>
+      <span class="agent-id-proto-desc">commerce escrow · job 119 LIVE · <a href="https://bscscan.com/tx/0x0f2834dd29383eebc92e12482028fe277555253cab62d0128e5ff64badd22fcb" target="_blank" rel="noopener" style="color:#F0B90B;text-decoration:none;">5 mainnet txs</a></span>
     </div>
   </div>
 </div>"""

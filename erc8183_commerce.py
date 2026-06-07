@@ -46,8 +46,8 @@ NRI_PROVIDER_ADDR = "0x7D93a5a96f9306E9b0D3B185aef702d03D1572C1"
 NRI_REGISTRY = "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
 SERVICE_NAME = "Narrative Rotation Index — full scan + SRR overlay"
 
-# Default service price: 1 U per delivered scan.
-DEFAULT_SERVICE_PRICE_BASE_UNITS = 1 * 10**18  # 1 U at 18 decimals
+# Default service price: 0.1 U per delivered scan (tight cost-of-prize).
+DEFAULT_SERVICE_PRICE_BASE_UNITS = 1 * 10**17  # 0.1 U at 18 decimals
 
 
 @dataclass
@@ -59,12 +59,17 @@ class JobSpec:
 
 
 def build_job_spec(price: int, snapshot_url: str = "https://nri.realdo.org/api/live") -> JobSpec:
-    """Construct the off-chain job description and on-chain expiry."""
+    """Construct the off-chain job description and on-chain expiry.
+
+    expiredAt MUST be > disputeWindow (currently 7 days on mainnet OptimisticPolicy)
+    so OptimisticPolicy.onSubmitted doesn't revert with SubmissionTooLate. We use
+    8 days to leave a 1-day submit window.
+    """
     now = int(time.time())
     return JobSpec(
         description=SERVICE_NAME,
         deliverable_url=snapshot_url,
-        expired_at=now + 86400,  # 24h escape hatch
+        expired_at=now + 8 * 86400,  # 8 days — must exceed policy.disputeWindow (7d)
         budget_base_units=price,
     )
 

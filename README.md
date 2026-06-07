@@ -225,30 +225,42 @@ Output:
 
 Replay protection: nonces cached 10min. Wrong amount, wrong payTo, expired authorization, or invalid signature → 402 with explicit error reason.
 
-### ERC-8183 Agentic Commerce (escrow-backed signed delivery)
+### ERC-8183 Agentic Commerce (LIVE on BSC mainnet)
 
-NRI is also exposed as a sellable agent service via the SDK's ERC-8183 commerce stack. A client agent posts a job, locks U in escrow, NRI delivers a signed scan manifest, optimistic settlement releases the escrow on `complete`.
+NRI is exposed as a sellable agent service via the SDK's ERC-8183 commerce stack. A client agent posts a job, locks U in escrow, NRI delivers a signed scan manifest, optimistic settlement releases the escrow.
+
+**Live job 119 — 5 mainnet txs:**
+
+| # | Action | Tx |
+|---|---|---|
+| 1 | createJob → jobId=119 | [`255e128e`](https://bscscan.com/tx/0x255e128e9b47b6fa68f9e03aee8d12d62af4e0ea102b144a751589824d493ce4) |
+| 2 | registerJob | [`201c8889`](https://bscscan.com/tx/0x201c88899bb950fe857cb47c38726414df7b2a96131092d9cfffac24fa99f22d) |
+| 3 | setBudget(0.1 U) | [`f1776105`](https://bscscan.com/tx/0xf1776105e79275e141e3873015413ace23b609b1d4b7f48f2d15fcab2fe820f6) |
+| 4 | fund(0.1 U) → escrow locked | [`56a0ddfa`](https://bscscan.com/tx/0x56a0ddfaff7ffcaa00325986e8db833e52a44bd216d7cf54cbbf803475e276ab) |
+| 5 | submit(manifest_hash) | [`0f2834dd`](https://bscscan.com/tx/0x0f2834dd29383eebc92e12482028fe277555253cab62d0128e5ff64badd22fcb) |
+
+Job state = **Submitted**, in 7-day dispute window. Settles automatically → 0.1 U routes to NRI provider wallet.
 
 ```bash
-# Dry-run: build full lifecycle calldata + manifest hash, no broadcast
+# Reproduce dry-run (offline, no chain)
 python erc8183_commerce.py
 
-# Live on testnet (gas sponsored by MegaFuel, ~1 U test capital needed)
-CLIENT_PK=0x... PROVIDER_PK=0x... python erc8183_commerce.py --live-testnet
+# Reproduce live mainnet (needs CLIENT_PK + PROVIDER_PK + 0.1 U + 0.001 BNB on client)
+python erc8183_commerce.py --live-mainnet
 ```
 
 Lifecycle:
-1. `client.createJob(provider=NRI, evaluator=router, expired_at, description)`
+1. `client.createJob(provider=NRI, evaluator=router, expired_at=now+8d, description)`
 2. `client.registerJob(jobId, policy=optimistic)`
-3. `client.setBudget(jobId, 1e18)` — 1 U service price
-4. `client.fund(jobId, 1e18)` — escrow locks U
+3. `client.setBudget(jobId, 0.1e18)`
+4. `client.fund(jobId, 0.1e18)` — escrow locks U
 5. `provider.submit(jobId, keccak256(manifest), opt_params={'deliverable_url': ...})`
-6. Wait dispute window — silence = approve
+6. Wait dispute window (7d, hardcoded by mainnet OptimisticPolicy) — silence = approve
 7. `router.settle(jobId)` — escrow releases to NRI
 
 The deliverable manifest pins the entire snapshot (regime + narratives + SRR). Buyers fetch the URL and verify the on-chain hash matches. Disputes route to whitelisted voters via OptimisticPolicy.
 
-`erc8183_dryrun.json` ships in this repo as a reproducible proof artifact.
+Reproducible artifacts: `erc8183_dryrun.json` (dry-run) and `erc8183_mainnet_live.json` (live receipts).
 
 ## Architecture
 

@@ -1,0 +1,56 @@
+{
+  "network": "bsc-mainnet",
+  "chain_id": 56,
+  "service": "Narrative Rotation Index \u2014 full scan + SRR overlay",
+  "service_price_human": "0.1 U",
+  "service_price_base_units": 100000000000000000,
+  "client_wallet": "0x26687256c5f4fF6A3669A3dD4Fb8A4C6113828C1",
+  "provider_wallet": "0x7D93a5a96f9306E9b0D3B185aef702d03D1572C1",
+  "agent_id": 129156,
+  "commerce_contract": "0xea4daa3100a767e86fded867729ae7446476eba6",
+  "router_contract": "0x51895229e12f9876011789b04f8698af06ccd6da",
+  "policy_contract": "0x9c01845705b3078aa2e8cff7520a6376fd766de5",
+  "payment_token": "0xcE24439F2D9C6a2289F741120FE202248B666666",
+  "deliverable_url": "https://nri.realdo.org/api/live",
+  "manifest_hash": "0x0a933e1d0ce80053",
+  "lifecycle": [
+    {
+      "step": 1,
+      "action": "createJob",
+      "result": "jobId=119",
+      "tx": "0x255e128e9b47b6fa68f9e03aee8d12d62af4e0ea102b144a751589824d493ce4"
+    },
+    {
+      "step": 2,
+      "action": "registerJob",
+      "tx": "0x201c88899bb950fe857cb47c38726414df7b2a96131092d9cfffac24fa99f22d"
+    },
+    {
+      "step": 3,
+      "action": "setBudget",
+      "amount": "0.1 U",
+      "tx": "0xf1776105e79275e141e3873015413ace23b609b1d4b7f48f2d15fcab2fe820f6"
+    },
+    {
+      "step": 4,
+      "action": "fund",
+      "amount": "0.1 U",
+      "tx": "0x56a0ddfaff7ffcaa00325986e8db833e52a44bd216d7cf54cbbf803475e276ab"
+    },
+    {
+      "step": 5,
+      "action": "submit",
+      "tx": "0x0f2834dd29383eebc92e12482028fe277555253cab62d0128e5ff64badd22fcb"
+    },
+    {
+      "step": 6,
+      "action": "settle",
+      "status": "PENDING_DISPUTE_WINDOW",
+      "settles_at": "creation + 8 days"
+    }
+  ],
+  "job_id": 119,
+  "job_status": "Submitted",
+  "dispute_window_seconds": 604800,
+  "dispute_window_human": "7 days"
+}
