@@ -82,6 +82,42 @@ def fetch_fear_greed(api_key: str) -> int:
         return 50
 
 
+# ---------------------------------------------------------------------------
+# v10: Stablecoin Risk Radar — live metrics from CMC
+# ---------------------------------------------------------------------------
+STABLES_TO_TRACK = ["USDT", "USDC", "FDUSD", "USDe", "DAI", "FRAX", "TUSD", "USDD", "lisUSD"]
+
+
+def fetch_stable_metrics(api_key: str) -> list:
+    """Fetch live stablecoin metrics, return list[StableMetrics]."""
+    from stablecoin_risk import StableMetrics
+
+    try:
+        quotes = fetch_quotes(STABLES_TO_TRACK, api_key)
+    except RuntimeError:
+        return []
+
+    metrics = []
+    for sym in STABLES_TO_TRACK:
+        if sym not in quotes:
+            continue
+        v = quotes[sym]
+        q = (v[0] if isinstance(v, list) else v).get("quote", {}).get("USD", {})
+        price = q.get("price")
+        peg_pct = (price - 1.0) * 100 if price else None
+        metrics.append(StableMetrics(
+            symbol=sym,
+            peg_deviation_pct=peg_pct,
+            peg_deviation_24h_max_pct=peg_pct,  # CMC doesn't expose intraday max, use spot
+            market_cap_usd=q.get("market_cap"),
+            market_cap_change_7d_pct=q.get("percent_change_7d"),
+            market_cap_change_24h_pct=q.get("percent_change_24h"),
+            volume_24h_usd=q.get("volume_24h"),
+            volume_change_24h_pct=q.get("volume_change_24h"),
+        ))
+    return metrics
+
+
 def transform_to_scoring_schema(
     narrative: str,
     quotes: dict[str, Any],
@@ -309,6 +345,56 @@ def run_live(narrative: str | None, output_json: bool) -> int:
             narrative_out["twak_payload"] = generate_twak_payload(n, 500, s["verdict"])
 
         output["narratives"][n] = narrative_out
+
+    # ---- v10: Stablecoin Risk Radar overlay ----
+    try:
+        from stablecoin_risk import rank_stables, rotation_target, STABLE_UNIVERSE
+        live_stables = fetch_stable_metrics(api_key) if api_key else []
+        if live_stables:
+            srr_scores = rank_stables(live_stables)
+            srr_target = rotation_target(srr_scores)
+            output["stablecoin_risk"] = {
+                "source": "cmc_live",
+                "rankings": [
+                    {
+                        "symbol": s.symbol,
+                        "verdict": s.verdict,
+                        "score": s.score,
+                        "issuer": s.issuer,
+                        "type": s.type,
+                        "bucket_scores": s.bucket_scores,
+                        "reasons": s.reasons[:3],
+                        "risks": s.risks[:3],
+                        "bsc_address": STABLE_UNIVERSE.get(s.symbol, {}).get("bsc"),
+                    }
+                    for s in srr_scores
+                ],
+                "target": (
+                    {
+                        "symbol": srr_target.symbol,
+                        "verdict": srr_target.verdict,
+                        "score": srr_target.score,
+                        "bsc_address": STABLE_UNIVERSE.get(srr_target.symbol, {}).get("bsc"),
+                    }
+                    if srr_target else None
+                ),
+            }
+
+            # Defensive rotation override on the macro signal
+            top_score = max(
+                (d["conviction"] for d in output["narratives"].values()),
+                default=0,
+            )
+            if regime == "RISK_OFF" and top_score < 30 and srr_target:
+                output["macro"]["defensive_rotation"] = {
+                    "trigger": "RISK_OFF + top conviction < 30",
+                    "target_symbol": srr_target.symbol,
+                    "target_verdict": srr_target.verdict,
+                    "target_score": srr_target.score,
+                    "target_bsc_address": STABLE_UNIVERSE.get(srr_target.symbol, {}).get("bsc"),
+                }
+    except Exception as e:
+        output["stablecoin_risk"] = {"error": str(e)}
 
     if output_json:
         print(json.dumps(output, indent=2))

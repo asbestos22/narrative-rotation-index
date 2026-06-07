@@ -1,16 +1,19 @@
 name: narrative-rotation-index
-version: "9.0"
+version: "10.0"
 description: >
   A CMC-native Narrative Rotation Index (NRI) skill with multichain narrative coverage
-  aligned to the BNB Hack 149-token whitelist. Dynamic token discovery, Kaito (SoFi)
-  social intelligence, 5-bucket scoring, narrative exhaustion detection, auto-execute
-  toggle, and optional Trust Wallet execution payloads. v9.0: 10 narratives, 48 curated
-  tokens with verified BSC contracts (Binance-Peg BEP-20 wrappers for ETH/SOL-native).
+  aligned to the BNB Hack 149-token whitelist + Stablecoin Risk Radar (SRR) defensive
+  rotation overlay. NRI scores narratives for offense; SRR scores stablecoins for defense.
+  When regime flips RISK_OFF and top narrative conviction < 30, capital rotates to the
+  safest-scoring stable. v10.0: 10 narratives + 9 stablecoins, dual 5-bucket model,
+  defensive rotation triggers, historical depeg backtests (USDC SVB 2023, UST 2022).
 author: ASBESTOS19
 tags:
   - narrative-rotation
   - regime-detection
   - exhaustion-detector
+  - stablecoin-risk-radar
+  - defensive-rotation
   - quant-strategy
   - x402-enforced
   - bnbagent-sdk
@@ -30,6 +33,19 @@ supported_narratives:
   - L1/L2        # ETH, SOL, AVAX, ATOM, DOT, NEAR
   - Gaming/NFT   # AXS, SAND, MANA, GALA, IMX
   - BNB Chain    # BNB, CAKE, BAKE, XVS, ALPACA
+
+stablecoin_risk_radar:
+  description: >
+    Defensive rotation overlay. SRR_score = 0.30×Peg + 0.25×Flow + 0.20×Reserves
+    + 0.15×Liquidity + 0.10×Contagion. Verdicts: SAFE 0-25, WATCH 26-50, EXIT 51-75,
+    EMERGENCY 76-100. Trigger: RISK_OFF regime + top narrative conviction < 30 →
+    rotate to safest-scoring stable.
+  coverage:
+    - USDT, USDC, FDUSD, USD1, USDe, DAI, FRAX, FRXUSD, TUSD, USDD, lisUSD, USDF, EURI, XUSD, FF
+  backtest_scenarios:
+    - BASELINE_2026
+    - USDC_SVB_2023
+    - UST_DEATH_2022
 
 scoring_model:
   description: >

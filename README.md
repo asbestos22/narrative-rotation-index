@@ -2,7 +2,7 @@
 
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![chain](https://img.shields.io/badge/chain-BNB%20Chain%20%2B%20Multichain-F0B90B.svg)](https://www.bnbchain.org/)
-[![version](https://img.shields.io/badge/version-9.0-F0B90B.svg)](https://github.com/asbestos22/narrative-rotation-index)
+[![version](https://img.shields.io/badge/version-10.0-F0B90B.svg)](https://github.com/asbestos22/narrative-rotation-index)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![mcp](https://img.shields.io/badge/MCP-compatible-purple.svg)](https://modelcontextprotocol.io/)
 [![tests](https://github.com/asbestos22/narrative-rotation-index/actions/workflows/tests.yml/badge.svg)](https://github.com/asbestos22/narrative-rotation-index/actions/workflows/tests.yml)
@@ -10,9 +10,22 @@
 
 A CMC-native AI-agent skill that ranks crypto narratives by relative strength, liquidity expansion, attention velocity, and macro regime — then outputs backtestable portfolio weights with structured confidence explanations and optional BNB Chain (BSC) Trust Wallet execution payloads.
 
+**v10.0** adds the **Stablecoin Risk Radar (SRR)** defensive rotation overlay: NRI scores narratives for offense, SRR scores stablecoins for defense. When regime flips RISK_OFF and top narrative conviction drops below 30, capital rotates to the safest-scoring stable.
+
 Built for the **CMC AI Agent Hub** with native **BNBAgent SDK** and **Trust Wallet Agent Kit** integration. Exposed as an **MCP server** so any MCP-aware client can call it.
 
 **Live dashboard:** [nri.realdo.org](https://nri.realdo.org/)
+
+## v10.0 — Stablecoin Risk Radar (defensive rotation)
+
+NRI was offense-only through v9. v10 closes the loop with a defensive layer:
+
+- **5-bucket SRR model:** `SRR = 0.30×Peg + 0.25×Flow + 0.20×Reserves + 0.15×Liquidity + 0.10×Contagion`
+- **9 live-tracked stables:** USDT, USDC, FDUSD, USDe, DAI, FRAX, TUSD, USDD, lisUSD (15-stable universe in `stablecoin_risk.py`, all BNB Hack-eligible)
+- **Verdict bands:** SAFE 0–25 · WATCH 26–50 · EXIT 51–75 · EMERGENCY 76–100
+- **Defensive trigger:** RISK_OFF regime + top narrative conviction < 30 → rotation to safest stable with BSC contract address surfaced
+- **Backtest scenarios:** BASELINE_2026 (calm), USDC_SVB_2023 (banking crisis), UST_DEATH_2022 (algorithmic stable collapse) — all validate historical accuracy
+- **Live overlay:** SRR pulls real CMC data on every refresh, scores all 9 stables, surfaces the rotation target on the dashboard
 
 ## v9.0 — Multichain Narrative Coverage
 
@@ -29,6 +42,8 @@ Built for the **CMC AI Agent Hub** with native **BNBAgent SDK** and **Trust Wall
 $ python live_demo.py            # live CMC scoring
 $ python mcp_server.py           # MCP stdio server (Claude Desktop, CMC Hub, agents)
 $ python backtest.py             # 90-day historical basket simulation
+$ python stablecoin_risk.py      # SRR baseline scenario
+$ python stablecoin_risk.py USDC_SVB_2023   # historical depeg replay
 $ python -m unittest tests       # 15 unit tests
 ```
 
@@ -50,7 +65,7 @@ python live_demo.py
 
 ## What is NRI
 
-> A backtestable strategy skill that scans 10 crypto narratives, detects market regime, ranks by relative strength and liquidity expansion, penalizes crowded late-cycle moves, and outputs portfolio weights plus an optional BNB Chain (BSC) Trust Wallet execution payload.
+> A backtestable strategy skill that scans 10 crypto narratives + 9 stablecoins, detects market regime, ranks by relative strength and liquidity expansion, penalizes crowded late-cycle moves, scores stablecoin defensive rotation targets, and outputs portfolio weights plus an optional BNB Chain (BSC) Trust Wallet execution payload.
 
 ## Narrative Exhaustion Detector — The Original Moat
 

@@ -1059,6 +1059,40 @@ def global_scan(regime="TRANSITION"):
     else:
         rotation = f"DEFENSIVE — increase stablecoin allocation. Lowest: {bottom[0]}"
 
+    # ---- v10: Stablecoin Risk Radar (SRR) overlay ----
+    # NRI scores narratives for offense; SRR picks the safest defensive target.
+    # Trigger DEFENSIVE_ROTATION when regime is RISK_OFF or top conviction < 30.
+    try:
+        from stablecoin_risk import rank_stables, rotation_target, SCENARIOS
+        srr_scenario = "USDC_SVB_2023" if regime == "RISK_OFF" else "BASELINE_2026"
+        srr_scores = rank_stables(SCENARIOS[srr_scenario])
+        srr_target = rotation_target(srr_scores)
+        srr_payload = {
+            "scenario": srr_scenario,
+            "rankings": [
+                {"symbol": s.symbol, "verdict": s.verdict, "score": s.score,
+                 "issuer": s.issuer, "type": s.type}
+                for s in srr_scores
+            ],
+            "target": (
+                {"symbol": srr_target.symbol, "verdict": srr_target.verdict,
+                 "score": srr_target.score, "bsc_address":
+                 __import__("stablecoin_risk").STABLE_UNIVERSE.get(srr_target.symbol, {}).get("bsc")}
+                if srr_target else None
+            ),
+        }
+
+        # Defensive override: if regime is RISK_OFF AND top conviction < 30,
+        # rotate capital to safest stable (if any).
+        if regime == "RISK_OFF" and top[1]["conviction"] < 30 and srr_target:
+            rotation = (
+                f"DEFENSIVE_ROTATION → {srr_target.symbol} ({srr_target.verdict}, "
+                f"SRR {srr_target.score}). Top narrative {top[0]} conviction "
+                f"{top[1]['conviction']} below threshold."
+            )
+    except Exception as e:  # pragma: no cover — overlay must never break NRI
+        srr_payload = {"error": f"SRR overlay unavailable: {e}"}
+
     # Build risks list from bottom performers
     top_narrative = top[0]
     top_result = top[1]
@@ -1081,6 +1115,7 @@ def global_scan(regime="TRANSITION"):
         "top_verdict": top_result["verdict"],
         "top_conviction": top_result["conviction"],
         "risks": risks,
+        "stablecoin_risk": srr_payload,
     }
 
 
@@ -1294,7 +1329,7 @@ def run_backtest(narrative, days=90, initial_capital=10000.0):
 # ==============================================================================
 def main():
     print("=" * 80)
-    print("CMC Narrative Rotation Index (NRI) Skill v8.1")
+    print("CMC Narrative Rotation Index (NRI) Skill v10.0 — multichain + stablecoin risk radar")
     print("BNBAgent SDK + Trust Wallet Agent Kit + x402 + Kaito SoFi")
     print("=" * 80)
     time.sleep(0.2)
@@ -1395,7 +1430,7 @@ def main():
     sizing_pct = 5 * REGIME_SIZING[regime]
     confidence_output = {
         "skill": "narrative-rotation-index",
-        "version": "8.1",
+        "version": "10.0",
         "regime": regime,
         "top_narrative": top_n,
         "verdict": top_d["verdict"],
@@ -1461,7 +1496,7 @@ def main():
     print(f"\n{'='*80}")
     print("SUMMARY")
     print(f"{'='*80}")
-    print(f"  Skill:              CMC Narrative Rotation Index (NRI) v8.1")
+    print(f"  Skill:              CMC Narrative Rotation Index (NRI) v10.0")
     print(f"  Regime:             {regime} (cap: {cap}/100)")
     print(f"  Top Narrative:      {top_n} ({top_d['verdict']}, {top_d['conviction']}/{cap})")
     print(f"  Exhaustion:         {top_d['exhaustion_score']}/100")
