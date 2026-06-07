@@ -38,9 +38,9 @@ NRI_AGENT_ID = 129156
 DECIMALS = 18
 
 PRICE_TIERS = {
-    "base": 10**16,         # 0.01 U  ~ $0.01 — single signal
-    "regime_update": 10**17, # 0.1 U   ~ $0.10 — fresh regime classification
-    "full_scan": 5 * 10**17, # 0.5 U   ~ $0.50 — full 10-narrative scan + SRR
+    "base": 10**16,          # 0.01 U  ~ $0.01 — regime + top narrative only
+    "regime_update": 5 * 10**16,  # 0.05 U   ~ $0.05 — regime classification + macro
+    "full_scan": 10**17,     # 0.1 U   ~ $0.10 — full 10-narrative scan + SRR (UI default)
 }
 
 # In-memory replay protection (production: Redis or DB)

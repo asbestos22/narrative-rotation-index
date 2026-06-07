@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NRI · Buy Signal</title>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+<style>
+  :root{--gold:#F0B90B;--bg:#0b0e11;--panel:#161a1e;--line:#2b3139;--txt:#eaecef;--dim:#848e9c;--green:#0ecb81;--red:#f6465d}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif;display:flex;justify-content:center;padding:24px}
+  .wrap{width:100%;max-width:680px}
+  h1{font-size:20px;margin:0 0 4px;letter-spacing:.5px}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:20px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:16px}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  .row:last-child{border-bottom:none}
+  .row .k{color:var(--dim);font-size:13px}
+  .row .v{font-family:'JetBrains Mono',monospace;font-size:13px}
+  .gold{color:var(--gold)}
+  button{background:var(--gold);color:#000;border:none;border-radius:8px;padding:13px 18px;font-size:15px;font-weight:700;cursor:pointer;width:100%;letter-spacing:.3px;transition:opacity .15s}
+  button:hover{opacity:.88}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.ghost{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+  .status{font-size:13px;margin:14px 0;padding:10px 12px;border-radius:8px;font-family:'JetBrains Mono',monospace;line-height:1.5}
+  .status.info{background:#1a2733;color:#5ab0ff}
+  .status.ok{background:#10261c;color:var(--green)}
+  .status.err{background:#2a1419;color:var(--red)}
+  .steps{display:flex;gap:6px;margin:16px 0}
+  .step{flex:1;height:4px;border-radius:2px;background:var(--line)}
+  .step.active{background:var(--gold)}
+  pre{background:#0b0e11;border:1px solid var(--line);border-radius:8px;padding:14px;overflow:auto;max-height:380px;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:#9fe6c0;white-space:pre-wrap;word-break:break-word}
+  .badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;background:#2b2410;color:var(--gold);font-family:'JetBrains Mono',monospace;margin-left:6px}
+  a{color:var(--gold)}
+  .tiers{display:flex;gap:8px;margin-bottom:8px}
+  .tier{flex:1;border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center;cursor:pointer;transition:border .15s}
+  .tier.sel{border-color:var(--gold);background:#1c1a0f}
+  .tier .t-name{font-size:12px;color:var(--dim)}
+  .tier .t-price{font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--gold);margin-top:4px}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Narrative Rotation Index <span class="badge">agentId 129156</span></h1>
+  <div class="sub">Buy a live signal — pay in U on BNB Chain via x402 (EIP-3009). No gas, just a signature.</div>
+
+  <div class="steps">
+    <div class="step" id="s1"></div>
+    <div class="step" id="s2"></div>
+    <div class="step" id="s3"></div>
+  </div>
+
+  <div class="card">
+    <div class="tiers">
+      <div class="tier sel" data-tier="full_scan">
+        <div class="t-name">Full Scan</div>
+        <div class="t-price">0.1 U</div>
+      </div>
+      <div class="tier" data-tier="regime_update">
+        <div class="t-name">Regime</div>
+        <div class="t-price">0.05 U</div>
+      </div>
+      <div class="tier" data-tier="base">
+        <div class="t-name">Top Signal</div>
+        <div class="t-price">0.01 U</div>
+      </div>
+    </div>
+
+    <div class="row"><span class="k">Pay to</span><span class="v gold">0x7D93…72C1</span></div>
+    <div class="row"><span class="k">Token</span><span class="v">U · BNB Chain Stables</span></div>
+    <div class="row"><span class="k">Network</span><span class="v">BSC mainnet (56)</span></div>
+    <div class="row"><span class="k">You pay</span><span class="v gold" id="payAmount">0.1 U</span></div>
+
+    <div class="status info" id="status">Connect a wallet to begin.</div>
+
+    <button id="btnConnect">Connect Wallet</button>
+    <button id="btnBuy" class="hide">Sign &amp; Buy Signal</button>
+    <button id="btnReset" class="ghost hide" style="margin-top:8px">Buy Another</button>
+  </div>
+
+  <div class="card hide" id="resultCard">
+    <div class="row"><span class="k">Signal delivered</span><span class="v gold" id="paidTier">full_scan</span></div>
+    <div class="row"><span class="k">Signed by agent</span><span class="v" id="signedBy">129156</span></div>
+    <pre id="payload"></pre>
+  </div>
+</div>
+
+<script>
+const U_MAINNET = "0xcE24439F2D9C6a2289F741120FE202248B666666";
+const CHAIN_ID = 56;
+const PAY_TO = "0x7D93a5a96f9306E9b0D3B185aef702d03D1572C1";
+const TOKEN_NAME = "BNB Chain Stables";
+const TOKEN_VERSION = "1";
+const PRICES = { base: "10000000000000000", regime_update: "50000000000000000", full_scan: "100000000000000000" };
+const PRICE_HUMAN = { base: "0.01 U", regime_update: "0.05 U", full_scan: "0.1 U" };
+
+let provider, signer, account, tier = "full_scan";
+
+const $ = id => document.getElementById(id);
+const setStatus = (msg, cls="info") => { const s=$("status"); s.textContent=msg; s.className="status "+cls; };
+const setStep = n => { ["s1","s2","s3"].forEach((id,i)=>$(id).classList.toggle("active", i<n)); };
+
+document.querySelectorAll(".tier").forEach(el=>{
+  el.onclick = ()=>{
+    document.querySelectorAll(".tier").forEach(t=>t.classList.remove("sel"));
+    el.classList.add("sel");
+    tier = el.dataset.tier;
+    $("payAmount").textContent = PRICE_HUMAN[tier];
+  };
+});
+
+$("btnConnect").onclick = async () => {
+  if (!window.ethereum) { setStatus("No wallet found. Install MetaMask.", "err"); return; }
+  try {
+    setStatus("Requesting wallet connection…");
+    provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const net = await provider.getNetwork();
+    if (Number(net.chainId) !== CHAIN_ID) {
+      setStatus("Switching to BSC mainnet…");
+      try {
+        await window.ethereum.request({ method:"wallet_switchEthereumChain", params:[{chainId:"0x38"}] });
+      } catch(e){
+        if (e.code === 4902){
+          await window.ethereum.request({ method:"wallet_addEthereumChain", params:[{
+            chainId:"0x38", chainName:"BNB Smart Chain",
+            nativeCurrency:{name:"BNB",symbol:"BNB",decimals:18},
+            rpcUrls:["https://bsc-rpc.publicnode.com"], blockExplorerUrls:["https://bscscan.com"]
+          }]});
+        } else throw e;
+      }
+      provider = new ethers.BrowserProvider(window.ethereum);
+    }
+    signer = await provider.getSigner();
+    account = await signer.getAddress();
+    setStatus("Connected: "+account.slice(0,6)+"…"+account.slice(-4), "ok");
+    setStep(1);
+    $("btnConnect").classList.add("hide");
+    $("btnBuy").classList.remove("hide");
+  } catch(e){ setStatus("Connect failed: "+(e.message||e), "err"); }
+};
+
+$("btnBuy").onclick = async () => {
+  try {
+    $("btnBuy").disabled = true;
+    setStep(2);
+    setStatus("Building EIP-3009 authorization…");
+
+    const value = PRICES[tier];
+    const now = Math.floor(Date.now()/1000);
+    const validAfter = 0;
+    const validBefore = now + 300;
+    const nonce = ethers.hexlify(ethers.randomBytes(32));
+
+    const domain = { name: TOKEN_NAME, version: TOKEN_VERSION, chainId: CHAIN_ID, verifyingContract: U_MAINNET };
+    const types = { TransferWithAuthorization: [
+      { name:"from", type:"address" }, { name:"to", type:"address" },
+      { name:"value", type:"uint256" }, { name:"validAfter", type:"uint256" },
+      { name:"validBefore", type:"uint256" }, { name:"nonce", type:"bytes32" },
+    ]};
+    const message = { from: account, to: PAY_TO, value, validAfter, validBefore, nonce };
+
+    setStatus("Sign the payment authorization in your wallet… (no gas, no broadcast)");
+    const signature = await signer.signTypedData(domain, types, message);
+
+    setStatus("Submitting payment proof to NRI…");
+    const envelope = {
+      x402Version: 2, scheme: "exact", network: "eip155:"+CHAIN_ID,
+      payload: { authorization: {
+        from: account, to: PAY_TO, value: value.toString(),
+        validAfter: String(validAfter), validBefore: String(validBefore), nonce
+      }, signature }
+    };
+    const header = btoa(JSON.stringify(envelope));
+
+    const res = await fetch("/signal?tier="+tier, { headers: { "X-PAYMENT": header } });
+    const body = await res.json();
+    if (res.status !== 200) { setStatus("Payment rejected: "+(body.error||res.status), "err"); $("btnBuy").disabled=false; return; }
+
+    setStep(3);
+    setStatus("✓ Signal purchased — payload below.", "ok");
+    $("paidTier").textContent = body._paid_tier || tier;
+    $("signedBy").textContent = body._signed_by_agent || "129156";
+    $("payload").textContent = JSON.stringify(body, null, 2);
+    $("resultCard").classList.remove("hide");
+    $("btnBuy").classList.add("hide");
+    $("btnReset").classList.remove("hide");
+  } catch(e){
+    setStatus("Sign failed: "+(e.shortMessage||e.message||e), "err");
+    $("btnBuy").disabled = false;
+  }
+};
+
+$("btnReset").onclick = () => {
+  $("resultCard").classList.add("hide");
+  $("btnReset").classList.add("hide");
+  $("btnBuy").classList.remove("hide");
+  $("btnBuy").disabled = false;
+  setStep(1);
+  setStatus("Connected: "+account.slice(0,6)+"…"+account.slice(-4), "ok");
+};
+</script>
+</body>
+</html>

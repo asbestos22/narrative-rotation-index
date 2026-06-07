@@ -210,6 +210,15 @@ def signal_endpoint(request: Request, tier: str = "full_scan") -> JSONResponse:
     )
 
 
+@app.get("/buy", response_class=HTMLResponse)
+def buy_page() -> HTMLResponse:
+    """In-browser signal purchase — MetaMask + EIP-3009 sign → /signal."""
+    page = STATIC / "buy.html"
+    if not page.exists():
+        return HTMLResponse("<h1>buy page missing</h1>", status_code=404)
+    return HTMLResponse(page.read_text())
+
+
 @app.get("/.well-known/x402", response_class=JSONResponse)
 def x402_manifest() -> JSONResponse:
     """x402 service manifest — tells crawlers + clients what's paywalled."""
@@ -629,13 +638,14 @@ def index(request: Request) -> HTMLResponse:
     </div>
     <div class="agent-id-proto">
       <span class="agent-id-proto-tag">x402</span>
-      <span class="agent-id-proto-desc">paywalled <a href="/.well-known/x402">/signal</a> · 0.01–0.5 U per call</span>
+      <span class="agent-id-proto-desc">paywalled <a href="/.well-known/x402">/signal</a> · 0.01–0.1 U per call</span>
     </div>
     <div class="agent-id-proto">
       <span class="agent-id-proto-tag">ERC-8183</span>
       <span class="agent-id-proto-desc">commerce escrow · job 119 LIVE · <a href="https://bscscan.com/tx/0x0f2834dd29383eebc92e12482028fe277555253cab62d0128e5ff64badd22fcb" target="_blank" rel="noopener" style="color:#F0B90B;text-decoration:none;">5 mainnet txs</a></span>
     </div>
   </div>
+  <a href="/buy" class="buy-signal-btn">⚡ BUY LIVE SIGNAL · 0.1 U</a>
 </div>"""
     else:
         agent_block = ""
@@ -972,6 +982,14 @@ td.tk {{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mut
   border-radius:3px; background:rgba(240,185,11,0.04);
   font-size:11px;
 }}
+.buy-signal-btn {{
+  display:block; margin-top:14px; padding:13px 18px;
+  background:var(--gold); color:#000; text-align:center;
+  font-family:'JetBrains Mono',monospace; font-weight:700;
+  font-size:14px; letter-spacing:.5px; text-decoration:none;
+  border-radius:4px; transition:opacity .15s;
+}}
+.buy-signal-btn:hover {{ opacity:.88; }}
 .agent-id-proto-tag {{
   font-family:'JetBrains Mono',monospace; font-weight:700;
   letter-spacing:0.5px; color:var(--gold);
