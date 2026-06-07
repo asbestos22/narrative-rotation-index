@@ -163,15 +163,40 @@ Tampering with the amount after signing fails signer recovery and is rejected. S
 
 ## BNB AI Agent SDK Integration
 
-`bnb_agent_integration.py` registers NRI as a discoverable on-chain agent using the real [`bnbagent` SDK](https://github.com/bnb-chain/bnbagent-sdk) (ERC-8004 agent identity). Registration is gas-free on BSC testnet via the MegaFuel paymaster.
+NRI is registered as a discoverable on-chain agent on **BSC mainnet** using the real [`bnbagent` SDK](https://github.com/bnb-chain/bnbagent-sdk) (ERC-8004 agent identity).
+
+### Live on-chain identity (BSC mainnet)
+
+| Field | Value |
+|-------|-------|
+| `agentId` | **#129156** |
+| Network | BSC Mainnet (chain 56) |
+| Registry | `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432` |
+| Agent wallet | `0x7D93a5a96f9306E9b0D3B185aef702d03D1572C1` |
+| Tx hash | [`0xcc86de3451e1623655f3f4c3b96ef453953191633bdbf088fb70e2c4b656c66d`](https://bscscan.com/tx/0xcc86de3451e1623655f3f4c3b96ef453953191633bdbf088fb70e2c4b656c66d) |
+| Gas paid | **0 BNB** (sponsored by MegaFuel paymaster) |
+| Block | 102791231 |
+
+The agent record points to two live endpoints:
+- `https://nri.realdo.org/mcp` — `scan_narratives`, `score_narrative`, `detect_regime`, `rank_stables`, `rotation_target`
+- `https://nri.realdo.org/signal` — `full_scan`, `regime_update`, `stablecoin_risk`
+
+Any agent on BSC can resolve `agentId 129156` against the registry and discover NRI's MCP and signal APIs without an out-of-band registry. Snapshot lives at [`agent_identity.json`](./agent_identity.json).
+
+### Reproducing registration
+
+`bnb_agent_integration.py` builds the ERC-8004 agent URI and broadcasts the registration tx. Registration is gas-free on BSC mainnet via the MegaFuel paymaster.
 
 ```bash
-pip install bnbagent
 python bnb_agent_integration.py             # offline dry-run: builds the agent URI, no wallet/chain
 python bnb_agent_integration.py --register  # real ERC-8004 registration (needs WALLET_PASSWORD)
 ```
 
 The default mode is offline: it constructs the exact ERC-8004 agent URI the SDK would submit and prints it, touching no wallet and broadcasting nothing. On-chain registration is gated behind `--register` and a wallet password.
+
+```bash
+pip install bnbagent
+```
 
 ## Architecture
 

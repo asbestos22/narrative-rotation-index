@@ -47,6 +47,36 @@ stablecoin_risk_radar:
     - USDC_SVB_2023
     - UST_DEATH_2022
 
+bnb_ai_agent_sdk:
+  description: >
+    NRI is registered as a discoverable on-chain agent on BSC mainnet via the
+    real bnbagent SDK (pip install bnbagent). Any BSC client can resolve the
+    agentId against the ERC-8004 registry to discover NRI's MCP and signal
+    endpoints without an out-of-band registry.
+  protocol: ERC-8004
+  network: bsc-mainnet
+  chain_id: 56
+  agent_id: 129156
+  agent_wallet: "0x7D93a5a96f9306E9b0D3B185aef702d03D1572C1"
+  registry_contract: "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
+  transaction_hash: "0xcc86de3451e1623655f3f4c3b96ef453953191633bdbf088fb70e2c4b656c66d"
+  block_number: 102791231
+  gas_paid_bnb: 0
+  paymaster: "MegaFuel (gas sponsored)"
+  bscscan_tx: "https://bscscan.com/tx/0xcc86de3451e1623655f3f4c3b96ef453953191633bdbf088fb70e2c4b656c66d"
+  bscscan_token: "https://bscscan.com/token/0x8004A169FB4a3325136EB29fA0ceB6D2e539a432?a=129156"
+  agent_endpoints:
+    - name: MCP
+      endpoint: "https://nri.realdo.org/mcp"
+      capabilities: [scan_narratives, score_narrative, detect_regime, rank_stables, rotation_target]
+    - name: x402-signal-api
+      endpoint: "https://nri.realdo.org/signal"
+      capabilities: [full_scan, regime_update, stablecoin_risk]
+  reproducibility:
+    sdk_install: "pip install bnbagent"
+    register_command: "python bnb_agent_integration.py --register"
+    snapshot_file: "agent_identity.json"
+
 scoring_model:
   description: >
     5-bucket weighted scoring with narrative-specific fundamental customization.
@@ -321,7 +351,7 @@ example_call:
     X-Tier: "full_scan"
   output:
     skill: "narrative-rotation-index"
-    version: "8.1"
+    version: "10.0"
     regime: "TRANSITION"
     top_narrative: "Meme"
     verdict: "STRONG_LONG"

@@ -1,0 +1,28 @@
+{
+  "agentId": 129156,
+  "transactionHash": "0xcc86de3451e1623655f3f4c3b96ef453953191633bdbf088fb70e2c4b656c66d",
+  "wallet_address": "0x7D93a5a96f9306E9b0D3B185aef702d03D1572C1",
+  "network": "bsc-mainnet",
+  "chain_id": 56,
+  "registry_contract": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+  "registered_at": "2026-06-07T06:23:00Z",
+  "block_number": 102791231,
+  "gas_paid_bnb": 0,
+  "paymaster": "MegaFuel (gas sponsored)",
+  "bscscan_tx": "https://bscscan.com/tx/0xcc86de3451e1623655f3f4c3b96ef453953191633bdbf088fb70e2c4b656c66d",
+  "bscscan_token": "https://bscscan.com/token/0x8004A169FB4a3325136EB29fA0ceB6D2e539a432?a=129156",
+  "skill_name": "narrative-rotation-index",
+  "skill_version": "10.0",
+  "endpoints": [
+    {
+      "name": "MCP",
+      "endpoint": "https://nri.realdo.org/mcp",
+      "capabilities": ["scan_narratives", "score_narrative", "detect_regime", "rank_stables", "rotation_target"]
+    },
+    {
+      "name": "x402-signal-api",
+      "endpoint": "https://nri.realdo.org/signal",
+      "capabilities": ["full_scan", "regime_update", "stablecoin_risk"]
+    }
+  ]
+}

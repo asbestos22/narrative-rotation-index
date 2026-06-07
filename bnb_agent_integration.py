@@ -34,10 +34,11 @@ import os
 import sys
 
 SKILL_NAME = "narrative-rotation-index"
-SKILL_VERSION = "8.1"
+SKILL_VERSION = "10.0"
 SKILL_DESCRIPTION = (
-    "CMC-native crypto narrative rotation strategy: regime detection, "
-    "5-bucket relative-strength scoring, and a late-cycle exhaustion detector."
+    "CMC-native crypto narrative rotation strategy with stablecoin risk overlay: "
+    "regime detection, 5-bucket relative-strength scoring, late-cycle exhaustion, "
+    "and defensive rotation via Stablecoin Risk Radar."
 )
 
 # Public endpoints NRI exposes as an on-chain agent. The MCP server is the
@@ -45,15 +46,15 @@ SKILL_DESCRIPTION = (
 AGENT_ENDPOINTS = [
     {
         "name": "MCP",
-        "endpoint": "https://narrative-rotation-index.example/mcp",
+        "endpoint": "https://nri.realdo.org/mcp",
         "version": SKILL_VERSION,
-        "capabilities": ["scan_narratives", "score_narrative", "detect_regime"],
+        "capabilities": ["scan_narratives", "score_narrative", "detect_regime", "rank_stables", "rotation_target"],
     },
     {
         "name": "x402-signal-api",
-        "endpoint": "https://narrative-rotation-index.example/signal",
+        "endpoint": "https://nri.realdo.org/signal",
         "version": SKILL_VERSION,
-        "capabilities": ["full_scan", "regime_update"],
+        "capabilities": ["full_scan", "regime_update", "stablecoin_risk"],
     },
 ]
 
