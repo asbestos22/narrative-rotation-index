@@ -646,6 +646,7 @@ def index(request: Request) -> HTMLResponse:
     </div>
   </div>
   <a href="/buy" class="buy-signal-btn">⚡ BUY LIVE SIGNAL · 0.1 U<br><span style="font-size:11px;font-weight:600;opacity:.8;letter-spacing:.3px">Pay with x402</span></a>
+  <div style="text-align:center;font-size:11px;color:#848e9c;margin-top:8px;line-height:1.4">Humans read the dashboard. Agents buy the <strong style="color:#F0B90B;font-weight:600">signed</strong> feed — attestable, metered, signed by agent 129156.</div>
 </div>"""
     else:
         agent_block = ""
