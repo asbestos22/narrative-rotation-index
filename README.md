@@ -478,9 +478,32 @@ Sample output across windows (seed=42, equal-weight portfolio):
 
 The 30-day window is dominated by holding-period drift noise — too few trades to overcome it. The 90-day window is where the trade alpha begins to express itself and the strategy shows positive Sharpe. The 365-day window captures a realistic regime mix where 31% of days are RISK_OFF — the strategy's job there is **survival**: stay close to flat, keep max drawdown under 10%, then participate when macro improves.
 
-## CHANGELOG: v1 → v8 Evolution
+## CHANGELOG: v1 → v10.6 Evolution
 
-**v8.0** (Current)
+**v10.6** (Current)
+- In-browser BUY SIGNAL flow — connect MetaMask, sign EIP-3009 `TransferWithAuthorization` (gasless), pay 0.1 U for a full scan via `/buy`
+- Human-readable signal summary (regime, Fear & Greed, BTC dominance, top narratives by conviction) with Copy + Download JSON; raw payload collapsed
+- "Pay with x402" labelling on the dashboard buy button
+
+**v10.5**
+- Paper Trader — Track 1 simulator with live PancakeSwap quotes and on-dashboard ledger panel
+
+**v10.3**
+- ERC-8183 commerce LIVE on BSC mainnet — escrow job 119 + 5 settlement txs
+
+**v10.2**
+- Wired x402 paywall + ERC-8183 commerce onto the `/signal` endpoint (tiered: base 0.01 / regime 0.05 / full_scan 0.1 U)
+
+**v10.1**
+- Live ERC-8004 agent registration on BSC mainnet (agentId 129156)
+
+**v10.0**
+- Stablecoin Risk Radar — defensive rotation overlay
+
+**v9.0**
+- Aligned baskets to the 149-token whitelist, expanded to 10 narratives (multichain coverage)
+
+**v8.0**
 - Fixed circuit breaker recovery logic (trough-based recovery)
 - Corrected t-distribution implementation (proper χ²/df scaling)
 - Made conviction decay stateless (thread-safe for live agents)
