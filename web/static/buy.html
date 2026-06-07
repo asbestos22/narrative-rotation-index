@@ -38,6 +38,24 @@
   .tier .t-name{font-size:12px;color:var(--dim)}
   .tier .t-price{font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--gold);margin-top:4px}
   .hide{display:none}
+  .ptools{display:flex;gap:8px;margin:12px 0 10px}
+  .ptools button{width:auto;flex:1;padding:9px 12px;font-size:13px}
+  .summary{margin:6px 0 12px}
+  .sline{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .sline:last-child{border-bottom:none}
+  .sline .sk{color:var(--dim)}
+  .sline .sv{font-family:'JetBrains Mono',monospace;text-align:right}
+  .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;font-family:'JetBrains Mono',monospace}
+  .pill.off{background:#2a1419;color:var(--red)}
+  .pill.on{background:#10261c;color:var(--green)}
+  .pill.neu{background:#1a2733;color:#5ab0ff}
+  .nar{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed #1f242b;font-size:12.5px}
+  .nar:last-child{border-bottom:none}
+  .nar .nv{font-family:'JetBrains Mono',monospace}
+  details{margin-top:6px}
+  summary{cursor:pointer;color:var(--dim);font-size:12px;padding:6px 0}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.show{opacity:1}
 </style>
 </head>
 <body>
@@ -82,9 +100,22 @@
   <div class="card hide" id="resultCard">
     <div class="row"><span class="k">Signal delivered</span><span class="v gold" id="paidTier">full_scan</span></div>
     <div class="row"><span class="k">Signed by agent</span><span class="v" id="signedBy">129156</span></div>
-    <pre id="payload"></pre>
+
+    <div class="summary" id="summary"></div>
+
+    <div class="ptools">
+      <button class="ghost" id="btnCopy">Copy JSON</button>
+      <button class="ghost" id="btnDownload">Download .json</button>
+    </div>
+
+    <details>
+      <summary>Raw payload</summary>
+      <pre id="payload"></pre>
+    </details>
   </div>
 </div>
+<div class="toast" id="toast"></div>
+
 
 <script>
 const U_MAINNET = "0xcE24439F2D9C6a2289F741120FE202248B666666";
@@ -95,7 +126,7 @@ const TOKEN_VERSION = "1";
 const PRICES = { base: "10000000000000000", regime_update: "50000000000000000", full_scan: "100000000000000000" };
 const PRICE_HUMAN = { base: "0.01 U", regime_update: "0.05 U", full_scan: "0.1 U" };
 
-let provider, signer, account, tier = "full_scan";
+let provider, signer, account, tier = "full_scan", lastPayload = null;
 
 const $ = id => document.getElementById(id);
 const setStatus = (msg, cls="info") => { const s=$("status"); s.textContent=msg; s.className="status "+cls; };
@@ -182,6 +213,8 @@ $("btnBuy").onclick = async () => {
     setStatus("✓ Signal purchased — payload below.", "ok");
     $("paidTier").textContent = body._paid_tier || tier;
     $("signedBy").textContent = body._signed_by_agent || "129156";
+    lastPayload = body;
+    renderSummary(body);
     $("payload").textContent = JSON.stringify(body, null, 2);
     $("resultCard").classList.remove("hide");
     $("btnBuy").classList.add("hide");
@@ -190,6 +223,71 @@ $("btnBuy").onclick = async () => {
     setStatus("Sign failed: "+(e.shortMessage||e.message||e), "err");
     $("btnBuy").disabled = false;
   }
+};
+
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 1600);
+}
+
+function regimePill(r){
+  const up = String(r||"").toUpperCase();
+  if (up.includes("OFF")) return '<span class="pill off">'+up+'</span>';
+  if (up.includes("ON"))  return '<span class="pill on">'+up+'</span>';
+  return '<span class="pill neu">'+(up||"—")+'</span>';
+}
+function verdictPill(v){
+  const up = String(v||"").toUpperCase();
+  if (up.includes("BUY")||up.includes("LONG")||up.includes("ACCUM")) return '<span class="pill on">'+up+'</span>';
+  if (up.includes("SELL")||up.includes("AVOID")||up.includes("EXIT")) return '<span class="pill off">'+up+'</span>';
+  return '<span class="pill neu">'+(up||"NEUTRAL")+'</span>';
+}
+
+function renderSummary(b){
+  const el = $("summary");
+  let h = "";
+  const m = b.macro || {};
+  h += '<div class="sline"><span class="sk">Regime</span><span class="sv">'+regimePill(b.regime)+'</span></div>';
+  if (b.regime_reason) h += '<div class="sline"><span class="sk">Why</span><span class="sv" style="color:var(--dim);max-width:60%">'+b.regime_reason+'</span></div>';
+  if (m.fear_greed_index!=null) h += '<div class="sline"><span class="sk">Fear &amp; Greed</span><span class="sv">'+m.fear_greed_index+'</span></div>';
+  if (m.btc_dominance_pct!=null) h += '<div class="sline"><span class="sk">BTC dominance</span><span class="sv">'+m.btc_dominance_pct+'%</span></div>';
+  if (b.timestamp_utc) h += '<div class="sline"><span class="sk">As of</span><span class="sv" style="color:var(--dim)">'+b.timestamp_utc+'</span></div>';
+
+  const nar = b.narratives || {};
+  const keys = Object.keys(nar);
+  if (keys.length){
+    // sort by conviction desc, show top 5
+    keys.sort((a,c)=>(nar[c].conviction||0)-(nar[a].conviction||0));
+    h += '<div class="sline" style="border-bottom:none;padding-bottom:2px"><span class="sk">Top narratives</span><span class="sv" style="color:var(--dim)">conviction</span></div>';
+    keys.slice(0,5).forEach(k=>{
+      const n = nar[k];
+      h += '<div class="nar"><span>'+k+' '+verdictPill(n.verdict)+'</span><span class="nv">'+(n.conviction!=null?n.conviction:'—')+'</span></div>';
+    });
+    if (keys.length>5) h += '<div class="sline" style="border-bottom:none"><span class="sk" style="font-size:11px">+'+(keys.length-5)+' more in raw payload</span><span></span></div>';
+  }
+  el.innerHTML = h;
+}
+
+$("btnCopy").onclick = async () => {
+  if (!lastPayload) return;
+  const txt = JSON.stringify(lastPayload, null, 2);
+  try { await navigator.clipboard.writeText(txt); toast("Copied to clipboard"); }
+  catch(e){
+    const ta=document.createElement("textarea"); ta.value=txt; document.body.appendChild(ta);
+    ta.select(); document.execCommand("copy"); ta.remove(); toast("Copied");
+  }
+};
+
+$("btnDownload").onclick = () => {
+  if (!lastPayload) return;
+  const txt = JSON.stringify(lastPayload, null, 2);
+  const blob = new Blob([txt], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const ts = (lastPayload.timestamp_utc||new Date().toISOString()).replace(/[:.]/g,"-");
+  const a = document.createElement("a");
+  a.href = url; a.download = "nri-signal-"+(lastPayload._paid_tier||tier)+"-"+ts+".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url); toast("Downloaded");
 };
 
 $("btnReset").onclick = () => {
