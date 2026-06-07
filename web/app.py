@@ -16,6 +16,7 @@ from x402_paywall import serve_signal, PRICE_TIERS, NRI_AGENT_ID, NRI_PAY_TO, U_
 
 WEB = Path("/home/ubuntu/nri-web")
 DATA = WEB / "data" / "live.json"
+DATA_DIR = WEB / "data"
 STATIC = WEB / "static"
 
 app = FastAPI(title="Narrative Rotation Index", docs_url=None, redoc_url=None)
@@ -108,6 +109,84 @@ def api_live() -> JSONResponse:
 @app.get("/api/health", response_class=PlainTextResponse)
 def health() -> str:
     return "ok"
+
+
+# ─── Paper Trader (Track 1 simulator) ─────────────────────────────────────
+@app.get("/api/paper")
+def api_paper_state() -> JSONResponse:
+    """Current paper-trading state: bankroll, positions, PnL."""
+    state_path = DATA_DIR / "paper_state.json"
+    if not state_path.exists():
+        return JSONResponse({
+            "active": False,
+            "message": "Paper trader not yet initialized.",
+        })
+    try:
+        state = json.loads(state_path.read_text())
+    except Exception as e:
+        return JSONResponse({"active": False, "error": str(e)}, status_code=500)
+
+    positions = state.get("positions", {})
+    cash = state.get("cash_usd", 0)
+    realized = state.get("realized_pnl_usd", 0)
+
+    pos_list = []
+    unrealized = 0.0
+    pos_value = 0.0
+    for addr, p in positions.items():
+        v = p["qty"] * p["mark_price"]
+        u = p["qty"] * (p["mark_price"] - p["entry_price"])
+        pos_value += v
+        unrealized += u
+        pos_list.append({
+            "token": p["token"],
+            "address": p["address"],
+            "narrative": p["narrative"],
+            "qty": p["qty"],
+            "entry_price": p["entry_price"],
+            "mark_price": p["mark_price"],
+            "value_usd": v,
+            "pnl_usd": u,
+            "pnl_pct": (u / p["entry_usd"] * 100) if p["entry_usd"] else 0,
+            "opened_at": p.get("opened_at"),
+        })
+
+    total_value = cash + pos_value
+    initial = 1000.0
+    total_pnl = total_value - initial
+    pnl_pct = total_pnl / initial * 100
+
+    return JSONResponse({
+        "active": True,
+        "bankroll_initial_usd": initial,
+        "bankroll_current_usd": total_value,
+        "cash_usd": cash,
+        "position_value_usd": pos_value,
+        "realized_pnl_usd": realized,
+        "unrealized_pnl_usd": unrealized,
+        "total_pnl_usd": total_pnl,
+        "total_pnl_pct": pnl_pct,
+        "decision_count": state.get("decision_count", 0),
+        "last_decision_at": state.get("last_decision_at"),
+        "last_regime": state.get("last_regime"),
+        "positions": sorted(pos_list, key=lambda x: -x["value_usd"]),
+    })
+
+
+@app.get("/api/paper/ledger")
+def api_paper_ledger(limit: int = 50) -> JSONResponse:
+    """Recent paper-trading decisions."""
+    import csv as _csv
+    ledger_path = DATA_DIR / "paper_ledger.csv"
+    if not ledger_path.exists():
+        return JSONResponse({"rows": [], "total": 0})
+    with ledger_path.open() as f:
+        reader = _csv.DictReader(f)
+        rows = list(reader)
+    return JSONResponse({
+        "total": len(rows),
+        "rows": rows[-limit:][::-1],  # newest first
+    })
 
 
 # ─── x402-paywalled signal API (real on-chain payment gate) ───────────────
@@ -242,6 +321,22 @@ def index(request: Request) -> HTMLResponse:
     srr_target = srr.get("target") or {}
     defensive = (macro.get("defensive_rotation") or {}) if isinstance(macro, dict) else {}
 
+    # ─── v10.5: Paper Trader (Track 1 simulator) panel ──────
+    paper_state_path = DATA_DIR / "paper_state.json"
+    paper_data = None
+    paper_recent_trades = []
+    if paper_state_path.exists():
+        try:
+            paper_data = json.loads(paper_state_path.read_text())
+            ledger_path = DATA_DIR / "paper_ledger.csv"
+            if ledger_path.exists():
+                import csv as _csv
+                with ledger_path.open() as f:
+                    reader = _csv.DictReader(f)
+                    paper_recent_trades = list(reader)[-8:][::-1]
+        except Exception:
+            pass
+
     def verdict_color(v: str) -> str:
         return {
             "SAFE": "#0ECB81",
@@ -326,6 +421,129 @@ def index(request: Request) -> HTMLResponse:
   </div>
   <div class="dgroup-body">{''.join(items)}</div>
 </div>""")
+
+    # ─── v10.5: Paper Trader panel HTML ─────────────────────
+    paper_panel = ""
+    if paper_data:
+        cash = paper_data.get("cash_usd", 0)
+        positions = paper_data.get("positions", {})
+        realized = paper_data.get("realized_pnl_usd", 0)
+        decision_count = paper_data.get("decision_count", 0)
+        last_regime = paper_data.get("last_regime", "—")
+        last_at = paper_data.get("last_decision_at")
+        last_at_iso = (
+            __import__("datetime").datetime.fromtimestamp(last_at, tz=__import__("datetime").timezone.utc)
+            .strftime("%Y-%m-%d %H:%M UTC") if last_at else "—"
+        )
+        pos_value = sum(p["qty"] * p["mark_price"] for p in positions.values())
+        unrealized = sum(p["qty"] * (p["mark_price"] - p["entry_price"]) for p in positions.values())
+        total = cash + pos_value
+        total_pnl = total - 1000.0
+        pnl_pct = total_pnl / 1000.0 * 100
+        pnl_color = "#0ECB81" if total_pnl >= 0 else "#F6465D"
+
+        # Position rows
+        pos_rows_html = ""
+        if positions:
+            for addr, p in sorted(positions.items(), key=lambda kv: -(kv[1]["qty"] * kv[1]["mark_price"])):
+                pv = p["qty"] * p["mark_price"]
+                pl = p["qty"] * (p["mark_price"] - p["entry_price"])
+                plp = (pl / p["entry_usd"] * 100) if p["entry_usd"] else 0
+                pc = "#0ECB81" if pl >= 0 else "#F6465D"
+                pos_rows_html += f"""
+<tr>
+  <td class="nm"><a href="https://bscscan.com/token/{p['address']}" target="_blank" rel="noopener" style="color:#F0B90B">{p['token']}</a></td>
+  <td class="dim">{p['narrative']}</td>
+  <td class="num">${pv:.2f}</td>
+  <td class="num">${p['entry_price']:.6f}</td>
+  <td class="num">${p['mark_price']:.6f}</td>
+  <td class="num" style="color:{pc}">${pl:+.2f}</td>
+  <td class="num" style="color:{pc}">{plp:+.2f}%</td>
+</tr>"""
+        else:
+            pos_rows_html = '<tr><td colspan="7" class="dim" style="text-align:center;padding:24px">No open positions — RISK_OFF defensive (cash 100%)</td></tr>'
+
+        # Recent trades
+        trade_rows_html = ""
+        if paper_recent_trades:
+            for r in paper_recent_trades:
+                act = r.get("action", "")
+                ac_color = {"BUY": "#0ECB81", "SELL": "#F6465D", "SKIP": "#848E9C"}.get(act, "#F0B90B")
+                trade_rows_html += f"""
+<tr>
+  <td class="dim">{r.get('ts_iso','')[:16].replace('T',' ')}</td>
+  <td style="color:{ac_color};font-weight:600">{act}</td>
+  <td class="nm">{r.get('token','')}</td>
+  <td class="dim">{r.get('narrative','')}</td>
+  <td class="num">${float(r.get('value_usd', 0) or 0):.2f}</td>
+  <td class="dim">{r.get('reason','')}</td>
+</tr>"""
+        else:
+            trade_rows_html = '<tr><td colspan="6" class="dim" style="text-align:center;padding:24px">No trades yet — bot waiting for signal</td></tr>'
+
+        paper_panel = f"""
+  <!-- v10.5: Paper Trader -->
+  <div class="section-head">
+    <h2>Paper Trader <span style="color:#848E9C;font-weight:400;font-size:0.7em">Track 1 simulator</span></h2>
+    <span class="sub">Live NRI signals → simulated PancakeSwap trades · 0.5% fee · {decision_count} decisions · last: {last_at_iso} ({last_regime})</span>
+  </div>
+  <div class="paper-stats">
+    <div class="ps-card">
+      <div class="ps-l">Bankroll</div>
+      <div class="ps-v">${total:.2f}</div>
+      <div class="ps-d" style="color:{pnl_color}">{pnl_pct:+.2f}% · ${total_pnl:+.2f}</div>
+    </div>
+    <div class="ps-card">
+      <div class="ps-l">Cash</div>
+      <div class="ps-v">${cash:.2f}</div>
+      <div class="ps-d">{cash/total*100 if total else 0:.1f}% of book</div>
+    </div>
+    <div class="ps-card">
+      <div class="ps-l">Positions</div>
+      <div class="ps-v">${pos_value:.2f}</div>
+      <div class="ps-d">{len(positions)} open · unr ${unrealized:+.2f}</div>
+    </div>
+    <div class="ps-card">
+      <div class="ps-l">Realized PnL</div>
+      <div class="ps-v" style="color:{pnl_color}">${realized:+.2f}</div>
+      <div class="ps-d">closed trades only</div>
+    </div>
+  </div>
+  <div class="paper-grid">
+    <div class="paper-block">
+      <div class="paper-block-h">Open positions</div>
+      <table class="paper-table">
+        <thead>
+          <tr>
+            <th class="nm">Token</th>
+            <th class="dim">Narrative</th>
+            <th class="num">Value</th>
+            <th class="num">Entry</th>
+            <th class="num">Mark</th>
+            <th class="num">PnL</th>
+            <th class="num">PnL%</th>
+          </tr>
+        </thead>
+        <tbody>{pos_rows_html}</tbody>
+      </table>
+    </div>
+    <div class="paper-block">
+      <div class="paper-block-h">Recent decisions</div>
+      <table class="paper-table">
+        <thead>
+          <tr>
+            <th class="dim">Time UTC</th>
+            <th>Action</th>
+            <th class="nm">Token</th>
+            <th class="dim">Narrative</th>
+            <th class="num">Value</th>
+            <th class="dim">Reason</th>
+          </tr>
+        </thead>
+        <tbody>{trade_rows_html}</tbody>
+      </table>
+    </div>
+  </div>"""
 
     # Discovery overlays for SCORED narratives (BSC peers)
     peer_blocks = []
@@ -662,6 +880,27 @@ td.tk {{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mut
 .dt-m {{ font-family:'JetBrains Mono',monospace; color:var(--muted); font-size:11px; }}
 .dt-c {{ font-family:'JetBrains Mono',monospace; text-align:right; }}
 
+/* ─── v10.5: Paper Trader ─── */
+.paper-stats {{ display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin:12px 0; }}
+.ps-card {{ background:var(--panel); border:1px solid var(--border); border-radius:4px; padding:12px 14px; }}
+.ps-l {{ font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--dim); text-transform:uppercase; letter-spacing:1px; }}
+.ps-v {{ font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:600; color:var(--text); margin-top:4px; }}
+.ps-d {{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-top:2px; }}
+.paper-grid {{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }}
+.paper-block {{ background:var(--panel); border:1px solid var(--border); border-radius:4px; overflow-x:auto; }}
+.paper-block-h {{ font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--gold); text-transform:uppercase; letter-spacing:1px; padding:10px 14px; border-bottom:1px solid var(--border); background:rgba(240,185,11,0.04); }}
+.paper-table {{ width:100%; border-collapse:collapse; font-family:'JetBrains Mono',monospace; font-size:11px; }}
+.paper-table thead th {{ padding:6px 10px; text-align:left; font-weight:500; color:var(--dim); font-size:9px; letter-spacing:0.5px; text-transform:uppercase; border-bottom:1px solid var(--border); }}
+.paper-table thead th.num {{ text-align:right; }}
+.paper-table tbody td {{ padding:6px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }}
+.paper-table tbody td.num {{ text-align:right; }}
+.paper-table tbody td.dim {{ color:var(--muted); font-size:10px; }}
+.paper-table tbody tr:last-child td {{ border-bottom:none; }}
+@media (max-width:900px) {{
+  .paper-stats {{ grid-template-columns:repeat(2, 1fr); }}
+  .paper-grid {{ grid-template-columns:1fr; }}
+}}
+
 /* ─── Section heads ─── */
 .section-head {{ display:flex; justify-content:space-between; align-items:baseline; margin:24px 0 10px; padding-bottom:8px; border-bottom:1px solid var(--border); }}
 .section-head h2 {{ font-size:13px; margin:0; font-weight:600; letter-spacing:0.5px; }}
@@ -881,6 +1120,8 @@ footer a {{ color:var(--gold); }}
       </tbody>
     </table>
   </div>
+
+  {paper_panel}
 
   <!-- Discovery ─── unscored BSC narratives -->
   <div class="section-head">
