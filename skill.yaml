@@ -1,9 +1,11 @@
 name: narrative-rotation-index
-version: "8.1"
+version: "9.0"
 description: >
-  A CMC-native Narrative Rotation Index (NRI) skill with dynamic token discovery,
-  Kaito (SoFi) social intelligence, 5-bucket scoring, narrative exhaustion detection,
-  auto-execute toggle, and optional Trust Wallet execution payloads.
+  A CMC-native Narrative Rotation Index (NRI) skill with multichain narrative coverage
+  aligned to the BNB Hack 149-token whitelist. Dynamic token discovery, Kaito (SoFi)
+  social intelligence, 5-bucket scoring, narrative exhaustion detection, auto-execute
+  toggle, and optional Trust Wallet execution payloads. v9.0: 10 narratives, 48 curated
+  tokens with verified BSC contracts (Binance-Peg BEP-20 wrappers for ETH/SOL-native).
 author: ASBESTOS19
 tags:
   - narrative-rotation
@@ -14,13 +16,20 @@ tags:
   - bnbagent-sdk
   - trust-wallet-agent-kit
   - cmc-agent-hub
+  - multichain
+  - bnb-hack-eligible
 
 supported_narratives:
-  - AI Tokens    # FET, RENDER, TAO, AKT
-  - RWA          # ONDO, CFG, MPL, POLYX
-  - DePIN        # FIL, HNT, IOTX, RNDR
-  - Meme         # DOGE, PEPE, WIF, BONK
-  - Privacy      # ZEC, SCRT, ROSE, TORN
+  - AI Tokens    # FET, RENDER, TAO, AKT, NEAR, ICP
+  - AI Agents    # VIRTUAL, AI16Z, FARTCOIN, GRIFFAIN, ZEREBRO
+  - RWA          # ONDO, MKR, ENA, USUAL, PENDLE
+  - DePIN        # FIL, RNDR, IOTX, AKT, GRT, THETA
+  - Meme         # DOGE, SHIB, PEPE, WIF, BONK, FLOKI, PENGU
+  - Privacy      # ZEC, XMR, ROSE, DASH
+  - DeFi Blue    # AAVE, UNI, CAKE, COMP, CRV, SUSHI
+  - L1/L2        # ETH, SOL, AVAX, ATOM, DOT, NEAR
+  - Gaming/NFT   # AXS, SAND, MANA, GALA, IMX
+  - BNB Chain    # BNB, CAKE, BAKE, XVS, ALPACA
 
 scoring_model:
   description: >

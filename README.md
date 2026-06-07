@@ -1,14 +1,25 @@
 # Narrative Rotation Index (NRI)
 
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![chain](https://img.shields.io/badge/chain-BNB%20Chain%20(BSC)-F0B90B.svg)](https://www.bnbchain.org/)
+[![chain](https://img.shields.io/badge/chain-BNB%20Chain%20%2B%20Multichain-F0B90B.svg)](https://www.bnbchain.org/)
+[![version](https://img.shields.io/badge/version-9.0-F0B90B.svg)](https://github.com/asbestos22/narrative-rotation-index)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![mcp](https://img.shields.io/badge/MCP-compatible-purple.svg)](https://modelcontextprotocol.io/)
 [![tests](https://github.com/asbestos22/narrative-rotation-index/actions/workflows/tests.yml/badge.svg)](https://github.com/asbestos22/narrative-rotation-index/actions/workflows/tests.yml)
+[![live](https://img.shields.io/badge/live-nri.realdo.org-F0B90B.svg)](https://nri.realdo.org/)
 
 A CMC-native AI-agent skill that ranks crypto narratives by relative strength, liquidity expansion, attention velocity, and macro regime — then outputs backtestable portfolio weights with structured confidence explanations and optional BNB Chain (BSC) Trust Wallet execution payloads.
 
 Built for the **CMC AI Agent Hub** with native **BNBAgent SDK** and **Trust Wallet Agent Kit** integration. Exposed as an **MCP server** so any MCP-aware client can call it.
+
+**Live dashboard:** [nri.realdo.org](https://nri.realdo.org/)
+
+## v9.0 — Multichain Narrative Coverage
+
+- **10 narratives** (was 5): AI Tokens, AI Agents, RWA, DePIN, Meme, Privacy, DeFi Blue, L1/L2, Gaming/NFT, BNB Chain
+- **48 curated tokens** with verified BSC contracts (Binance-Peg BEP-20 wrappers for ETH/SOL-native names like SHIB, PENGU, BONK)
+- **149-token whitelist alignment** — every basket token is BNB Hack execution-eligible
+- **Discovery layer** — separate CMC category scan surfaces ~97 BSC peers across 9 narrative categories for breadth
 
 ## Demo
 
@@ -39,7 +50,7 @@ python live_demo.py
 
 ## What is NRI
 
-> A backtestable strategy skill that scans 5 crypto narratives, detects market regime, ranks by relative strength and liquidity expansion, penalizes crowded late-cycle moves, and outputs portfolio weights plus an optional BNB Chain (BSC) Trust Wallet execution payload.
+> A backtestable strategy skill that scans 10 crypto narratives, detects market regime, ranks by relative strength and liquidity expansion, penalizes crowded late-cycle moves, and outputs portfolio weights plus an optional BNB Chain (BSC) Trust Wallet execution payload.
 
 ## Narrative Exhaustion Detector — The Original Moat
 
