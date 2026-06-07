@@ -262,20 +262,39 @@ _redeemer_acct = None  # lazily-decrypted NRI signing account
 
 
 def _load_redeemer():
-    """Decrypt the NRI keystore once, using WALLET_PASSWORD from env."""
+    """Load the NRI signing account.
+
+    Two sources, in priority order:
+    1. NRI_PRIVATE_KEY (or WALLET_PASSWORD holding a raw 0x/64-hex key) — sign directly.
+    2. Encrypted keystore at NRI_KEYSTORE, decrypted with WALLET_PASSWORD.
+    """
     global _redeemer_acct
     if _redeemer_acct is not None:
         return _redeemer_acct
-    password = os.environ.get("WALLET_PASSWORD")
-    if not password:
-        raise RuntimeError("WALLET_PASSWORD not set — cannot decrypt NRI keystore")
-    with open(NRI_KEYSTORE) as f:
-        keyfile = json.load(f)
-    key = Account.decrypt(keyfile, password)
-    acct = Account.from_key(key)
+
+    secret = os.environ.get("NRI_PRIVATE_KEY") or os.environ.get("WALLET_PASSWORD")
+    if not secret:
+        raise RuntimeError("no NRI_PRIVATE_KEY / WALLET_PASSWORD set — cannot sign redemptions")
+    secret = secret.strip()
+
+    acct = None
+    # Try: raw private key (64 hex chars, optional 0x prefix)
+    _candidate = secret if secret.startswith("0x") else "0x" + secret
+    if len(_candidate) == 66:
+        try:
+            acct = Account.from_key(_candidate)
+        except Exception:
+            acct = None
+    # Fallback: treat secret as a keystore password
+    if acct is None:
+        with open(NRI_KEYSTORE) as f:
+            keyfile = json.load(f)
+        key = Account.decrypt(keyfile, secret)
+        acct = Account.from_key(key)
+
     if acct.address.lower() != NRI_PAY_TO.lower():
         raise RuntimeError(
-            f"keystore address {acct.address} != NRI_PAY_TO {NRI_PAY_TO}"
+            f"redeemer address {acct.address} != NRI_PAY_TO {NRI_PAY_TO}"
         )
     _redeemer_acct = acct
     return acct
